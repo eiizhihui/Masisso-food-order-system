@@ -1,0 +1,45 @@
+<div class="product-detail-page">
+    
+    <div class="hero-image-container">
+        <button class="close-round-btn" onclick="window.history.back()">✕</button>
+        <img src="your-food-image.jpg" alt="Food Item" class="full-width-img">
+    </div>
+
+    <div class="product-text-content">
+        <h1 class="product-headline">PIZZA FOLD - BANANA KAYA BLITZ (SWEET)</h1>
+        <p class="price-display">From RM <span id="base-price">14.90</span>*</p>
+        
+        <p class="product-description">
+            Savor the harmony as Banana Kaya meets Kaya, creating a timeless symphony that tickles your taste buds.
+        </p>
+
+        <hr class="faded-divider">
+
+        <div class="accordion-section" onclick="toggleAccordion()">
+            <div class="accordion-header">
+                <span class="accordion-title">Nutritional & Allergens</span>
+                <span id="accordion-icon" class="accordion-icon">⌄</span>
+            </div>
+            <div id="accordion-content" class="accordion-content hidden">
+                <p>Contains wheat, dairy, and traces of nuts. 450 kcal per serving.</p>
+            </div>
+        </div>
+        
+        <hr class="faded-divider">
+    </div>
+
+    <div style="height: 100px;"></div>
+
+    <div class="sticky-action-bar">
+        <div class="quantity-pill">
+            <button class="qty-control-btn" onclick="updateQuantity(-1)">−</button>
+            <span id="display-quantity" class="qty-number">1</span>
+            <button class="qty-control-btn" onclick="updateQuantity(1)">+</button>
+        </div>
+        
+        <button class="add-order-btn" onclick="submitOrder()">
+            Add To Order • RM <span id="display-total">14.90</span>
+        </button>
+    </div>
+
+</div>

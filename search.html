@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Menu - Masisso</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="app-header" style="background-color: #e65100; padding: 15px 20px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button onclick="window.location.href='index.html'" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">←</button>
+            <div style="color: white; font-weight: bold; font-size: 20px;">Search Menu</div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+            <input type="text" id="searchInput" onkeyup="executeSearch()" placeholder="Search for Laksa, drinks, rojak..." style="flex-grow: 1; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 16px;">
+            <!--button onclick="executeSearch()" style="background-color: #e65100; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Search</button-->
+        </div>
+
+        <h2 class="section-title">Results</h2>
+        
+        <div id="search-results-container">
+            <p style="color: #888; text-align: center;">Type something above to start searching!</p>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

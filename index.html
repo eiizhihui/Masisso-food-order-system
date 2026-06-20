@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masisso - Authentic Sarawak Laksa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color: #e65100; padding-bottom: 15px; margin: 0;">
+    <div class="top-brand-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+        <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0;">Massisso</div>
+        <div class="header-actions">
+            <button onclick="window.location.href='search.html'" style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 0;">🔍</button>
+        </div>
+    </div>
+
+    <div class="location-row" style="padding: 0 20px;">
+        <div class="toggle-container">
+            <button id="btn-delivery" class="toggle-option active">Delivery</button>
+            <button id="btn-pickup" class="toggle-option">Pickup</button>
+        </div>
+    </div>
+</header>
+
+    <main class="main-content">
+        <h2 id="greeting" class="slide-in-text"></h2>
+
+        <div class="menu-container" id="popular-menu-container">
+            <p style="color: #888; text-align: center;">Loading menu from database...</p>
+        </div>
+
+        <div style="height:100px;"></div>
+
+    </main>
+
+
+<div id="customize-modal" class="modal" style="z-index: 9999;">
+    <span class="close-btn" onclick="closeModal()" style="position: absolute; top: 15px; right: 20px; font-size: 35px; color: white; z-index: 1002; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">&times;</span>
+
+    <div class="product-page-container" style="display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; background: white; position: relative; width: 90%; max-width: 500px; margin: 5vh auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <div style="overflow-y: auto; flex-grow: 1; padding-bottom: 100px;">
+            <div class="product-hero">
+                <div class="image-placeholder">🍜 Masisso Signature Laksa</div>
+            </div>
+
+            <div class="product-details">
+                <div class="badge-row">
+                    <span class="badge-promo">Limited Time Offer</span>
+                    <span class="badge-popular">⭐ Best Seller</span>
+                </div>
+                
+                <h1 class="product-title" id="modal-item-name">Massiso Signature Laksa</h1>
+                <p class="product-desc">Authentic thin rice vermicelli topped with shredded chicken breast, fresh shrimp, and golden omelette strips in our rich, spicy broth.</p>
+                <div class="product-price">Base Price: RM <span id="modal-base-price">14.90</span></div>
+
+                <hr class="divider">
+
+                <div class="custom-options customization-section">
+                    <h3>Choose Your Combo</h3>
+                    <p class="section-subtitle">Select one option</p>
+                    
+                    <label class="custom-radio-card">
+                        <input type="radio" name="combo" value="0" checked onchange="calculateModalPrice()">
+                        <div class="card-content">
+                            <span class="option-name">A La Carte (Just the Laksa)</span>
+                            <span class="option-price">+ RM 0.00</span>
+                        </div>
+                    </label>
+
+                    <label class="custom-radio-card">
+                        <input type="radio" name="combo" value="4.50" onchange="calculateModalPrice()">
+                        <div class="card-content">
+                            <span class="option-name">Laksa + Teh C Beng Special (三色奶茶)</span>
+                            <span class="option-price">+ RM 4.50</span>
+                        </div>
+                    </label>
+
+                    <label class="custom-radio-card">
+                        <input type="radio" name="combo" id="add-rojak" value="3.00" onchange="calculateModalPrice()">
+                        <div class="card-content">
+                            <span class="option-name">Laksa + Fruit Rojak</span>
+                            <span class="option-price">+ RM 3.00</span>
+                        </div>
+                    </label>
+
+                    <h3 class="margin-top">Preferences</h3>
+                    <label class="custom-checkbox"><input type="checkbox" id="no-coriander"> No Coriander</label>
+                    <label class="custom-checkbox"><input type="checkbox" id="no-shrimp-sauce"> No Shrimp Sauce</label>
+                    <label class="custom-checkbox"><input type="checkbox" id="extra-sambal"> Extra Sambal</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="sticky-action-bar" style="background: white; padding: 15px; display: flex; gap: 15px; border-top: 1px solid #eee; align-items: center; flex-shrink: 0;">
+            <div class="quantity-pill" style="display: flex; align-items: center; justify-content: space-between; background-color: #f4f4f4; border-radius: 25px; padding: 0 10px; width: 110px; height: 50px;">
+                <button class="qty-control-btn" onclick="updateQuantity(-1)" style="background: none; border: none; font-size: 24px; color: #777; cursor: pointer; padding: 0 10px;">−</button>
+                <span id="display-quantity" class="qty-number" style="font-weight: bold; font-size: 18px; color: #000;">1</span>
+                <button class="qty-control-btn" onclick="updateQuantity(1)" style="background: none; border: none; font-size: 24px; color: #000; cursor: pointer; padding: 0 10px;">+</button>
+            </div>
+            
+            <button class="add-order-btn" onclick="confirmAddToCart()" style="flex: 1; background-color: #e65100; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; height: 50px; transition: opacity 0.2s;">
+                Add To Order • RM <span id="display-total">14.90</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+    <div id="switch-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-icon">⚠️</div>
+            <h3 id="modal-title">Switch to Pickup?</h3>
+            <p id="modal-desc">Some items in your cart may not be available for Pickup. Do you want to switch from Delivery to Pickup?</p>
+            <p class="modal-note"><strong>Note:</strong> Switching may remove those items that aren't supported for the selected method.</p>
+            <div class="modal-actions">
+                <button id="btn-cancel-switch" class="btn-cancel">Cancel</button>
+                <button id="btn-confirm-switch" class="btn-confirm">Switch to Pickup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item-bottom active">
+            <i>🏠</i>
+            <span>Home</span>
+        </a>
+        <a href="offers.html" class="nav-item-bottom">
+            <i>🏷️</i>
+            <span>Offers</span>
+        </a>
+        <a href="cart.html" class="nav-item-bottom" style="color: var(--primary-orange); transform: translateY(-10px);">
+            <div style="background: var(--primary-orange); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 8px rgba(230,81,0,0.4);">
+                🛒
+            </div>
+        </a>
+        <a href="rewards.html" class="nav-item-bottom">
+            <i>👑</i>
+            <span>Rewards</span>
+        </a>
+        <a href="profile.html" class="nav-item-bottom">
+            <i>👤</i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <div id="floating-cart" class="floating-cart hidden" onclick="window.location.href='checkout.html'">
+        <div class="cart-img-circle">
+            <img src="laksa-thumbnail.jpg" alt="item" style="width: 100%; border-radius: 50%;">
+        </div>
+        <div class="cart-text">
+            <div style="font-weight: bold; font-size: 18px;">Checkout</div>
+            <div style="font-size: 14px; opacity: 0.9;">1 item</div>
+        </div>
+        <div class="cart-arrow">&gt;</div>
+    </div>
+
+</body>
+</html>
