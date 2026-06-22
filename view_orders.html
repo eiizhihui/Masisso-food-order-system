@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Massiso Staff - View Orders</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .select-status {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            font-weight: bold;
+            color: var(--text-dark);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="staff_dashboard.html" class="add-btn" style="text-decoration: none;">← Dashboard</a>
+        <h1 style="margin: 0; font-size: 20px; color: var(--text-dark);">Active Kitchen Queue</h1>
+    </div>
+
+    <div class="main-content" style="max-width: 800px; margin: 0 auto;">
+        <h2 class="section-title">Incoming Preparation Stream</h2>
+
+        <div class="menu-card" style="align-items: flex-start; flex-direction: column; gap: 15px;">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                <span class="badge-promo" style="background-color: var(--text-dark);">Order ID: #1024</span>
+                <span class="badge-popular">Pending</span>
+            </div>
+            
+            <div class="menu-info" style="padding: 0;">
+                <h3 class="menu-title" style="font-size: 18px; margin-bottom: 8px;">2x Classic Sarawak Laksa</h3>
+                <p class="menu-desc" style="color: #d84315; font-weight: bold;">💡 Customization: Extra Sambal</p>
+            </div>
+
+            <div class="faded-divider" style="width: 100%; margin: 5px 0;"></div>
+
+            <div style="width: 100%;">
+                <form action="update_order_status.php" method="POST" style="display: flex; width: 100%; gap: 10px; align-items: center;">
+                    <input type="hidden" name="order_id" value="1024">
+                    <label style="font-size: 14px; font-weight: bold; color: var(--text-dark);">Update Step:</label>
+                    <select name="status" class="select-status" style="flex-grow: 1;">
+                        <option value="Pending" selected>Pending</option>
+                        <option value="Preparing">Preparing</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <button type="submit" class="add-btn" style="padding: 6px 20px;">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
