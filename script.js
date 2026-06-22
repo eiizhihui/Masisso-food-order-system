@@ -10,7 +10,7 @@ window.onload = function() {
 // load the menu from the database 
 document.addEventListener('DOMContentLoaded', () => {
     
-    fetch('fetch_menu.php')
+    fetch('fetch_menu.php?nocache=' + new Date().getTime())
         .then(response => response.json())
         .then(data => {
             const menuContainer = document.getElementById('popular-menu-container');
@@ -39,14 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Print every food item
                 menuByCategory[category].forEach(item => {
+                    
+                    // Safety check: if no image is in the database, use a blank/default one
+                    let imgFile = item.image_url ? item.image_url : 'default.jpg';
+
                     menuContainer.innerHTML += `
                         <div class="menu-card">
+                            
+                            <img src="images/${imgFile}" alt="${item.name}" class="menu-image">
+
                             <div class="menu-info">
                                 <h3 class="menu-title">${item.name}</h3>
                                 <p class="menu-price">RM ${parseFloat(item.price).toFixed(2)}</p>
                                 <p class="menu-desc">${item.description}</p>
                             </div>
-                            <button class="add-btn" onclick="openCustomization('${item.name}', ${parseFloat(item.price)})">+ Add</button>
+                            
+                            <button class="add-btn" onclick="openCustomization('${item.name}', ${parseFloat(item.price)}, '${imgFile}')">+ Add</button>
                         </div>
                     `;
                 });
@@ -74,26 +82,36 @@ let currentQuantity = 1; // Unified variable for quantity
 let cartCount = 0;
 let cartTotal = 0.00;
 
-function openCustomization(itemName, itemPrice) {
+// Add a new variable at the top to track the image
+let currentItemImage = "";
+
+function openCustomization(itemName, itemPrice, itemImage) { // <-- Added itemImage parameter here
     currentItem = itemName;
     currentPrice = itemPrice;
-    currentQuantity = 1; // Reset quantity to 1 every time they open a new item
+    currentItemImage = itemImage; 
+    currentQuantity = 1; 
 
     // 1. Update the text at the top of the modal
     document.getElementById("modal-item-name").innerText = itemName;
     document.getElementById("modal-base-price").innerText = currentPrice.toFixed(2);
 
-    // 2. THE FIX: Update the sticky button at the bottom immediately!
+    // 2. THE MAGIC: Update the image at the top of the modal dynamically!
+    let modalImage = document.querySelector('.product-hero img');
+    if (modalImage) {
+        modalImage.src = 'images/' + itemImage;
+    }
+
+    // 3. Update the sticky button at the bottom immediately
     document.getElementById("display-total").innerText = currentPrice.toFixed(2);
     document.getElementById("display-quantity").innerText = currentQuantity;
 
-    // 3. Reset all checkboxes and radio buttons to default
+    // 4. Reset all checkboxes and radio buttons to default
     document.getElementById("no-coriander").checked = false;
     document.getElementById("no-shrimp-sauce").checked = false;
     document.getElementById("extra-sambal").checked = false;
     document.querySelector('input[name="combo"][value="0"]').checked = true;
 
-    // 4. Show the modal
+    // 5. Show the modal
     document.getElementById("customize-modal").style.display = "block";
 }
 
@@ -129,24 +147,29 @@ function calculateModalPrice() {
 
 // Function when they actually click Add to Order
 function confirmAddToCart() {
-    // Calculate the final price
+    // Calculate the final price of the item they just customized
     let comboElement = document.querySelector('input[name="combo"]:checked');
     let comboPrice = comboElement ? parseFloat(comboElement.value) : 0;
     let finalPrice = (currentPrice + comboPrice) * currentQuantity;
     
-    // Update Cart numbers
+    // Update Cart numbers (This accumulates EVERY time you click Add!)
     cartCount += currentQuantity;
     cartTotal += finalPrice;
     
-    // Show the floating cart button and update the item count
+    // Show the floating cart button and update the text
     let floatingCart = document.getElementById('floating-cart');
     if (floatingCart) {
         floatingCart.classList.remove('hidden');
         let cartTextDiv = document.querySelector('.cart-text div:nth-child(2)');
         if (cartTextDiv) {
-            cartTextDiv.innerText = cartCount + (cartCount === 1 ? ' item' : ' items');
+            // Display the accumulated Grand Total on the floating button
+            cartTextDiv.innerText = cartCount + (cartCount === 1 ? ' item' : ' items') + ' • RM ' + cartTotal.toFixed(2);
         }
     }
+
+    // Save the grand total to the browser's memory so it doesn't get lost when you switch to your cart.html page!
+    localStorage.setItem('masisso_cart_total', cartTotal.toFixed(2));
+    localStorage.setItem('masisso_cart_count', cartCount);
 
     // Close the modal
     closeModal();
@@ -229,7 +252,6 @@ function toggleAccordion() {
 }
 
 // SEARCH FEATURE 
-// SEARCH FEATURE (Live Search Upgrade)
 function executeSearch() {
     const inputElement = document.getElementById('searchInput');
     if (!inputElement) return; 
@@ -257,14 +279,21 @@ function executeSearch() {
             }
 
             data.forEach(item => {
+                // Grab the image just like the main menu
+                let imgFile = item.image_url ? item.image_url : 'default.jpg';
+
                 resultsContainer.innerHTML += `
                     <div class="menu-card">
+                        
+                        <img src="images/${imgFile}" alt="${item.name}" class="menu-image">
+
                         <div class="menu-info">
                             <h3 class="menu-title">${item.name}</h3>
                             <p class="menu-price">RM ${parseFloat(item.price).toFixed(2)}</p>
                             <p class="menu-desc">${item.description}</p>
                         </div>
-                        <button class="add-btn" onclick="openCustomization('${item.name}', ${parseFloat(item.price)})">+ Add</button>
+                        
+                        <button class="add-btn" onclick="openCustomization('${item.name}', ${parseFloat(item.price)}, '${imgFile}')">+ Add</button>
                     </div>
                 `;
             });

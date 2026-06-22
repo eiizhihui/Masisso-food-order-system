@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Massisso</title>
+    <title>Checkout - Masisso</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="background-color: #f9f9f9; font-family: Arial, sans-serif; margin: 0;">
 
     <div style="background-color: white; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
         <button onclick="window.history.back()" style="background: none; border: none; font-size: 20px; cursor: pointer;">←</button>
-        <div style="font-weight: bold; font-size: 18px;">Massisso</div>
+        <div style="font-weight: bold; font-size: 18px;">Masisso</div>
     </div>
 
     <div style="padding: 15px;">
         <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 10px; font-size: 16px;">Add a Voucher Code</h3>
             <div style="display: flex; gap: 10px;">
-                <input type="text" placeholder="Enter Voucher Code" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                <button style="background-color: #0078d7; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">Apply</button>
+                <input type="text" id="voucher-input" placeholder="Enter Voucher Code" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <button onclick="applyVoucher()" style="background-color: #0078d7; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply</button>
             </div>
         </div>
 
@@ -27,29 +27,127 @@
             
             <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
                 <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                    <span>Massisso Signature Laksa</span>
-                    <span>RM 14.90</span>
+                    <span>Your Selected Items</span>
                 </div>
-                <div style="color: #666; font-size: 13px; margin-top: 5px;">- No Coriander</div>
+                <div style="color: #666; font-size: 13px; margin-top: 5px;">(Cart items loaded from menu)</div>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span style="font-weight: bold;">Subtotal</span>
-                <span style="font-weight: bold;">RM 14.90</span>
+                <span style="font-weight: bold;">RM <span id="chk-subtotal">0.00</span></span>
             </div>
+            
+            <div id="discount-row" style="display: none; justify-content: space-between; color: #e65100; margin-bottom: 8px; font-size: 14px; font-weight: bold;">
+                <span>Discount (15OFF)</span>
+                <span>- RM <span id="chk-discount">0.00</span></span>
+            </div>
+
             <div style="display: flex; justify-content: space-between; color: #666; margin-bottom: 8px; font-size: 14px;">
                 <span>6% Tax</span>
-                <span>RM 0.89</span>
+                <span>RM <span id="chk-tax">0.00</span></span>
             </div>
             <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-top: 15px;">
                 <span>Total</span>
-                <span>RM 15.79</span>
+                <span>RM <span id="chk-total">0.00</span></span>
             </div>
 
             <button style="width: 100%; background-color: #8b0000; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;">
-                1 item | RM 15.79 &nbsp;&nbsp; Finish Order
+                <span id="chk-btn-text">0 items | RM 0.00</span> &nbsp;&nbsp; Finish Order
             </button>
         </div>
     </div>
+
+    <script>
+        let currentSubtotal = 0;
+        let currentItemCount = 0;
+        let isVoucherApplied = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let savedTotal = localStorage.getItem('masisso_cart_total');
+            let savedCount = localStorage.getItem('masisso_cart_count');
+
+            if (savedTotal && savedCount) {
+                currentSubtotal = parseFloat(savedTotal);
+                currentItemCount = parseInt(savedCount);
+                calculateFinalTotal(0); // Run initial math with 0 discount
+            }
+        });
+
+        // Function that handles all the math
+        function calculateFinalTotal(discountAmount) {
+            let discountedSubtotal = currentSubtotal - discountAmount;
+            let tax = discountedSubtotal * 0.06; // 6% tax on the new cheaper price
+            let finalTotal = discountedSubtotal + tax;
+
+            document.getElementById('chk-subtotal').innerText = currentSubtotal.toFixed(2);
+            document.getElementById('chk-tax').innerText = tax.toFixed(2);
+            document.getElementById('chk-total').innerText = finalTotal.toFixed(2);
+
+            let itemWord = currentItemCount === 1 ? 'item' : 'items';
+            document.getElementById('chk-btn-text').innerText = `${currentItemCount} ${itemWord} | RM ${finalTotal.toFixed(2)}`;
+        }
+
+        // Function that runs when they click the "Apply" button
+        // Function that runs when they click the "Apply" button
+        async function applyVoucher() {
+            if (isVoucherApplied) {
+                alert("You have already applied a voucher to this order!");
+                return;
+            }
+
+            // Grab whatever they typed
+            let typedCode = document.getElementById('voucher-input').value.trim().toUpperCase();
+
+            if (typedCode === "") {
+                alert("Please enter a voucher code first.");
+                return;
+            }
+
+            try {
+                // ✨ THE MAGIC: Ask the database if this code is real!
+                let response = await fetch(`verify_voucher.php?code=${encodeURIComponent(typedCode)}`);
+                let data = await response.json();
+
+                if (data.success) {
+                    let offer = data.offer;
+                    let discountAmount = 0;
+
+                    // Calculate the discount dynamically based on the database!
+                    if (offer.discount_type === 'percentage') {
+                        // If DB says percentage, calculate it (e.g., 15 / 100 * subtotal)
+                        discountAmount = currentSubtotal * (parseFloat(offer.discount_value) / 100);
+                    } else if (offer.discount_type === 'fixed') {
+                        // If DB says fixed, just subtract the flat amount (e.g., RM 5.00)
+                        discountAmount = parseFloat(offer.discount_value);
+                    }
+
+                    // Safety check: Don't let the discount be larger than the subtotal
+                    if (discountAmount > currentSubtotal) {
+                        discountAmount = currentSubtotal;
+                    }
+
+                    isVoucherApplied = true;
+
+                    // Show the hidden discount row in orange and update the label
+                    document.getElementById('discount-row').style.display = 'flex';
+                    // Automatically changes the label to whatever code they used (e.g., "Discount (15OFF)")
+                    document.getElementById('discount-row').querySelector('span').innerText = `Discount (${offer.code})`;
+                    document.getElementById('chk-discount').innerText = discountAmount.toFixed(2);
+
+                    // Run the math again with the new discount!
+                    calculateFinalTotal(discountAmount);
+                    
+                    // Show them the description written in the database!
+                    alert("Success! " + offer.description);
+                } else {
+                    // Database said the code was wrong or expired
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Error verifying voucher:", error);
+                alert("Error checking the database. Make sure XAMPP is running!");
+            }
+        }
+    </script>
 </body>
 </html>
