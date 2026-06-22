@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 20, 2026 at 06:48 AM
+-- Generation Time: Jun 22, 2026 at 12:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,20 +32,21 @@ CREATE TABLE `menu_items` (
   `name` varchar(100) NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `description` text DEFAULT NULL,
-  `category` varchar(50) DEFAULT NULL
+  `category` varchar(50) DEFAULT NULL,
+  `image_url` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `menu_items`
 --
 
-INSERT INTO `menu_items` (`item_id`, `name`, `price`, `description`, `category`) VALUES
-(1, 'Masisso Signature Laksa', 14.90, 'Authentic thin rice vermicelli with chicken, shrimp, and omelette.', 'A La Carte'),
-(2, 'Laksa Sarawak Super Pedas', 16.90, 'Extra spicy authentic Sarawak Laksa.', 'A La Carte'),
-(3, 'Laksa + Teh C Beng Special', 19.40, 'Signature Laksa paired with 3-layer tea.', 'Combo'),
-(4, 'Laksa + Fruit Rojak', 17.90, 'Signature Laksa paired with fresh fruit rojak.', 'Combo'),
-(5, 'Teh C Beng Special', 4.50, 'Authentic Sarawak 3-layer tea with palm sugar.', 'Drinks'),
-(6, 'Fruit Rojak', 6.90, 'Fresh cut fruits with crushed peanuts and shrimp paste.', 'Sides');
+INSERT INTO `menu_items` (`item_id`, `name`, `price`, `description`, `category`, `image_url`) VALUES
+(1, 'Masisso Signature Laksa', 14.90, 'Authentic thin rice vermicelli with chicken, shrimp, and omelette.', 'A La Carte', 'laksa.jpg'),
+(2, 'Laksa Sarawak Super Pedas', 16.90, 'Extra spicy authentic Sarawak Laksa.', 'A La Carte', 'laksa.jpg'),
+(3, 'Laksa + Teh C Beng Special', 19.40, 'Signature Laksa paired with 3-layer tea.', 'Combo', 'combo_A.jpg'),
+(4, 'Laksa + Fruit Rojak', 17.90, 'Signature Laksa paired with fresh fruit rojak.', 'Combo', 'combo_B.jpg'),
+(5, 'Teh C Beng Special', 4.50, 'Authentic Sarawak 3-layer tea with palm sugar.', 'Drinks', 'TehCBengSpecial.jpg'),
+(6, 'Fruit Rojak', 6.90, 'Fresh cut fruits with crushed peanuts and shrimp paste.', 'Sides', 'rojak.jpg');
 
 -- --------------------------------------------------------
 
@@ -60,16 +61,17 @@ CREATE TABLE `offers` (
   `description` text NOT NULL,
   `discount_type` varchar(20) NOT NULL,
   `discount_value` decimal(10,2) NOT NULL,
-  `min_spend` decimal(10,2) DEFAULT 0.00
+  `min_spend` decimal(10,2) DEFAULT 0.00,
+  `valid_until` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `offers`
 --
 
-INSERT INTO `offers` (`offer_id`, `code`, `title`, `description`, `discount_type`, `discount_value`, `min_spend`) VALUES
-(1, 'MINUS5', '🎫 RM 5 OFF', 'Min. spend RM 50. Valid for all items.', 'fixed', 5.00, 50.00),
-(2, '15OFF', '🎫 15% OFF', 'Valid for all items. No minimum spend.', 'percentage', 15.00, 0.00);
+INSERT INTO `offers` (`offer_id`, `code`, `title`, `description`, `discount_type`, `discount_value`, `min_spend`, `valid_until`) VALUES
+(1, 'MINUS5', '🎫 RM 5 OFF', 'Min. spend RM 50. Valid for all items.', 'fixed', 5.00, 50.00, '2027-01-01'),
+(2, '15OFF', '🎫 15% OFF', 'Valid for all items. No minimum spend.', 'percentage', 15.00, 0.00, '2027-01-01');
 
 -- --------------------------------------------------------
 
