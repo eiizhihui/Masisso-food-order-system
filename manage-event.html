@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Offers</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .main-content { margin: 0 auto !important; }
+        .header {
+            background-color: var(--primary-orange);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        .add-new-btn {
+            background: white;
+            color: var(--primary-orange);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 5px solid #FF9800;
+        }
+
+        .offer-info h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .offer-info p {
+            margin: 3px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .offer-code {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .offer-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        .offer-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .edit-btn { color: #2196F3; }
+        .delete-btn { color: #f44336; }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="admin-dashboard.html" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <h2>Manage Events / Offers</h2>
+        </div>
+        <button class="add-new-btn" onclick="openOfferModal()"><i class="fas fa-plus"></i> Add</button>
+    </div>
+
+    <div class="main-content">
+        <div class="nav-search" style="margin-bottom: 20px;">
+            <input type="text" id="search-input" placeholder="Search events/offers..." oninput="searchOffers(this.value)" style="width:100%; padding: 10px;">
+        </div>
+        <div class="list-container" id="offer-list">
+            <!-- Offer items injected by JS -->
+        </div>
+    </div>
+
+    <!-- Offer Modal -->
+    <div id="offerModal" class="modal">
+        <div class="modal-box" style="margin-top: 50px; max-height: 80vh; overflow-y: auto;">
+            <span class="close-btn" onclick="closeModal('offerModal')">&times;</span>
+            <h3 id="modal-title" style="margin-top:0;">Add Offer</h3>
+            <div class="form-group">
+                <label>Code</label>
+                <input type="text" id="offer-code" placeholder="e.g. MINUS5">
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="offer-title" placeholder="e.g. 🎫 RM 5 OFF">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="offer-desc" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Discount Type</label>
+                <select id="offer-type">
+                    <option value="fixed">Fixed (RM)</option>
+                    <option value="percentage">Percentage (%)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Discount Value</label>
+                <input type="number" id="offer-value" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Min Spend (RM)</label>
+                <input type="number" id="offer-min" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Valid Until</label>
+                <input type="date" id="offer-valid">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('offerModal')">Cancel</button>
+                <button class="btn-confirm" onclick="saveOffer()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="admin-dashboard.html" class="nav-item-bottom">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="manage-user.html" class="nav-item-bottom">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+        </a>
+        <a href="manage-order.html" class="nav-item-bottom">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Orders</span>
+        </a>
+        <a href="manage-menu.html" class="nav-item-bottom">
+            <i class="fas fa-utensils"></i>
+            <span>Menu</span>
+        </a>
+        <a href="manage-event.html" class="nav-item-bottom active">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Events</span>
+        </a>
+        <a href="manage-reward.html" class="nav-item-bottom">
+            <i class="fas fa-gift"></i>
+            <span>Rewards</span>
+        </a>
+    </div>
+
+    <script src="admin.js"></script>
+
+</body>
+</html>
