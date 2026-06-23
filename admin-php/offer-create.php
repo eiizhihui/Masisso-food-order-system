@@ -1,16 +1,16 @@
 <?php
-require_once 'db_connect.php';
+require_once("config.php");
 $data = getPostData();
 if(!$data) { echo json_encode(["success"=>false]); exit; }
 $sql = "INSERT INTO offers (code, title, description, discount_type, discount_value, min_spend, valid_until) VALUES (";
-$sql .= "'" . $conn->real_escape_string($data['code']) . "', ";
-$sql .= "'" . $conn->real_escape_string($data['title']) . "', ";
-$sql .= "'" . $conn->real_escape_string($data['description']) . "', ";
-$sql .= "'" . $conn->real_escape_string($data['discount_type']) . "', ";
-$sql .= "'" . $conn->real_escape_string($data['discount_value']) . "', ";
-$sql .= "'" . $conn->real_escape_string($data['min_spend']) . "', ";
-$sql .= "'" . $conn->real_escape_string($data['valid_until']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['code']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['title']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['description']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['discount_type']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['discount_value']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['min_spend']) . "', ";
+$sql .= "'" . mysqli_real_escape_string($conn, $data['valid_until']) . "', ";
 $sql = rtrim($sql, ", ") . ")";
-if($conn->query($sql)) echo json_encode(["success"=>true, "id"=>$conn->insert_id]);
-else echo json_encode(["success"=>false, "error"=>$conn->error]);
+if(mysqli_query($conn, $sql)) echo json_encode(["success"=>true, "id"=>mysqli_insert_id($conn)]);
+else echo json_encode(["success"=>false, "error"=>mysqli_error($conn)]);
 ?>

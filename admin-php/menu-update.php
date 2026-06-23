@@ -1,15 +1,15 @@
 <?php
-require_once 'db_connect.php';
+require_once("config.php");
 $data = getPostData();
 if(!$data || !isset($data['item_id'])) { echo json_encode(["success"=>false]); exit; }
-$id = $conn->real_escape_string($data['item_id']);
+$id = mysqli_real_escape_string($conn, $data['item_id']);
 $sql = "UPDATE menu_items SET ";
-if(isset($data['name'])) $sql .= "name='" . $conn->real_escape_string($data['name']) . "', ";
-if(isset($data['price'])) $sql .= "price='" . $conn->real_escape_string($data['price']) . "', ";
-if(isset($data['description'])) $sql .= "description='" . $conn->real_escape_string($data['description']) . "', ";
-if(isset($data['category'])) $sql .= "category='" . $conn->real_escape_string($data['category']) . "', ";
-if(isset($data['image_url'])) $sql .= "image_url='" . $conn->real_escape_string($data['image_url']) . "', ";
+if(isset($data['name'])) $sql .= "name='" . mysqli_real_escape_string($conn, $data['name']) . "', ";
+if(isset($data['price'])) $sql .= "price='" . mysqli_real_escape_string($conn, $data['price']) . "', ";
+if(isset($data['description'])) $sql .= "description='" . mysqli_real_escape_string($conn, $data['description']) . "', ";
+if(isset($data['category'])) $sql .= "category='" . mysqli_real_escape_string($conn, $data['category']) . "', ";
+if(isset($data['image_url'])) $sql .= "image_url='" . mysqli_real_escape_string($conn, $data['image_url']) . "', ";
 $sql = rtrim($sql, ", ") . " WHERE item_id='$id'";
-if($conn->query($sql)) echo json_encode(["success"=>true]);
-else echo json_encode(["success"=>false, "error"=>$conn->error]);
+if(mysqli_query($conn, $sql)) echo json_encode(["success"=>true]);
+else echo json_encode(["success"=>false, "error"=>mysqli_error($conn)]);
 ?>

@@ -1,9 +1,9 @@
 <?php
-require_once 'db_connect.php';
-$q = isset($_GET['q']) ? $conn->real_escape_string($_GET['q']) : '';
+require_once("config.php");
+$q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 $sql = "SELECT * FROM menu_items WHERE name LIKE '%$q%' OR description LIKE '%$q%' OR category LIKE '%$q%'";
-$result = $conn->query($sql);
+$result = mysqli_query($conn, $sql);
 $data = [];
-if($result) while($row = $result->fetch_assoc()) $data[] = $row;
+if($result) while($row = mysqli_fetch_assoc($result)) $data[] = $row;
 echo json_encode($data);
 ?>

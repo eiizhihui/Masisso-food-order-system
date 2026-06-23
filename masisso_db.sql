@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 22, 2026 at 12:03 PM
+-- Generation Time: Jun 23, 2026 at 07:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,66 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `customer`
+--
+
+CREATE TABLE `customer` (
+  `user_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `points` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`user_id`, `name`, `email`, `phone`, `address`, `password`, `points`) VALUES
+(1111, 'Joey', 'joeybaobei@gmail.com', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', '1223334444', 1000);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `staff`
+--
+
+CREATE TABLE `staff` (
+  `staff_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `gender` enum('Male', 'Female', 'Other') NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
+  `password` varchar(255) NOT NULL,
+  `branch` enum('Masisso JB City Square', 'Masisso Mount Austin', 'Masisso Paradigm Mall') NOT NULL,
+  `position` enum('staff', 'admin', 'super admin') NOT NULL,
+  PRIMARY KEY (`staff_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `staff`
+--
+
+INSERT INTO `staff` (`staff_id`, `name`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
+-- 1 Super Admin (Joey starting exactly at ID 2000)
+(2000, 'Shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', '1234567890', 'Masisso JB City Square', 'super admin'),
+
+-- 2 Admins
+(2001, 'Choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'adminPass123', 'Masisso Mount Austin', 'admin'),
+(2002, 'Ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', 'adminPass456', 'Masisso Paradigm Mall', 'admin'),
+
+-- 6 Staff members balanced across your operational branches
+(2003, 'Jin Xuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', 'staffPass1', 'Masisso JB City Square', 'staff'),
+(2004, 'Alvin Tan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', 'staffPass2', 'Masisso JB City Square', 'staff'),
+(2005, 'Siti Aminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', 'staffPass3', 'Masisso Mount Austin', 'staff'),
+(2006, 'Kumar Rao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', 'staffPass4', 'Masisso Mount Austin', 'staff'),
+(2007, 'Chloe Wong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', 'staffPass5', 'Masisso Paradigm Mall', 'staff'),
+(2008, 'Muhammad Faiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', 'staffPass6', 'Masisso Paradigm Mall', 'staff');
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `menu_items`
 --
 
@@ -33,20 +93,22 @@ CREATE TABLE `menu_items` (
   `price` decimal(10,2) NOT NULL,
   `description` text DEFAULT NULL,
   `category` varchar(50) DEFAULT NULL,
-  `image_url` varchar(255) NOT NULL
+  `image_url` varchar(255) NOT NULL,
+  `preferences` text DEFAULT NULL,
+  `is_available` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `menu_items`
 --
 
-INSERT INTO `menu_items` (`item_id`, `name`, `price`, `description`, `category`, `image_url`) VALUES
-(1, 'Masisso Signature Laksa', 14.90, 'Authentic thin rice vermicelli with chicken, shrimp, and omelette.', 'A La Carte', 'laksa.jpg'),
-(2, 'Laksa Sarawak Super Pedas', 16.90, 'Extra spicy authentic Sarawak Laksa.', 'A La Carte', 'laksa.jpg'),
-(3, 'Laksa + Teh C Beng Special', 19.40, 'Signature Laksa paired with 3-layer tea.', 'Combo', 'combo_A.jpg'),
-(4, 'Laksa + Fruit Rojak', 17.90, 'Signature Laksa paired with fresh fruit rojak.', 'Combo', 'combo_B.jpg'),
-(5, 'Teh C Beng Special', 4.50, 'Authentic Sarawak 3-layer tea with palm sugar.', 'Drinks', 'TehCBengSpecial.jpg'),
-(6, 'Fruit Rojak', 6.90, 'Fresh cut fruits with crushed peanuts and shrimp paste.', 'Sides', 'rojak.jpg');
+INSERT INTO `menu_items` (`item_id`, `name`, `price`, `description`, `category`, `image_url`, `preferences`, `is_available`) VALUES
+(1, 'Masisso Signature Laksa', 14.90, 'Authentic thin rice vermicelli with chicken, shrimp, and omelette.', 'A La Carte', 'laksa.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"]}', 1),
+(2, 'Laksa Sarawak Super Pedas', 16.90, 'Extra spicy authentic Sarawak Laksa.', 'A La Carte', 'laksa.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"]}', 0),
+(3, 'Laksa + Teh C Beng Special', 19.40, 'Signature Laksa paired with 3-layer tea.', 'Combo', 'combo_A.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"], \"Teh C Beng Special\": [\"Less Ice\", \"Less Sugar\"]}', 1),
+(4, 'Laksa + Fruit Rojak', 17.90, 'Signature Laksa paired with fresh fruit rojak.', 'Combo', 'combo_B.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"], \"Fruit Rojak\": [\"No Spicy\", \"More Spicy\"]}', 1),
+(5, 'Teh C Beng Special', 4.50, 'Authentic Sarawak 3-layer tea with palm sugar.', 'Drinks', 'TehCBengSpecial.jpg', '{\"Teh C Beng Special\": [\"Less Ice\", \"Less Sugar\"]}', 1),
+(6, 'Fruit Rojak', 6.90, 'Fresh cut fruits with crushed peanuts and shrimp paste.', 'Sides', 'rojak.jpg', '{\"Fruit Rojak\": [\"No Spicy\", \"More Spicy\"]}', 1);
 
 -- --------------------------------------------------------
 
@@ -91,20 +153,34 @@ CREATE TABLE `orders` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Table structure for table `rewards`
 --
 
-CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` varchar(20) DEFAULT 'Customer'
+CREATE TABLE `rewards` (
+  `id` int(11) NOT NULL,
+  `reward_name` varchar(100) NOT NULL,
+  `points_required` int(11) NOT NULL,
+  `image_url` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `rewards`
+--
+
+INSERT INTO `rewards` (`id`, `reward_name`, `points_required`, `image_url`) VALUES
+(1, 'Teh C Beng Special', 500, 'TehCBengSpecial.jpg'),
+(2, 'Fruit Rojak', 800, 'rojak.jpg');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `customer`
+--
+ALTER TABLE `customer`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `menu_items`
@@ -127,15 +203,20 @@ ALTER TABLE `orders`
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `customer`
+--
+ALTER TABLE `customer`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1112;
+
+--
+-- AUTO_INCREMENT for table `staff`
+--
+ALTER TABLE `staff`
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2000;
 
 --
 -- AUTO_INCREMENT for table `menu_items`
@@ -156,12 +237,6 @@ ALTER TABLE `orders`
   MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- Constraints for dumped tables
 --
 
@@ -169,7 +244,7 @@ ALTER TABLE `users`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `customer` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

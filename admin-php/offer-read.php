@@ -1,7 +1,7 @@
 <?php
-require_once 'db_connect.php';
-$result = $conn->query("SELECT * FROM offers");
+require_once("config.php");
+$result = mysqli_query($conn, "SELECT * FROM offers");
 $data = [];
-while($row = $result->fetch_assoc()) $data[] = $row;
+while($row = mysqli_fetch_assoc($result)) $data[] = $row;
 echo json_encode($data);
 ?>

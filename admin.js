@@ -4,6 +4,14 @@ let currentEditingId = null; // Used for user editing
 let editingMenuId = null;
 let editingOfferId = null;
 let editingRewardId = null;
+let currentTab = 'Customer'; // Used for user toggle tabs
+
+function switchUserTab(tabName) {
+    currentTab = tabName;
+    document.querySelectorAll('.toggle-option').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabName === 'Customer' ? 'tab-customer' : 'tab-staff').classList.add('active');
+    loadUsers();
+}
 
 // Global Helpers
 async function fetchApi(url, method = 'GET', data = null) {
@@ -16,7 +24,7 @@ async function fetchApi(url, method = 'GET', data = null) {
     if (data) {
         options.body = JSON.stringify(data);
     }
-    
+
     try {
         const response = await fetch(url, options);
         return await response.json();
@@ -36,6 +44,16 @@ function closeModal(modalId) {
     if (modal) modal.style.display = 'none';
 }
 
+function showAddForm() {
+    document.getElementById('list-section').style.display = 'none';
+    document.getElementById('add-section').style.display = 'block';
+}
+
+function hideAddForm() {
+    document.getElementById('list-section').style.display = 'block';
+    document.getElementById('add-section').style.display = 'none';
+}
+
 // ==========================================
 // 1. DASHBOARD FEATURE
 // ==========================================
@@ -47,7 +65,13 @@ async function loadDashboard() {
     users.forEach(u => usersDict[u.user_id] = u.name);
 
     document.getElementById('total-orders').innerText = orders.filter(o => o.order_status === 'Pending').length;
+    
+    const numCustomers = users.filter(u => u.role === 'Customer').length;
+    const numStaff = users.length - numCustomers;
     document.getElementById('total-users').innerText = users.length;
+    if (document.getElementById('user-breakdown')) {
+        document.getElementById('user-breakdown').innerText = `Customers: ${numCustomers} | Staff: ${numStaff}`;
+    }
 
     // Render Recent Orders (newest 3)
     const recentOrders = [...orders].reverse().slice(0, 3);
@@ -58,14 +82,14 @@ async function loadDashboard() {
             const card = document.createElement('div');
             card.className = 'list-card order';
             card.innerHTML = `
-                <div class="list-actions">
-                    ${order.order_status === 'Pending' ? `<button class="complete-btn" aria-label="Complete" title="Mark Completed" onclick="completeOrderDash(${order.order_id})"><i class="fas fa-check-circle"></i></button>` : `<button class="complete-btn" style="color:#ccc; cursor:not-allowed;" disabled><i class="fas fa-check-circle"></i></button>`}
-                    <button class="delete-btn" aria-label="Delete" title="Delete" onclick="deleteOrderDash(${order.order_id})"><i class="fas fa-trash"></i></button>
-                </div>
                 <div class="list-info">
                     <span class="badge ${order.order_status === 'Pending' ? 'pending' : ''}" style="${order.order_status === 'Completed' ? 'background:#4CAF50' : ''}">${order.order_status}</span>
                     <h4>Order #${order.order_id} - ${usersDict[order.user_id] || 'Unknown'}</h4>
                     <p>Total: RM ${parseFloat(order.total_price).toFixed(2)} | Date: ${order.order_date}</p>
+                </div>
+                <div class="list-actions">
+                    ${order.order_status === 'Pending' ? `<button class="complete-btn" aria-label="Complete" title="Mark Completed" onclick="completeOrderDash(${order.order_id})"><i class="fas fa-check-circle"></i></button>` : `<button class="complete-btn" style="color:#ccc; cursor:not-allowed;" disabled><i class="fas fa-check-circle"></i></button>`}
+                    <button class="delete-btn" aria-label="Delete" title="Delete" onclick="deleteOrderDash(${order.order_id})"><i class="fas fa-trash"></i></button>
                 </div>
             `;
             ordersList.appendChild(card);
@@ -81,14 +105,14 @@ async function loadDashboard() {
             const card = document.createElement('div');
             card.className = 'list-card event';
             card.innerHTML = `
-                <div class="list-actions">
-                    <button class="edit-btn" aria-label="Edit" title="Edit" onclick="location.href='manage-event.html'"><i class="fas fa-edit"></i></button>
-                    <button class="delete-btn" aria-label="Delete" title="Delete" onclick="deleteEventDash(${offer.offer_id})"><i class="fas fa-trash"></i></button>
-                </div>
                 <div class="list-info">
                     <span class="badge pending">${offer.code}</span>
                     <h4>${offer.title}</h4>
                     <p>${offer.description}</p>
+                </div>
+                <div class="list-actions">
+                    <button class="edit-btn" aria-label="Edit" title="Edit" onclick="location.href='manage-event.html?editId=${offer.offer_id}'"><i class="fas fa-edit"></i></button>
+                    <button class="delete-btn" aria-label="Delete" title="Delete" onclick="deleteEventDash(${offer.offer_id})"><i class="fas fa-trash"></i></button>
                 </div>
             `;
             eventsList.appendChild(card);
@@ -100,8 +124,8 @@ async function globalSearch(query) {
     const resultsDiv = document.getElementById('search-results');
     const dashDiv = document.getElementById('dashboard-content');
     const list = document.getElementById('search-list');
-    
-    if(!query) {
+
+    if (!query) {
         if (resultsDiv) resultsDiv.style.display = 'none';
         if (dashDiv) dashDiv.style.display = 'block';
         return;
@@ -114,7 +138,7 @@ async function globalSearch(query) {
     const results = await fetchApi('admin-php/global_search.php?q=' + encodeURIComponent(query));
     if (list) {
         list.innerHTML = '';
-        if(!results || results.length === 0) {
+        if (!results || results.length === 0) {
             list.innerHTML = '<p>No results found.</p>';
             return;
         }
@@ -123,15 +147,15 @@ async function globalSearch(query) {
             const card = document.createElement('div');
             card.className = 'list-card';
             card.style.borderRightColor = '#9C27B0';
-            
+
             let title = '';
             let desc = '';
             let link = '';
 
-            if(item.type === 'user') { title = `User: ${item.name}`; desc = item.email; link = 'manage-user.html'; }
-            if(item.type === 'menu') { title = `Menu: ${item.name}`; desc = `RM ${item.price} - ${item.category}`; link = 'manage-menu.html'; }
-            if(item.type === 'offer') { title = `Offer: ${item.title}`; desc = item.code; link = 'manage-event.html'; }
-            if(item.type === 'reward') { title = `Reward: ${item.title}`; desc = `${item.bowls_required} Bowls`; link = 'manage-reward.html'; }
+            if (item.type === 'user') { title = `User: ${item.name}`; desc = item.email; link = 'manage-user.html'; }
+            if (item.type === 'menu') { title = `Menu: ${item.name}`; desc = `RM ${item.price} - ${item.category}`; link = 'manage-menu.html'; }
+            if (item.type === 'offer') { title = `Offer: ${item.title}`; desc = item.code; link = 'manage-event.html'; }
+            if (item.type === 'reward') { title = `Reward: ${item.title}`; desc = `${item.bowls_required} Bowls`; link = 'manage-reward.html'; }
 
             card.innerHTML = `
                 <div class="list-info">
@@ -149,20 +173,20 @@ async function globalSearch(query) {
 
 async function completeOrderDash(id) {
     const res = await fetchApi('admin-php/order-update.php', 'POST', { order_id: id, order_status: 'Completed' });
-    if(res && res.success) loadDashboard();
+    if (res && res.success) loadDashboard();
 }
 
 async function deleteOrderDash(id) {
     if (confirm('Delete this order?')) {
         const res = await fetchApi('admin-php/order-delete.php', 'POST', { order_id: id });
-        if(res && res.success) loadDashboard();
+        if (res && res.success) loadDashboard();
     }
 }
 
 async function deleteEventDash(id) {
     if (confirm('Delete this event?')) {
         const res = await fetchApi('admin-php/offer-delete.php', 'POST', { offer_id: id });
-        if(res && res.success) loadDashboard();
+        if (res && res.success) loadDashboard();
     }
 }
 
@@ -176,7 +200,7 @@ async function loadUsers() {
 }
 
 async function searchUsers(query) {
-    if(!query) {
+    if (!query) {
         loadUsers();
         return;
     }
@@ -188,56 +212,116 @@ function renderUsers(users) {
     const list = document.getElementById('user-list');
     if (!list) return;
     list.innerHTML = '';
-    if(!users || users.length === 0) {
-        list.innerHTML = '<p>No users found.</p>';
+    
+    let filteredUsers = [];
+    if (users && users.length > 0) {
+        filteredUsers = users.filter(user => {
+            if (currentTab === 'Customer') return user.role === 'Customer';
+            return user.role !== 'Customer';
+        });
+    }
+
+    if (filteredUsers.length === 0) {
+        list.innerHTML = `<p>No ${currentTab}s found.</p>`;
         return;
     }
-    users.forEach(user => {
+    
+    filteredUsers.forEach(user => {
+        const isSuperAdmin = user.role === 'super admin';
+        const infoHtml = currentTab === 'Customer' ? `🍜 Bowls: ${user.bowls}` : `ID: ${user.user_id}`;
+        
         const card = document.createElement('div');
         card.className = 'list-card';
         card.innerHTML = `
             <div class="list-info">
                 <h4>${user.name} (${user.role})</h4>
                 <p>${user.email}</p>
-                <p style="color:var(--primary-orange); font-weight:bold; margin-top:5px;">🍜 Bowls: ${user.bowls}</p>
+                <p style="color:var(--primary-orange); font-weight:bold; margin-top:5px;">${infoHtml}</p>
             </div>
             <div class="list-actions">
+                ${!isSuperAdmin ? `
                 <button class="edit-btn" aria-label="Edit" onclick='editUser(${JSON.stringify(user).replace(/'/g, "&apos;")})'><i class="fas fa-edit"></i></button>
-                <button class="delete-btn" aria-label="Delete" onclick="deleteUser(${user.user_id})"><i class="fas fa-trash"></i></button>
+                <button class="delete-btn" aria-label="Delete" onclick="deleteUser(${user.user_id}, '${user.role}')"><i class="fas fa-trash"></i></button>
+                ` : '<span style="color:#aaa; font-size:12px;">Protected</span>'}
             </div>
         `;
         list.appendChild(card);
     });
 }
 
+function toggleUserFormFields() {
+    const role = document.getElementById('edit-role').value;
+    if (role === 'Customer') {
+        document.getElementById('group-bowls').style.display = 'block';
+        document.getElementById('group-address').style.display = 'block';
+        document.getElementById('group-gender').style.display = 'none';
+        document.getElementById('group-branch').style.display = 'none';
+    } else {
+        document.getElementById('group-bowls').style.display = 'none';
+        document.getElementById('group-address').style.display = 'none';
+        document.getElementById('group-gender').style.display = 'block';
+        document.getElementById('group-branch').style.display = 'block';
+    }
+}
+
 function openUserModal() {
     currentEditingId = null;
-    document.getElementById('modal-title').innerText = 'Add User';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Create User Profile';
+    document.getElementById('submit-btn').innerText = 'Save User Entry';
     document.getElementById('edit-name').value = '';
     document.getElementById('edit-email').value = '';
     document.getElementById('edit-role').value = 'Customer';
+    toggleUserFormFields();
+    document.getElementById('edit-phone').value = '';
+    document.getElementById('edit-password').value = '';
     document.getElementById('edit-bowls').value = '0';
-    openModal('editModal');
+    document.getElementById('edit-address').value = '';
+    document.getElementById('edit-gender').value = 'Female';
+    document.getElementById('edit-branch').value = 'Masisso JB City Square';
 }
 
 function editUser(user) {
     currentEditingId = user.user_id;
-    document.getElementById('modal-title').innerText = 'Edit User';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Edit User Profile';
+    document.getElementById('submit-btn').innerText = 'Save Changes';
     document.getElementById('edit-name').value = user.name;
     document.getElementById('edit-email').value = user.email;
     document.getElementById('edit-role').value = user.role;
-    document.getElementById('edit-bowls').value = user.bowls;
-    openModal('editModal');
+    toggleUserFormFields();
+    document.getElementById('edit-phone').value = user.phone || '';
+    document.getElementById('edit-password').value = '';
+    
+    if (user.role === 'Customer') {
+        document.getElementById('edit-bowls').value = user.bowls || 0;
+        document.getElementById('edit-address').value = user.address || '';
+    } else {
+        document.getElementById('edit-gender').value = user.gender || 'Female';
+        document.getElementById('edit-branch').value = user.branch || 'Masisso JB City Square';
+    }
 }
 
 async function saveUser() {
+    const role = document.getElementById('edit-role').value;
     const data = {
         name: document.getElementById('edit-name').value,
         email: document.getElementById('edit-email').value,
-        role: document.getElementById('edit-role').value,
-        bowls: parseInt(document.getElementById('edit-bowls').value) || 0
+        role: role,
+        phone: document.getElementById('edit-phone').value,
     };
     
+    const pw = document.getElementById('edit-password').value;
+    if (pw) data.password = pw;
+
+    if (role === 'Customer') {
+        data.bowls = parseInt(document.getElementById('edit-bowls').value) || 0;
+        data.address = document.getElementById('edit-address').value;
+    } else {
+        data.gender = document.getElementById('edit-gender').value;
+        data.branch = document.getElementById('edit-branch').value;
+    }
+
     if (!data.name || !data.email) return alert("Name and Email are required");
 
     let url = 'admin-php/user-create.php';
@@ -245,23 +329,23 @@ async function saveUser() {
         data.user_id = currentEditingId;
         url = 'admin-php/user-update.php';
     }
-    
+
     const res = await fetchApi(url, 'POST', data);
-    if(res && res.success) {
-        closeModal('editModal');
+    if (res && res.success) {
+        hideAddForm();
         loadUsers();
     } else {
         alert('Error saving user: ' + (res ? res.error : 'unknown error'));
     }
 }
 
-async function deleteUser(id) {
+async function deleteUser(id, role) {
     if (confirm('Are you sure you want to delete this user?')) {
-        const res = await fetchApi('admin-php/user-delete.php', 'POST', { user_id: id });
-        if(res && res.success) {
+        const res = await fetchApi('admin-php/user-delete.php', 'POST', { user_id: id, role: role });
+        if (res && res.success) {
             loadUsers();
         } else {
-            alert('Error deleting user');
+            alert('Error deleting user: ' + (res ? res.error : 'unknown error'));
         }
     }
 }
@@ -272,7 +356,7 @@ async function deleteUser(id) {
 // ==========================================
 async function loadOrdersData() {
     const users = await fetchApi('admin-php/user-read.php');
-    if(users) {
+    if (users) {
         users.forEach(u => usersDict[u.user_id] = u.name);
     }
     loadOrders();
@@ -284,7 +368,7 @@ async function loadOrders() {
 }
 
 async function searchOrders(query) {
-    if(!query) {
+    if (!query) {
         loadOrders();
         return;
     }
@@ -300,8 +384,8 @@ function renderOrders(orders) {
     const list = document.getElementById('order-list');
     if (!list) return;
     list.innerHTML = '';
-    
-    if(!orders || orders.length === 0) {
+
+    if (!orders || orders.length === 0) {
         list.innerHTML = '<p>No orders found.</p>';
         return;
     }
@@ -339,7 +423,7 @@ function renderOrders(orders) {
 
 async function completeOrder(id) {
     const res = await fetchApi('admin-php/order-update.php', 'POST', { order_id: id, order_status: 'Completed' });
-    if(res && res.success) {
+    if (res && res.success) {
         loadOrders();
     } else {
         alert('Error updating order');
@@ -349,7 +433,7 @@ async function completeOrder(id) {
 async function deleteOrder(id) {
     if (confirm('Are you sure you want to delete this order?')) {
         const res = await fetchApi('admin-php/order-delete.php', 'POST', { order_id: id });
-        if(res && res.success) {
+        if (res && res.success) {
             loadOrders();
         } else {
             alert('Error deleting order');
@@ -367,7 +451,7 @@ async function loadMenu() {
 }
 
 async function searchMenu(query) {
-    if(!query) {
+    if (!query) {
         loadMenu();
         return;
     }
@@ -379,8 +463,8 @@ function renderMenu(menuItems) {
     const list = document.getElementById('menu-list');
     if (!list) return;
     list.innerHTML = '';
-    
-    if(!menuItems || menuItems.length === 0) {
+
+    if (!menuItems || menuItems.length === 0) {
         list.innerHTML = '<p>No menu items found.</p>';
         return;
     }
@@ -408,24 +492,26 @@ function renderMenu(menuItems) {
 
 function openMenuModal() {
     editingMenuId = null;
-    document.getElementById('modal-title').innerText = 'Add Menu Item';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Add Menu Item';
+    document.getElementById('submit-btn').innerText = 'Save Menu Item';
     document.getElementById('menu-name').value = '';
     document.getElementById('menu-category').value = 'A La Carte';
     document.getElementById('menu-price').value = '';
     document.getElementById('menu-desc').value = '';
     document.getElementById('menu-image').value = '';
-    openModal('menuModal');
 }
 
 function editMenu(item) {
     editingMenuId = item.item_id;
-    document.getElementById('modal-title').innerText = 'Edit Menu Item';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Edit Menu Item';
+    document.getElementById('submit-btn').innerText = 'Save Changes';
     document.getElementById('menu-name').value = item.name;
     document.getElementById('menu-category').value = item.category;
     document.getElementById('menu-price').value = item.price;
     document.getElementById('menu-desc').value = item.description;
     document.getElementById('menu-image').value = item.image_url;
-    openModal('menuModal');
 }
 
 async function saveMenu() {
@@ -446,8 +532,8 @@ async function saveMenu() {
     }
 
     const res = await fetchApi(url, 'POST', data);
-    if(res && res.success) {
-        closeModal('menuModal');
+    if (res && res.success) {
+        hideAddForm();
         loadMenu();
     } else {
         alert('Error saving menu item');
@@ -457,7 +543,7 @@ async function saveMenu() {
 async function deleteMenu(id) {
     if (confirm('Are you sure you want to delete this menu item?')) {
         const res = await fetchApi('admin-php/menu-delete.php', 'POST', { item_id: id });
-        if(res && res.success) {
+        if (res && res.success) {
             loadMenu();
         } else {
             alert('Error deleting menu item');
@@ -475,7 +561,7 @@ async function loadOffers() {
 }
 
 async function searchOffers(query) {
-    if(!query) {
+    if (!query) {
         loadOffers();
         return;
     }
@@ -487,8 +573,8 @@ function renderOffers(offers) {
     const list = document.getElementById('offer-list');
     if (!list) return;
     list.innerHTML = '';
-    
-    if(!offers || offers.length === 0) {
+
+    if (!offers || offers.length === 0) {
         list.innerHTML = '<p>No offers found.</p>';
         return;
     }
@@ -497,7 +583,7 @@ function renderOffers(offers) {
         const card = document.createElement('div');
         card.className = 'offer-card';
         const discountText = offer.discount_type === 'fixed' ? `RM ${parseFloat(offer.discount_value).toFixed(2)}` : `${offer.discount_value}%`;
-        
+
         card.innerHTML = `
             <div class="offer-info">
                 <div class="offer-code">${offer.code}</div>
@@ -517,7 +603,9 @@ function renderOffers(offers) {
 
 function openOfferModal() {
     editingOfferId = null;
-    document.getElementById('modal-title').innerText = 'Add Offer';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Create Offer';
+    document.getElementById('submit-btn').innerText = 'Save Offer Entry';
     document.getElementById('offer-code').value = '';
     document.getElementById('offer-title').value = '';
     document.getElementById('offer-desc').value = '';
@@ -525,12 +613,13 @@ function openOfferModal() {
     document.getElementById('offer-value').value = '';
     document.getElementById('offer-min').value = '0';
     document.getElementById('offer-valid').value = '';
-    openModal('offerModal');
 }
 
 function editOffer(offer) {
     editingOfferId = offer.offer_id;
-    document.getElementById('modal-title').innerText = 'Edit Offer';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Edit Offer';
+    document.getElementById('submit-btn').innerText = 'Save Changes';
     document.getElementById('offer-code').value = offer.code;
     document.getElementById('offer-title').value = offer.title;
     document.getElementById('offer-desc').value = offer.description;
@@ -538,7 +627,6 @@ function editOffer(offer) {
     document.getElementById('offer-value').value = offer.discount_value;
     document.getElementById('offer-min').value = offer.min_spend;
     document.getElementById('offer-valid').value = offer.valid_until;
-    openModal('offerModal');
 }
 
 async function saveOffer() {
@@ -561,8 +649,8 @@ async function saveOffer() {
     }
 
     const res = await fetchApi(url, 'POST', data);
-    if(res && res.success) {
-        closeModal('offerModal');
+    if (res && res.success) {
+        hideAddForm();
         loadOffers();
     } else {
         alert('Error saving offer');
@@ -572,7 +660,7 @@ async function saveOffer() {
 async function deleteOffer(id) {
     if (confirm('Are you sure you want to delete this offer?')) {
         const res = await fetchApi('admin-php/offer-delete.php', 'POST', { offer_id: id });
-        if(res && res.success) {
+        if (res && res.success) {
             loadOffers();
         } else {
             alert('Error deleting offer');
@@ -590,7 +678,7 @@ async function loadRewards() {
 }
 
 async function searchRewards(query) {
-    if(!query) {
+    if (!query) {
         loadRewards();
         return;
     }
@@ -602,8 +690,8 @@ function renderRewards(rewards) {
     const list = document.getElementById('reward-list');
     if (!list) return;
     list.innerHTML = '';
-    
-    if(!rewards || rewards.length === 0) {
+
+    if (!rewards || rewards.length === 0) {
         list.innerHTML = '<p>No rewards found.</p>';
         return;
     }
@@ -630,20 +718,22 @@ function renderRewards(rewards) {
 
 function openRewardModal() {
     editingRewardId = null;
-    document.getElementById('modal-title').innerText = 'Add Reward';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Create Reward';
+    document.getElementById('submit-btn').innerText = 'Save Reward Entry';
     document.getElementById('reward-title').value = '';
     document.getElementById('reward-bowls').value = '';
     document.getElementById('reward-image').value = '';
-    openModal('rewardModal');
 }
 
 function editReward(reward) {
     editingRewardId = reward.reward_id;
-    document.getElementById('modal-title').innerText = 'Edit Reward';
+    showAddForm();
+    document.getElementById('form-title').innerText = 'Edit Reward';
+    document.getElementById('submit-btn').innerText = 'Save Changes';
     document.getElementById('reward-title').value = reward.title;
     document.getElementById('reward-bowls').value = reward.bowls_required;
     document.getElementById('reward-image').value = reward.image_url;
-    openModal('rewardModal');
 }
 
 async function saveReward() {
@@ -662,8 +752,8 @@ async function saveReward() {
     }
 
     const res = await fetchApi(url, 'POST', data);
-    if(res && res.success) {
-        closeModal('rewardModal');
+    if (res && res.success) {
+        hideAddForm();
         loadRewards();
     } else {
         alert('Error saving reward');
@@ -673,7 +763,7 @@ async function saveReward() {
 async function deleteReward(id) {
     if (confirm('Are you sure you want to delete this reward?')) {
         const res = await fetchApi('admin-php/reward-delete.php', 'POST', { reward_id: id });
-        if(res && res.success) {
+        if (res && res.success) {
             loadRewards();
         } else {
             alert('Error deleting reward');
@@ -697,6 +787,17 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMenu();
     } else if (path.includes('manage-event.html')) {
         loadOffers();
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('editId');
+        if (editId) {
+            setTimeout(async () => {
+                const offers = await fetchApi('admin-php/offer-read.php');
+                if (offers) {
+                    const offer = offers.find(o => o.offer_id == editId);
+                    if (offer) editOffer(offer);
+                }
+            }, 300);
+        }
     } else if (path.includes('manage-reward.html')) {
         loadRewards();
     }
