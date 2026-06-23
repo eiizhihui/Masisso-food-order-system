@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 22, 2026 at 12:03 PM
+-- Generation Time: Jun 23, 2026 at 03:38 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -91,6 +91,27 @@ CREATE TABLE `orders` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `rewards`
+--
+
+CREATE TABLE `rewards` (
+  `id` int(11) NOT NULL,
+  `reward_name` varchar(100) NOT NULL,
+  `points_required` int(11) NOT NULL,
+  `image_url` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `rewards`
+--
+
+INSERT INTO `rewards` (`id`, `reward_name`, `points_required`, `image_url`) VALUES
+(1, 'Teh C Beng Special', 500, 'TehCBengSpecial.jpg'),
+(2, 'Fruit Rojak', 800, 'rojak.jpg');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -98,9 +119,19 @@ CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
   `password` varchar(255) NOT NULL,
-  `role` varchar(20) DEFAULT 'Customer'
+  `role` varchar(20) DEFAULT 'Customer',
+  `points` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `name`, `email`, `phone`, `address`, `password`, `role`, `points`) VALUES
+(1111, 'Joey', 'joeybaobei@gmail.com', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', '1223334444', 'Customer', 1000);
 
 --
 -- Indexes for dumped tables
@@ -159,7 +190,7 @@ ALTER TABLE `orders`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1112;
 
 --
 -- Constraints for dumped tables

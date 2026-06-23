@@ -2,10 +2,8 @@
 //R-read : read database to display the food
 include 'db_connect.php';
 
-// Write the SQL command to get all the food items
-$sql = "SELECT item_id, name, price, description, category FROM Menu_Items";
+$sql = "SELECT * FROM Menu_Items";
 
-// Ask the database to run the command
 $result = $conn->query($sql);
 
 $menu_items = array(); // Create an empty array to hold our food
