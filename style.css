@@ -52,9 +52,16 @@ html, body {
     transition: 0.3s;
 }
 
-.nav-item-bottom i {
-    font-size: 20px;
+.nav-item-bottom svg {
+    width: 24px;
+    height: 24px;
     margin-bottom: 5px;
+    stroke: #888;
+    transition: 0.3s;
+}
+
+.nav-item-bottom.active svg, .nav-item-bottom:hover svg {
+    stroke: var(--primary-orange);
 }
 
 .nav-item-bottom.active, .nav-item-bottom:hover {
@@ -134,7 +141,7 @@ html, body {
 .main-content { 
     padding: 20px; 
     max-width: 800px; 
-    margin: 0; 
+    margin: 0 auto; 
     box-sizing: border-box;
     padding-bottom: 100px;
 }
@@ -608,10 +615,8 @@ html, body {
 }
 
 .sticky-action-bar {
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    left: 0;
-    width: 100%;
     background: white;
     padding: 15px 20px;
     box-sizing: border-box;
@@ -687,4 +692,228 @@ html, body {
 
 .margin-top {
     margin-top: 25px !important;
+}
+
+/* ============================================
+   DELIVERY / PICKUP ORDER MODALS
+   ============================================ */
+
+.order-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.order-modal-card {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 460px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Header row */
+.order-modal-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+}
+
+.order-modal-back {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #333;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    margin-right: 10px;
+}
+
+.order-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+    flex: 1;
+    text-align: center;
+    margin-right: 34px; /* balance the back button width */
+}
+
+/* Map section */
+.order-modal-map {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+    background: #cde9f0;
+}
+
+.map-blur-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(135deg, #b3dde8 0%, #9ecfdf 30%, #aadce6 50%, #82c4d8 70%, #a0d4e0 100%);
+    filter: blur(3px);
+    transform: scale(1.05);
+}
+
+/* Overlay pattern to simulate map roads */
+.map-blur-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(255,255,255,0.25) 38px, rgba(255,255,255,0.25) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 58px, rgba(255,255,255,0.2) 58px, rgba(255,255,255,0.2) 60px);
+}
+
+/* Search bar + address card floating on the map */
+.order-modal-search-wrap {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.order-modal-search-bar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 30px;
+    padding: 10px 18px;
+    gap: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.search-icon-svg {
+    font-size: 18px;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.order-search-input {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: #333;
+    flex: 1;
+    background: transparent;
+}
+
+.order-search-input::placeholder {
+    color: #aaa;
+}
+
+/* Address card */
+.address-card {
+    background: white;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.address-card-label {
+    font-size: 12px;
+    color: #999;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.address-card-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.address-pin-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    color: #e65100;
+}
+
+.address-card-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.address-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+}
+
+.address-sub {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.address-chevron {
+    font-size: 22px;
+    color: #999;
+    flex-shrink: 0;
+}
+
+.pickup-search-wrap {
+    padding: 16px;
+    background: white;
+}
+
+/* Footer */
+.order-modal-footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 14px 20px;
+    border-top: 1px solid #f0f0f0;
+    background: white;
+}
+
+.footer-btn {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.footer-btn:hover {
+    background: #f5f5f5;
+}
+
+/* Make the Masisso top bar sticky! */
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }

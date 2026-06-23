@@ -8,10 +8,14 @@
 </head>
 <body style="background-color: #f9f9f9; font-family: Arial, sans-serif; margin: 0;">
 
-    <div style="background-color: white; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <button onclick="window.history.back()" style="background: none; border: none; font-size: 20px; cursor: pointer;">←</button>
-        <div style="font-weight: bold; font-size: 18px;">Masisso</div>
-    </div>
+    <header class="app-header" style="background-color: #e65100; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <div class="top-brand-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button onclick="window.history.back()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: white; padding: 0;">←</button>
+                <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;" onclick="window.location.href='index.html'">Masisso</div>
+            </div>
+        </div>
+    </header>
 
     <div style="padding: 15px;">
         <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
@@ -20,16 +24,41 @@
                 <input type="text" id="voucher-input" placeholder="Enter Voucher Code" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                 <button onclick="applyVoucher()" style="background-color: #0078d7; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply</button>
             </div>
+            
+            <div id="voucher-message" style="margin-top: 10px; font-size: 13px; font-weight: bold;"></div>
+            
+            <div id="saved-voucher-box" style="display: none; border: 1px solid #e65100; border-radius: 5px; padding: 10px; margin-top: 10px; background: #fff3e0; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: bold; color: #e65100;">Saved Voucher: <span id="saved-voucher-code"></span></div>
+                    <div style="font-size: 12px; color: #666;">Click apply to use this voucher</div>
+                </div>
+                <button onclick="useSavedVoucher()" style="background: #e65100; color: white; border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply Saved</button>
+            </div>
+        </div>
+        <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <h3 style="margin: 0 0 10px; font-size: 16px;">Payment Method</h3>
+            <div style="display: flex; gap: 10px;">
+                <label style="flex: 1; border: 2px solid var(--primary-orange); padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: #fff3e0;">
+                    <input type="radio" name="payment_method" value="tng" checked style="accent-color: var(--primary-orange);">
+                    <span style="font-weight: bold;">TnG e-Wallet</span>
+                </label>
+                <label style="flex: 1; border: 1px solid #ccc; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    <input type="radio" name="payment_method" value="bank" style="accent-color: var(--primary-orange);">
+                    <span style="font-weight: bold;">Bank</span>
+                </label>
+            </div>
         </div>
 
         <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 15px; font-size: 16px;">Order Details</h3>
             
             <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px;">
                     <span>Your Selected Items</span>
                 </div>
-                <div style="color: #666; font-size: 13px; margin-top: 5px;">(Cart items loaded from menu)</div>
+                <div id="checkout-items-container">
+                    <div style="color: #666; font-size: 13px; margin-top: 5px;">Loading items...</div>
+                </div>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -51,13 +80,26 @@
                 <span>RM <span id="chk-total">0.00</span></span>
             </div>
 
-            <button style="width: 100%; background-color: #8b0000; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;">
+            <button onclick="finishOrder()" style="width: 100%; background-color: #8b0000; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;">
                 <span id="chk-btn-text">0 items | RM 0.00</span> &nbsp;&nbsp; Finish Order
             </button>
         </div>
     </div>
 
     <script>
+        function finishOrder() {
+            let cartCount = localStorage.getItem('masisso_cart_count');
+            if (!cartCount || parseInt(cartCount) === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            alert("Order placed successfully! Thank you for ordering from Masisso.");
+            localStorage.removeItem('masisso_cart_items');
+            localStorage.removeItem('masisso_cart_count');
+            localStorage.removeItem('masisso_cart_total');
+            localStorage.removeItem('masisso_active_voucher');
+            window.location.href = 'index.html';
+        }
         let currentSubtotal = 0;
         let currentItemCount = 0;
         let isVoucherApplied = false;
@@ -71,7 +113,50 @@
                 currentItemCount = parseInt(savedCount);
                 calculateFinalTotal(0); // Run initial math with 0 discount
             }
+
+            // Load and display individual items
+            let itemsContainer = document.getElementById('checkout-items-container');
+            let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+
+            if (cartItems.length > 0) {
+                itemsContainer.innerHTML = ''; // Clear loading text
+                cartItems.forEach(item => {
+                    let prefText = item.preferences && item.preferences.length > 0 ? `<div style="font-size: 12px; color: #888;">Prefs: ${item.preferences.join(', ')}</div>` : '';
+                    let comboText = item.comboPrice > 0 ? `<div style="font-size: 12px; color: #888;">Combo: ${item.comboName}</div>` : '';
+                    let imgSource = item.image ? `images/${item.image}` : `images/default.jpg`;
+                    
+                    itemsContainer.innerHTML += `
+                        <div style="display: flex; margin-bottom: 10px; align-items: flex-start;">
+                            <img src="${imgSource}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; font-size: 14px;">${item.name} <span style="color:#e65100;">x${item.quantity}</span></div>
+                                ${comboText}
+                                ${prefText}
+                            </div>
+                            <div style="font-weight: bold; font-size: 14px;">RM ${item.totalPrice.toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                itemsContainer.innerHTML = '<div style="color: #666; font-size: 13px; margin-top: 5px;">Your cart is empty.</div>';
+            }
+
+            // Show the saved voucher box if they added one from the Offers page
+            let activeVoucher = localStorage.getItem('masisso_active_voucher');
+            if (activeVoucher) {
+                document.getElementById('saved-voucher-box').style.display = 'flex';
+                document.getElementById('saved-voucher-code').innerText = activeVoucher;
+            }
         });
+
+        function useSavedVoucher() {
+            let code = localStorage.getItem('masisso_active_voucher');
+            if (code) {
+                document.getElementById('voucher-input').value = code;
+                applyVoucher();
+                document.getElementById('saved-voucher-box').style.display = 'none';
+            }
+        }
 
         // Function that handles all the math
         function calculateFinalTotal(discountAmount) {
@@ -90,8 +175,12 @@
         // Function that runs when they click the "Apply" button
         // Function that runs when they click the "Apply" button
         async function applyVoucher() {
+            let msgBox = document.getElementById('voucher-message');
+            msgBox.innerText = "";
+            
             if (isVoucherApplied) {
-                alert("You have already applied a voucher to this order!");
+                msgBox.innerText = "You have already applied a voucher to this order!";
+                msgBox.style.color = "red";
                 return;
             }
 
@@ -99,7 +188,8 @@
             let typedCode = document.getElementById('voucher-input').value.trim().toUpperCase();
 
             if (typedCode === "") {
-                alert("Please enter a voucher code first.");
+                msgBox.innerText = "Please enter a voucher code first.";
+                msgBox.style.color = "red";
                 return;
             }
 
@@ -110,6 +200,15 @@
 
                 if (data.success) {
                     let offer = data.offer;
+                    
+                    // ✨ NEW MAGIC: Check if they meet the minimum spend requirement!
+                    let minSpend = parseFloat(offer.min_spend) || 0;
+                    if (currentSubtotal < minSpend) {
+                        document.getElementById('voucher-message').innerText = `This voucher requires a minimum spend of RM ${minSpend.toFixed(2)}.`;
+                        document.getElementById('voucher-message').style.color = "red";
+                        return;
+                    }
+
                     let discountAmount = 0;
 
                     // Calculate the discount dynamically based on the database!
@@ -138,16 +237,37 @@
                     calculateFinalTotal(discountAmount);
                     
                     // Show them the description written in the database!
-                    alert("Success! " + offer.description);
+                    document.getElementById('voucher-message').innerText = "Success! " + offer.description;
+                    document.getElementById('voucher-message').style.color = "green";
                 } else {
                     // Database said the code was wrong or expired
-                    alert(data.message);
+                    document.getElementById('voucher-message').innerText = data.message;
+                    document.getElementById('voucher-message').style.color = "red";
                 }
             } catch (error) {
                 console.error("Error verifying voucher:", error);
-                alert("Error checking the database. Make sure XAMPP is running!");
+                document.getElementById('voucher-message').innerText = "Error checking the database. Make sure XAMPP is running!";
+                document.getElementById('voucher-message').style.color = "red";
             }
         }
+        function updatePaymentUI() {
+            document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                let label = radio.closest('label');
+                if (radio.checked) {
+                    label.style.borderColor = "var(--primary-orange)";
+                    label.style.borderWidth = "2px";
+                    label.style.backgroundColor = "#fff3e0";
+                } else {
+                    label.style.borderColor = "#ccc";
+                    label.style.borderWidth = "1px";
+                    label.style.backgroundColor = "transparent";
+                }
+            });
+        }
+        
+        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+            radio.addEventListener('change', updatePaymentUI);
+        });
     </script>
 </body>
 </html>
