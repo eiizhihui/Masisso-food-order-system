@@ -70,7 +70,7 @@
 <div id="customize-modal" class="modal" style="z-index: 9999;">
     <span class="close-btn" onclick="closeModal()" style="position: absolute; top: 15px; right: 20px; font-size: 35px; color: white; z-index: 1002; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">&times;</span>
 
-    <div class="product-page-container" style="display: flex; flex-direction: column; max-height: 55vh; overflow: hidden; background: white; position: relative; width: 90%; max-width: 500px; margin: 2vh auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <div class="product-page-container" style="display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; background: white; position: relative; width: 90%; max-width: 500px; margin: 5vh auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         
         <div style="overflow-y: auto; flex-grow: 1; padding-bottom: 10px;">
             <div class="product-hero">
@@ -120,14 +120,14 @@
 
                 <div class="custom-options customization-section" id="preferences-section">
                     <h3 class="margin-top">Preferences</h3>
-                    <label class="custom-checkbox"><input type="checkbox" id="no-coriander"> No Coriander</label>
-                    <label class="custom-checkbox"><input type="checkbox" id="no-shrimp-sauce"> No Shrimp Sauce</label>
-                    <label class="custom-checkbox"><input type="checkbox" id="extra-sambal"> Extra Sambal</label>
+                    <div id="dynamic-preferences-list">
+                        <!-- Checkboxes will be automatically generated here by script.js! -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="sticky-action-bar" style="background: white; padding: 15px; display: flex; gap: 15px; border-top: 1px solid #eee; align-items: center; flex-shrink: 0;">
+        <div class="sticky-action-bar" style="background: white; padding: 15px 15px 30px 15px; display: flex; gap: 15px; border-top: 1px solid #eee; align-items: center; flex-shrink: 0;">
             <div class="quantity-pill" style="display: flex; align-items: center; justify-content: space-between; background-color: #f4f4f4; border-radius: 25px; padding: 0 10px; width: 110px; height: 50px;">
                 <button class="qty-control-btn" onclick="updateQuantity(-1)" style="background: none; border: none; font-size: 24px; color: #777; cursor: pointer; padding: 0 10px;">−</button>
                 <span id="display-quantity" class="qty-number" style="font-weight: bold; font-size: 18px; color: #000;">1</span>
@@ -210,7 +210,7 @@
         </div>
     </div>
     
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=11"></script>
 
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item-bottom active">

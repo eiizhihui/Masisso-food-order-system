@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 // Once you add a Login page, this should come from $_SESSION['user_id']
 $user_id = 1111;
 
-$sql = "SELECT name, email, phone, address, points, role FROM users WHERE user_id = ?";
+$sql = "SELECT name, email, phone, address, points FROM Customer WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

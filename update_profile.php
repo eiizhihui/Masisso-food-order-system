@@ -15,7 +15,7 @@ if ($data) {
     $phone = $conn->real_escape_string($data['phone']);
     $address = $conn->real_escape_string($data['address']);
 
-    $sql = "UPDATE users SET name=?, email=?, phone=?, address=? WHERE user_id=?";
+    $sql = "UPDATE Customer SET name=?, email=?, phone=?, address=? WHERE user_id=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssi", $name, $email, $phone, $address, $user_id);
     

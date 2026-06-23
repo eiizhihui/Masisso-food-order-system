@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - Masisso</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #f5f5f5; font-family: Arial, sans-serif; margin: 0; padding-bottom: 20px; }
+        
+        .header { background: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .back-btn { font-size: 24px; cursor: pointer; color: #333; text-decoration: none; }
+        
+        .status-card { background: white; margin: 15px; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        
+        .mode-pill { background: #00796b; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+        
+        .eta-time { font-size: 28px; font-weight: bold; margin: 5px 0; color: #333; }
+        .eta-desc { font-size: 15px; color: #666; margin-bottom: 20px; }
+
+        /* Progress Bar Styles */
+        .progress-container { display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 10px; height: 65px; }
+        
+        .progress-line { position: absolute; top: 12px; left: 10px; right: 10px; height: 3px; background: #e0e0e0; z-index: 1; }
+        .progress-line-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: #e65100; transition: width 0.5s ease; }
+
+        .progress-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 40px; }
+        .step-icon { width: 26px; height: 26px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; transition: background 0.3s ease; }
+        .step-icon.active { background: #e65100; }
+        .step-icon.done { background: #e65100; }
+        
+        .step-label { font-size: 11px; text-align: center; color: #888; margin-top: 5px; font-weight: bold; position: absolute; top: 30px; width: 80px; }
+        .step-label.active { color: #e65100; }
+
+        .delay-msg { color: #e65100; font-size: 13px; font-weight: bold; margin-top: 10px; visibility: hidden; min-height: 15px; }
+
+        .driver-card { background: white; margin: 15px; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .driver-avatar { width: 50px; height: 50px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .driver-info { flex: 1; margin-left: 15px; }
+        .driver-name { font-weight: bold; font-size: 16px; margin: 0 0 3px 0; }
+        .driver-rating { font-size: 13px; color: #666; margin: 0; }
+        .contact-btn { border: 1px solid #ccc; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn">←</a>
+        <div style="font-weight: bold; font-size: 16px;"></div>
+    </div>
+
+    <div class="status-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="mode-pill" id="mode-pill-text">Saver Delivery</div>
+                <div class="eta-time" id="eta-time">Loading...</div>
+                <div class="eta-desc" id="eta-desc">Sending your order to the restaurant...</div>
+            </div>
+            <div style="font-size: 50px;">🍲</div>
+        </div>
+
+        <div class="progress-container" style="margin-top: 20px;">
+            <div class="progress-line">
+                <div class="progress-line-fill" id="progress-fill"></div>
+            </div>
+            
+            <div class="progress-step">
+                <div class="step-icon active" id="icon-1">✓</div>
+                <div class="step-label active" id="label-1">Order Placed</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-icon" id="icon-2">2</div>
+                <div class="step-label" id="label-2">In Kitchen</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-icon" id="icon-3">3</div>
+                <div class="step-label" id="label-3">Out for Delivery</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-icon" id="icon-4">4</div>
+                <div class="step-label" id="label-4">Delivered</div>
+            </div>
+        </div>
+
+        <div class="delay-msg" id="delay-msg">
+            We're preparing it as fast as we can! →
+        </div>
+    </div>
+
+    <div class="driver-card" id="driver-card">
+        <div class="driver-avatar">🛵</div>
+        <div class="driver-info">
+            <p class="driver-name">Ahmad Fahad</p>
+            <p class="driver-rating">⭐ 5.0 (Masisso Rider)</p>
+        </div>
+        <div class="contact-btn">📞</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Determine Mode
+            let mode = localStorage.getItem('masisso_order_mode') || 'Delivery';
+            
+            let isDelivery = (mode === 'Delivery');
+            
+            document.getElementById('mode-pill-text').innerText = isDelivery ? "Standard Delivery" : "Self Pick-up";
+            
+            if (!isDelivery) {
+                document.getElementById('mode-pill-text').style.background = "#e65100";
+                document.getElementById('label-3').innerText = "Ready for Pickup";
+                document.getElementById('label-4').innerText = "Picked Up";
+                document.getElementById('driver-card').style.display = 'none'; // No driver for pickup
+            }
+
+            // 2. Calculate ETA (Current time + 30 mins)
+            let now = new Date();
+            let later = new Date(now.getTime() + 30 * 60000);
+            
+            function formatTime(date) {
+                let hours = date.getHours();
+                let mins = date.getMinutes();
+                let ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                mins = mins < 10 ? '0'+mins : mins;
+                return hours + ':' + mins + ' ' + ampm;
+            }
+            
+            document.getElementById('eta-time').innerText = formatTime(now) + " - " + formatTime(later);
+
+            // 3. Animation Logic to simulate progress!
+            let step = 1;
+            
+            const fill = document.getElementById('progress-fill');
+            const desc = document.getElementById('eta-desc');
+            const delayMsg = document.getElementById('delay-msg');
+
+            // Quick simulation: Advances every 4 seconds for demonstration
+            let interval = setInterval(() => {
+                step++;
+                
+                if (step === 2) {
+                    fill.style.width = "33%";
+                    document.getElementById('icon-2').classList.add('active');
+                    document.getElementById('icon-2').innerText = "✓";
+                    document.getElementById('label-2').classList.add('active');
+                    desc.innerText = "Your order's in the kitchen.";
+                    delayMsg.style.visibility = "visible"; // Show the Foodpanda style sub-message
+                }
+                else if (step === 3) {
+                    fill.style.width = "66%";
+                    document.getElementById('icon-3').classList.add('active');
+                    document.getElementById('icon-3').innerText = "✓";
+                    document.getElementById('label-3').classList.add('active');
+                    desc.innerText = isDelivery ? "Your rider is on the way to you." : "Your order is packed and ready at the counter!";
+                    delayMsg.style.visibility = "hidden";
+                }
+                else if (step >= 4) {
+                    fill.style.width = "100%";
+                    document.getElementById('icon-4').classList.add('active');
+                    document.getElementById('icon-4').innerText = "✓";
+                    document.getElementById('label-4').classList.add('active');
+                    desc.innerText = isDelivery ? "Order Delivered! Enjoy your meal." : "Order Picked Up! Enjoy your meal.";
+                    
+                    document.getElementById('eta-time').innerText = "Completed";
+                    
+                    clearInterval(interval);
+                }
+
+            }, 4000); // 4 seconds per step
+        });
+    </script>
+</body>
+</html>

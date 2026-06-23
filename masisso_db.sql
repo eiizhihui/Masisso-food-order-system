@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 23, 2026 at 05:59 PM
+-- Generation Time: Jun 23, 2026 at 07:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,29 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `customer`
+--
+
+CREATE TABLE `customer` (
+  `user_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `points` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`user_id`, `name`, `email`, `phone`, `address`, `password`, `points`) VALUES
+(1111, 'Joey', 'joeybaobei@gmail.com', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', '1223334444', 1000);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `menu_items`
 --
 
@@ -34,20 +57,21 @@ CREATE TABLE `menu_items` (
   `description` text DEFAULT NULL,
   `category` varchar(50) DEFAULT NULL,
   `image_url` varchar(255) NOT NULL,
-  `preferences` text DEFAULT NULL
+  `preferences` text DEFAULT NULL,
+  `is_available` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `menu_items`
 --
 
-INSERT INTO `menu_items` (`item_id`, `name`, `price`, `description`, `category`, `image_url`, `preferences`) VALUES
-(1, 'Masisso Signature Laksa', 14.90, 'Authentic thin rice vermicelli with chicken, shrimp, and omelette.', 'A La Carte', 'laksa.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"]}'),
-(2, 'Laksa Sarawak Super Pedas', 16.90, 'Extra spicy authentic Sarawak Laksa.', 'A La Carte', 'laksa.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"]}'),
-(3, 'Laksa + Teh C Beng Special', 19.40, 'Signature Laksa paired with 3-layer tea.', 'Combo', 'combo_A.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"], \"Teh C Beng Special\": [\"Less Ice\", \"Less Sugar\"]}'),
-(4, 'Laksa + Fruit Rojak', 17.90, 'Signature Laksa paired with fresh fruit rojak.', 'Combo', 'combo_B.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"], \"Fruit Rojak\": [\"No Spicy\", \"More Spicy\"]}'),
-(5, 'Teh C Beng Special', 4.50, 'Authentic Sarawak 3-layer tea with palm sugar.', 'Drinks', 'TehCBengSpecial.jpg', '{\"Teh C Beng Special\": [\"Less Ice\", \"Less Sugar\"]}'),
-(6, 'Fruit Rojak', 6.90, 'Fresh cut fruits with crushed peanuts and shrimp paste.', 'Sides', 'rojak.jpg', '{\"Fruit Rojak\": [\"No Spicy\", \"More Spicy\"]}');
+INSERT INTO `menu_items` (`item_id`, `name`, `price`, `description`, `category`, `image_url`, `preferences`, `is_available`) VALUES
+(1, 'Masisso Signature Laksa', 14.90, 'Authentic thin rice vermicelli with chicken, shrimp, and omelette.', 'A La Carte', 'laksa.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"]}', 1),
+(2, 'Laksa Sarawak Super Pedas', 16.90, 'Extra spicy authentic Sarawak Laksa.', 'A La Carte', 'laksa.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"]}', 0),
+(3, 'Laksa + Teh C Beng Special', 19.40, 'Signature Laksa paired with 3-layer tea.', 'Combo', 'combo_A.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"], \"Teh C Beng Special\": [\"Less Ice\", \"Less Sugar\"]}', 1),
+(4, 'Laksa + Fruit Rojak', 17.90, 'Signature Laksa paired with fresh fruit rojak.', 'Combo', 'combo_B.jpg', '{\"Laksa\": [\"No Coriander\", \"No Shrimp Sauce\", \"Extra Sambal\"], \"Fruit Rojak\": [\"No Spicy\", \"More Spicy\"]}', 1),
+(5, 'Teh C Beng Special', 4.50, 'Authentic Sarawak 3-layer tea with palm sugar.', 'Drinks', 'TehCBengSpecial.jpg', '{\"Teh C Beng Special\": [\"Less Ice\", \"Less Sugar\"]}', 1),
+(6, 'Fruit Rojak', 6.90, 'Fresh cut fruits with crushed peanuts and shrimp paste.', 'Sides', 'rojak.jpg', '{\"Fruit Rojak\": [\"No Spicy\", \"More Spicy\"]}', 1);
 
 -- --------------------------------------------------------
 
@@ -110,33 +134,16 @@ INSERT INTO `rewards` (`id`, `reward_name`, `points_required`, `image_url`) VALU
 (1, 'Teh C Beng Special', 500, 'TehCBengSpecial.jpg'),
 (2, 'Fruit Rojak', 800, 'rojak.jpg');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` text DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` varchar(20) DEFAULT 'Customer',
-  `points` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`user_id`, `name`, `email`, `phone`, `address`, `password`, `role`, `points`) VALUES
-(1111, 'Joey', 'joeybaobei@gmail.com', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', '1223334444', 'Customer', 1000);
-
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `customer`
+--
+ALTER TABLE `customer`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `menu_items`
@@ -159,15 +166,14 @@ ALTER TABLE `orders`
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `customer`
+--
+ALTER TABLE `customer`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1112;
 
 --
 -- AUTO_INCREMENT for table `menu_items`
@@ -188,12 +194,6 @@ ALTER TABLE `orders`
   MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1112;
-
---
 -- Constraints for dumped tables
 --
 
@@ -201,7 +201,7 @@ ALTER TABLE `users`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `customer` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
