@@ -93,12 +93,11 @@
                 alert("Your cart is empty!");
                 return;
             }
-            alert("Order placed successfully! Thank you for ordering from Masisso.");
             localStorage.removeItem('masisso_cart_items');
             localStorage.removeItem('masisso_cart_count');
             localStorage.removeItem('masisso_cart_total');
             localStorage.removeItem('masisso_active_voucher');
-            window.location.href = 'index.html';
+            window.location.href = 'order_status.html';
         }
         let currentSubtotal = 0;
         let currentItemCount = 0;
@@ -141,11 +140,14 @@
                 itemsContainer.innerHTML = '<div style="color: #666; font-size: 13px; margin-top: 5px;">Your cart is empty.</div>';
             }
 
-            // Show the saved voucher box if they added one from the Offers page
+            // Automatically apply any saved voucher
             let activeVoucher = localStorage.getItem('masisso_active_voucher');
             if (activeVoucher) {
-                document.getElementById('saved-voucher-box').style.display = 'flex';
-                document.getElementById('saved-voucher-code').innerText = activeVoucher;
+                document.getElementById('voucher-input').value = activeVoucher;
+                applyVoucher(); // Magically do the math on load!
+                
+                let savedBox = document.getElementById('saved-voucher-box');
+                if (savedBox) savedBox.style.display = 'none';
             }
         });
 
@@ -178,11 +180,8 @@
             let msgBox = document.getElementById('voucher-message');
             msgBox.innerText = "";
             
-            if (isVoucherApplied) {
-                msgBox.innerText = "You have already applied a voucher to this order!";
-                msgBox.style.color = "red";
-                return;
-            }
+            // We removed the 'isVoucherApplied' block so they can freely swap vouchers!
+            // The math lower down always calculates from 'currentSubtotal', ensuring discounts never stack.
 
             // Grab whatever they typed
             let typedCode = document.getElementById('voucher-input').value.trim().toUpperCase();
@@ -226,6 +225,8 @@
                     }
 
                     isVoucherApplied = true;
+                    // Save it so if they leave the page and come back, it auto-applies again!
+                    localStorage.setItem('masisso_active_voucher', offer.code);
 
                     // Show the hidden discount row in orange and update the label
                     document.getElementById('discount-row').style.display = 'flex';
