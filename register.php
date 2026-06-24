@@ -55,15 +55,7 @@
             <textarea class="form-control" name="address" id="address" placeholder="Enter your default address" required></textarea>
           </div>
           
-          <div class="mb-1">
-            <label class="form-label">Select User Type:</label>
-          </div>
-          <select class="form-select mb-3" name="role" aria-label="Default select example">
-              <option selected value="customer">Customer</option>
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-              <option value="super admin">Super Admin</option>
-          </select>
+              <input type="hidden" name="role" value="customer">
          
           <button type="submit" class="btn btn-primary">REGISTER</button>
           <a href="login.php" class="btn btn-secondary">Go to Login</a>
