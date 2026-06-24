@@ -50,7 +50,7 @@
 		  <select class="form-select mb-3"
 		        name="role" 
 		        aria-label="Default select example">
-			  <option selected value="user">User</option>
+			  <option selected value="customer">Customer</option>
               <option value="staff">Staff</option>
 			  <option value="admin">Admin</option>
 		  </select>
