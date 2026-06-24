@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Database Operation: UPDATE query execution
-    $sql = "UPDATE orders SET status = '$new_status' WHERE order_id = $order_id";
+    $sql = "UPDATE orders SET order_status = '$new_status' WHERE order_id = $order_id";
 
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Success: Order status updated to " . $new_status . "!'); window.location.href='view_orders.php';</script>";

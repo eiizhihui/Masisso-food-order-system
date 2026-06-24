@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 }
 include 'db_connect.php';
 
-$query = "SELECT order_id, food_name, customization, status FROM orders ORDER BY order_id DESC";
+$query = "SELECT order_id, order_status, order_type, total_price, order_date FROM orders ORDER BY order_id DESC";
 $result = $conn->query($query);
 ?>
 <!DOCTYPE html>
@@ -42,14 +42,13 @@ $result = $conn->query($query);
                 <div class="menu-card" style="align-items: flex-start; flex-direction: column; gap: 15px; margin-bottom: 15px; background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                         <span class="badge-promo" style="background-color: var(--text-dark); padding: 5px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 12px;">Order ID: #<?php echo htmlspecialchars($row['order_id']); ?></span>
-                        <span class="badge-popular" style="background: #FFF3E0; color: #E65100; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;"><?php echo htmlspecialchars($row['status']); ?></span>
+                        <span class="badge-popular" style="background: #FFF3E0; color: #E65100; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;"><?php echo htmlspecialchars($row['order_status']); ?></span>
+                        <span class="badge-info" style="background: #E0F7FA; color: #006064; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Type: <?php echo htmlspecialchars($row['order_type']); ?></span>
+                        <span class="badge-price" style="background: #FFF9C4; color: #BF360C; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Total: RM <?php echo number_format($row['total_price'], 2); ?></span>
                     </div>
                     
                     <div class="menu-info" style="padding: 0; width: 100%;">
-                        <h3 class="menu-title" style="font-size: 18px; margin-bottom: 8px; color: #333;"><strong><?php echo htmlspecialchars($row['food_name']); ?></strong></h3>
-                        <?php if (!empty($row['customization'])): ?>
-                            <p class="menu-desc" style="color: #d84315; font-weight: bold; margin: 5px 0;">💡 Customization: <?php echo htmlspecialchars($row['customization']); ?></p>
-                        <?php endif; ?>
+                        <!-- Order details extended: showing order type and total price -->
                     </div>
 
                     <div class="faded-divider" style="width: 100%; margin: 5px 0; border-bottom: 1px solid #eee;"></div>
@@ -59,9 +58,9 @@ $result = $conn->query($query);
                             <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
                             <label style="font-size: 14px; font-weight: bold; color: var(--text-dark);">Update Step:</label>
                             <select name="status" class="select-status" style="flex-grow: 1;">
-                                <option value="Pending" <?php if ($row['status'] === 'Pending') echo 'selected'; ?>>Pending</option>
-                                <option value="Preparing" <?php if ($row['status'] === 'Preparing') echo 'selected'; ?>>Preparing</option>
-                                <option value="Completed" <?php if ($row['status'] === 'Completed') echo 'selected'; ?>>Completed</option>
+                                <option value="Pending" <?php if ($row['order_status'] === 'Pending') echo 'selected'; ?>>Pending</option>
+                                <option value="Preparing" <?php if ($row['order_status'] === 'Preparing') echo 'selected'; ?>>Preparing</option>
+                                <option value="Completed" <?php if ($row['order_status'] === 'Completed') echo 'selected'; ?>>Completed</option>
                             </select>
                             <button type="submit" class="add-btn" style="padding: 6px 20px;">Update</button>
                         </form>
