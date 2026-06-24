@@ -45,8 +45,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SE
 
         <div id="header-toggle-state" class="location-row" style="padding: 0 20px;">
             <div class="toggle-container">
-                <button id="btn-delivery" class="toggle-option active" onclick="openOrderModal('delivery-modal'); setActiveToggle('Delivery')">Delivery</button>
-                <button id="btn-pickup" class="toggle-option" onclick="openOrderModal('pickup-modal'); setActiveToggle('Pickup')">Pickup</button>
+                <button id="btn-delivery" class="toggle-option active">Delivery</button>
+                <button id="btn-pickup" class="toggle-option">Pickup</button>
             </div>
         </div>
 
@@ -171,13 +171,13 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SE
                     </div>
 
                     <!-- Address card -->
-                    <div class="address-card">
-                        <p class="address-card-label">Current</p>
+                    <div class="address-card" id="profile-address-card" style="cursor: pointer;">
+                        <p class="address-card-label">Saved Address</p>
                         <div class="address-card-row">
                             <span class="address-pin-icon">&#x1F3AF;</span>
                             <div class="address-card-text">
-                                <span class="address-name">K38 - 38 Jalan Cengal</span>
-                                <span class="address-sub">Johor Bahru, 80990</span>
+                                <span class="address-name" id="profile-address-name">Loading saved address...</span>
+                                <span class="address-sub" id="profile-address-sub"></span>
                             </div>
                             <span class="address-chevron">&#8250;</span>
                         </div>
@@ -217,7 +217,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SE
         </div>
     </div>
     
-    <script src="script.js?v=11"></script>
+    <script src="script.js?v=12"></script>
 
     <nav class="bottom-nav">
         <a href="home.php" class="nav-item-bottom active">

@@ -30,11 +30,15 @@ if ($result->num_rows === 1) {
     <meta charset="UTF-8">
     <title>Massiso - Profile</title>
     <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="app-header" style="background-color: #e65100; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
         <div class="top-brand-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
             <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;" onclick="window.location.href='home.php'">Masisso</div>
+            <a href="logout.php" style="color: white; text-decoration: none; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.2); padding: 6px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </header>
 
@@ -71,7 +75,7 @@ if ($result->num_rows === 1) {
                 </div>
             </form>
 
-            <button class="add-btn" onclick="window.location.href='logout.php'" style="width: 100%; margin-top: 15px; border-color: #ccc; color: #555;">Log Out</button>
+
         </div>
     </div>
 
