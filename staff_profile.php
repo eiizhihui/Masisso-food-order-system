@@ -4,219 +4,167 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
     header("Location: login.php");
     exit();
 }
+include 'db_connect.php';
+
+$staff_id = $_SESSION['user_id'];
+$query = "SELECT * FROM staff WHERE staff_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $staff_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$staff = $result->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masisso - Add Staff Profile</title>
+    <title>Masisso - Staff Profile</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.currentUserId = <?php echo json_encode($staff_id); ?>;
+    </script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-btn-link {
-            color: var(--primary-orange);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            border: 2px solid var(--primary-orange);
-            padding: 6px 16px;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            background: transparent;
-            cursor: pointer;
-            display: inline-block;
-        }
-
-        .nav-btn-link:hover {
-            background: var(--primary-orange);
+        .header {
+            background-color: var(--primary-orange);
             color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .navbar-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--text-dark);
+        .header h2 {
             margin: 0;
+            font-size: 24px;
         }
 
-        .profile-container { 
-            max-width: 500px; 
-            margin: 40px auto; 
-            padding: 30px; 
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            text-align: center; 
+        .header a {
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .profile-container {
+            max-width: 500px;
+            margin: 40px auto 120px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
             box-sizing: border-box;
         }
-        
-        .profile-header h2 { 
-            color: var(--primary-orange); 
-            margin: 0 0 5px 0; 
-        }
-        
-        .profile-header p { 
-            color: #777; 
-            margin-bottom: 25px; 
-            font-size: 14px; 
+
+        .profile-header h2 {
+            color: var(--primary-orange);
+            margin: 0 0 5px 0;
         }
 
-        .form-group { 
-            margin-bottom: 18px; 
-            text-align: left; 
-        }
-        
-        .form-group label { 
-            display: block; 
-            margin-bottom: 6px; 
-            font-weight: bold; 
-            color: var(--text-dark); 
-            font-size: 14px; 
-        }
-        
-        .form-group input, .form-group select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 15px; 
-            background-color: white;
+        .profile-header p {
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 14px;
         }
 
-        .submit-profile-btn {
-            background: var(--primary-orange);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
             font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            margin-top: 10px;
+            color: var(--text-dark);
+            font-size: 14px;
         }
 
-        .submit-profile-btn:active {
-            opacity: 0.8;
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background-color: #f9f9f9;
+            color: #555;
+            font-family: inherit;
+        }
+
+        .readonly-note {
+            text-align: center;
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 15px;
         }
     </style>
 </head>
+
 <body>
 
-    <nav class="navbar">
-        <div class="nav-left">
-            <a href="staff_dashboard.php" class="nav-btn-link">← Dashboard</a>
-        </div>
-        <div class="navbar-title">Masisso Staff Administration</div>
-        <div class="nav-right">
-            <a onclick="navigateToLatestProfile()" class="nav-btn-link">View Profile</a>
-        </div>
-    </nav>
+    <div class="header">
+        <a href="staff_dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+        <h2>My Profile</h2>
+    </div>
 
     <div class="profile-container">
         <div class="profile-header">
-            <h2>Create Staff Profile</h2>
-            <p>Enter details to save a new workplace profile entry</p>
+            <h2>Staff Profile</h2>
+            <p>Your account information (view only)</p>
         </div>
 
-        <form onsubmit="return false;">
-            <div class="form-group">
-                <label for="staff_id">Staff ID</label>
-                <input type="text" id="staff_id" name="staff_id" placeholder="e.g., STF001" required>
-            </div>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="profile-name" value="<?php echo htmlspecialchars($staff['name'] ?? ''); ?>" disabled>
+        </div>
 
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" placeholder="Enter full name" required>
-            </div>
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="profile-email" value="<?php echo htmlspecialchars($staff['email'] ?? ''); ?>" disabled>
+        </div>
 
-            <div class="form-group">
-                <label for="gender">Gender</label>
-                <select id="gender" name="gender" required>
-                    <option value="" disabled selected>Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" id="profile-phone" value="<?php echo htmlspecialchars($staff['phone'] ?? ''); ?>" disabled>
+        </div>
 
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="name@masisso.com" required>
-            </div>
+        <div class="form-group">
+            <label>Branch</label>
+            <input type="text" id="profile-branch" value="<?php echo htmlspecialchars($staff['branch'] ?? ''); ?>" disabled>
+        </div>
 
-            <button type="button" class="submit-profile-btn" onclick="saveProfileData()">Save Profile Entry</button>
-        </form>
+        <div class="form-group">
+            <label>Role / Position</label>
+            <input type="text" id="profile-role" value="<?php echo htmlspecialchars($staff['position'] ?? ''); ?>" disabled>
+        </div>
+
+        <p class="readonly-note"><i class="fas fa-lock"></i> Profile can only be updated by an Admin.</p>
     </div>
 
-    <script>
-        // SMART LINK: Automatically finds the correct ID to view
-        function navigateToLatestProfile() {
-            const currentInputId = document.getElementById('staff_id').value.trim();
-            
-            // If the user typed an ID into the input field right now, look that up
-            if (currentInputId !== "") {
-                window.location.href = 'view_profile.php?id=' + encodeURIComponent(currentInputId);
-            } else {
-                // Otherwise, ask the backend who the last updated active staff member is!
-                fetch('get_curent_staff.php?latest=true')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.staff_id) {
-                            window.location.href = 'view_profile.php?id=' + encodeURIComponent(data.staff_id);
-                        } else {
-                            window.location.href = 'view_profile.php?id=STF001';
-                        }
-                    })
-                    .catch(() => {
-                        window.location.href = 'view_profile.php?id=STF001';
-                    });
-            }
-        }
+    <div class="bottom-nav">
+        <a href="staff_dashboard.php" class="nav-item-bottom">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="staff_manage_menu.php" class="nav-item-bottom">
+            <i class="fas fa-utensils"></i>
+            <span>Menu</span>
+        </a>
+        <a href="view_orders.php" class="nav-item-bottom">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Orders</span>
+        </a>
+        <a href="staff_profile.php" class="nav-item-bottom active">
+            <i class="fas fa-user-cog"></i>
+            <span>Profile</span>
+        </a>
+    </div>
 
-        function saveProfileData() {
-            const staffId = document.getElementById('staff_id').value.trim();
-            const nameVal = document.getElementById('name').value.trim();
-            const gendVal = document.getElementById('gender').value;
-            const mailVal = document.getElementById('email').value.trim();
-
-            if(!staffId || !nameVal || !gendVal || !mailVal) {
-                alert("Please fill out all fields.");
-                return;
-            }
-
-            const dataPayload = new FormData();
-            dataPayload.append('staff_id', staffId);
-            dataPayload.append('name', nameVal);
-            dataPayload.append('gender', gendVal);
-            dataPayload.append('email', mailVal);
-
-            fetch('update_staff.php', {
-                method: 'POST',
-                body: dataPayload
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    window.location.href = 'view_profile.php?id=' + encodeURIComponent(staffId);
-                } else {
-                    alert("Database Error: " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Submission Error:', error);
-                alert("Could not complete registration request.");
-            });
-        }
-    </script>
+    <script src="staff.js"></script>
 </body>
+
 </html>

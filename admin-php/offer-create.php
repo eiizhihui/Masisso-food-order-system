@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $data = getPostData();
 if(!$data) { echo json_encode(["success"=>false]); exit; }
 $sql = "INSERT INTO offers (code, title, description, discount_type, discount_value, min_spend, valid_until) VALUES (";

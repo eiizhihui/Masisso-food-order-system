@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $query = "
     SELECT user_id, name, username, email, phone, address, points as bowls, 'Customer' as role, NULL as gender, NULL as branch FROM customer
     UNION ALL

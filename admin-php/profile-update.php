@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $data = getPostData();
 if(!$data || !isset($data['user_id'])) { echo json_encode(["success"=>false, "error"=>"Missing user_id"]); exit; }
 $id = mysqli_real_escape_string($conn, $data['user_id']);

@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 if(!$q) { echo json_encode([]); exit; }
 

@@ -14,64 +14,60 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Massiso Staff - View Orders</title>
+    <title>Staff - View Orders</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .select-status {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            background: white;
-            font-weight: bold;
-            color: var(--text-dark);
-            outline: none;
-        }
+        .main-content { margin: 0 auto !important; padding: 20px; }
+        .header { background-color: var(--primary-orange); color: white; padding: 20px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .header h2 { margin: 0; font-size: 24px; margin-left: 15px; }
+        .header a { color: white; text-decoration: none; font-size: 20px; }
+        
+        .order-card-admin { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); border-left: 5px solid var(--primary-orange); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .order-id { font-weight: bold; color: var(--primary-orange); font-size: 16px; }
+        .order-date { font-size: 12px; color: #888; }
+        
+        .order-details { margin-bottom: 15px; font-size: 14px; color: #444; }
+        .order-details p { margin: 5px 0; }
+        
+        .update-section { display: flex; gap: 10px; align-items: center; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        .status-select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; flex-grow: 1; font-weight: bold; outline: none; }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <a href="staff_dashboard.php" class="add-btn" style="text-decoration: none;">← Dashboard</a>
-        <h1 style="margin: 0; font-size: 20px; color: var(--text-dark);">Active Kitchen Queue</h1>
+
+    <div class="header">
+        <a href="staff_dashboard.php"><i class="fas fa-arrow-left"></i></a>
+        <h2>Customer Orders</h2>
     </div>
 
-    <div class="main-content" style="max-width: 800px; margin: 0 auto;">
-        <h2 class="section-title">Incoming Preparation Stream</h2>
-
-        <?php if ($result && $result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <div class="menu-card" style="align-items: flex-start; flex-direction: column; gap: 15px; margin-bottom: 15px; background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
-                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                        <span class="badge-promo" style="background-color: var(--text-dark); padding: 5px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 12px;">Order ID: #<?php echo htmlspecialchars($row['order_id']); ?></span>
-                        <span class="badge-popular" style="background: #FFF3E0; color: #E65100; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;"><?php echo htmlspecialchars($row['order_status']); ?></span>
-                        <span class="badge-info" style="background: #E0F7FA; color: #006064; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Type: <?php echo htmlspecialchars($row['order_type']); ?></span>
-                        <span class="badge-price" style="background: #FFF9C4; color: #BF360C; padding: 10px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Total: RM <?php echo number_format($row['total_price'], 2); ?></span>
-                        <span class="badge-cust" style="background: #E8F5E9; color: #1B5E20; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Customer: <?php echo htmlspecialchars($row['customer_name']); ?></span>
-                    </div>
-                    
-                    <div class="menu-info" style="padding: 0; width: 100%;">
-                        <!-- Order details extended: showing order type and total price -->
-                    </div>
-
-                    <div class="faded-divider" style="width: 100%; margin: 5px 0; border-bottom: 1px solid #eee;"></div>
-
-                    <div style="width: 100%;">
-                        <form action="update_order_status.php" method="POST" style="display: flex; width: 100%; gap: 10px; align-items: center;">
-                            <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
-                            <label style="font-size: 14px; font-weight: bold; color: var(--text-dark);">Update Step:</label>
-                            <select name="status" class="select-status" style="flex-grow: 1;">
-                                <option value="Pending" <?php if ($row['order_status'] === 'Pending') echo 'selected'; ?>>Pending</option>
-                                <option value="Preparing" <?php if ($row['order_status'] === 'Preparing') echo 'selected'; ?>>Preparing</option>
-                                <option value="Completed" <?php if ($row['order_status'] === 'Completed') echo 'selected'; ?>>Completed</option>
-                            </select>
-                            <button type="submit" class="add-btn" style="padding: 6px 20px;">Update</button>
-                        </form>
-                    </div>
-                </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p style="color:#666; text-align: center;">No incoming orders at the moment.</p>
-        <?php endif; ?>
+    <div class="main-content">
+        <div id="orders-list">
+            <p style="text-align: center; color: #666;">Loading orders...</p>
+        </div>
     </div>
+
+    <div class="bottom-nav">
+        <a href="staff_dashboard.php" class="nav-item-bottom">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="staff_manage_menu.php" class="nav-item-bottom">
+            <i class="fas fa-utensils"></i>
+            <span>Menu</span>
+        </a>
+        <a href="view_orders.php" class="nav-item-bottom active">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Orders</span>
+        </a>
+        <a href="staff_profile.php" class="nav-item-bottom">
+            <i class="fas fa-user-cog"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script src="staff.js"></script>
 </body>
 </html>
 <?php $conn->close(); ?>

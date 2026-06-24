@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -190,7 +189,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         }
     </style>
 </head>
-
 <body>
 
     <div id="list-section">
@@ -258,8 +256,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
                     <input type="text" id="menu-image" placeholder="e.g., laksa.jpg">
                 </div>
 
-                <button type="button" class="submit-profile-btn" id="submit-btn" onclick="saveMenu()">Save Menu
-                    Item</button>
+                <button type="button" class="submit-profile-btn" id="submit-btn" onclick="saveMenu()">Save Menu Item</button>
             </form>
         </div>
     </div>
@@ -297,5 +294,4 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 
     <script src="admin.js"></script>
 </body>
-
 </html>

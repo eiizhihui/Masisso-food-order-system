@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $data = getPostData();
 if(!$data || !isset($data['order_id'])) { echo json_encode(["success"=>false]); exit; }
 $id = mysqli_real_escape_string($conn, $data['order_id']);

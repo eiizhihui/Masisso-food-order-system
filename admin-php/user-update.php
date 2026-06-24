@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $data = getPostData();
 if(!$data || !isset($data['user_id']) || !isset($data['role'])) { echo json_encode(["success"=>false, "error"=>"Missing required fields"]); exit; }
 $id = mysqli_real_escape_string($conn, $data['user_id']);

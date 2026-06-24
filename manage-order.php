@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders</title>
     <link rel="stylesheet" href="style.css">
-    <link class="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .main-content {
             margin: 0 auto !important;

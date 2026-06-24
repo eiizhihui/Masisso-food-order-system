@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+require_once("../config.php");
 $data = getPostData();
 if(!$data) { echo json_encode(["success"=>false]); exit; }
 $sql = "INSERT INTO menu_items (name, price, description, category, image_url) VALUES (";
