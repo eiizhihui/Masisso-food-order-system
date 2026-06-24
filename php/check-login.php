@@ -39,36 +39,52 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
         
         $user_found = false;
         $row = null;
+        $escaped_input = mysqli_real_escape_string($conn, $login_input);
         
-        // 1. Try customer table
-        $sql = "SELECT * FROM customer WHERE (email = '$login_input' OR username = '$login_input') AND role = '$role'";
-        write_log("  Customer query: $sql");
-        $result = mysqli_query($conn, $sql);
-        if ($result && mysqli_num_rows($result) === 1) {
-            $row = mysqli_fetch_assoc($result);
-            write_log("    Row found in customer. Hashed DB pass: '{$row['password']}', Input MD5: '$hashed_password'");
-            if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
-                $user_found = true;
-                write_log("    Password MATCH in customer table!");
-            } else {
-                write_log("    Password mismatch in customer table.");
-            }
-        } else {
-            write_log("    No match or multiple matches in customer table. Rows: " . ($result ? mysqli_num_rows($result) : 0));
-        }
-        
-        // 2. If not found and role is admin/staff/super admin, try staff table
-        if (!$user_found && ($role === 'admin' || $role === 'staff' || $role === 'super admin')) {
-            if ($role === 'admin' || $role === 'super admin') {
-                $sql = "SELECT staff_id as user_id, name, username, email, password, position as role FROM staff WHERE (email = '$login_input' OR username = '$login_input' OR name = '$login_input') AND (position = 'admin' OR position = 'super admin')";
-            } else {
-                $sql = "SELECT staff_id as user_id, name, username, email, password, position as role FROM staff WHERE (email = '$login_input' OR username = '$login_input' OR name = '$login_input') AND position = 'staff'";
-            }
-            write_log("  Staff query: $sql");
+        if ($role === 'customer') {
+            // 1. Try customer table first
+            $sql = "SELECT * FROM customer WHERE (email = '$escaped_input' OR username = '$escaped_input')";
+            write_log("  Customer query (priority): $sql");
             $result = mysqli_query($conn, $sql);
             if ($result && mysqli_num_rows($result) === 1) {
                 $row = mysqli_fetch_assoc($result);
-                write_log("    Row found in staff. DB pass: '{$row['password']}', Input MD5: '$hashed_password', Input Plain: '$plain_password'");
+                write_log("    Row found in customer. Hashed DB pass: '{$row['password']}', Input MD5: '$hashed_password'");
+                if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                    $user_found = true;
+                    write_log("    Password MATCH in customer table!");
+                } else {
+                    write_log("    Password mismatch in customer table.");
+                }
+            } else {
+                write_log("    No match in customer table. Rows: " . ($result ? mysqli_num_rows($result) : 0));
+            }
+            
+            // 2. Try staff table as fallback if not found
+            if (!$user_found) {
+                $sql = "SELECT staff_id as user_id, name, username, email, password, position as role FROM staff WHERE (email = '$escaped_input' OR username = '$escaped_input' OR name = '$escaped_input')";
+                write_log("  Staff query (fallback): $sql");
+                $result = mysqli_query($conn, $sql);
+                if ($result && mysqli_num_rows($result) === 1) {
+                    $row = mysqli_fetch_assoc($result);
+                    write_log("    Row found in staff (fallback). DB pass: '{$row['password']}', Input MD5: '$hashed_password'");
+                    if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                        $user_found = true;
+                        write_log("    Password MATCH in staff table (fallback)!");
+                    } else {
+                        write_log("    Password mismatch in staff table (fallback).");
+                    }
+                } else {
+                    write_log("    No match in staff table (fallback). Rows: " . ($result ? mysqli_num_rows($result) : 0));
+                }
+            }
+        } else {
+            // 1. Try staff table first (for staff, admin, super admin)
+            $sql = "SELECT staff_id as user_id, name, username, email, password, position as role FROM staff WHERE (email = '$escaped_input' OR username = '$escaped_input' OR name = '$escaped_input')";
+            write_log("  Staff query (priority): $sql");
+            $result = mysqli_query($conn, $sql);
+            if ($result && mysqli_num_rows($result) === 1) {
+                $row = mysqli_fetch_assoc($result);
+                write_log("    Row found in staff. DB pass: '{$row['password']}', Input MD5: '$hashed_password'");
                 if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
                     $user_found = true;
                     write_log("    Password MATCH in staff table!");
@@ -76,7 +92,26 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
                     write_log("    Password mismatch in staff table.");
                 }
             } else {
-                write_log("    No match or multiple matches in staff table. Rows: " . ($result ? mysqli_num_rows($result) : 0));
+                write_log("    No match in staff table. Rows: " . ($result ? mysqli_num_rows($result) : 0));
+            }
+            
+            // 2. Try customer table as fallback if not found
+            if (!$user_found) {
+                $sql = "SELECT * FROM customer WHERE (email = '$escaped_input' OR username = '$escaped_input')";
+                write_log("  Customer query (fallback): $sql");
+                $result = mysqli_query($conn, $sql);
+                if ($result && mysqli_num_rows($result) === 1) {
+                    $row = mysqli_fetch_assoc($result);
+                    write_log("    Row found in customer (fallback). Hashed DB pass: '{$row['password']}', Input MD5: '$hashed_password'");
+                    if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                        $user_found = true;
+                        write_log("    Password MATCH in customer table (fallback)!");
+                    } else {
+                        write_log("    Password mismatch in customer table (fallback).");
+                    }
+                } else {
+                    write_log("    No match in customer table (fallback). Rows: " . ($result ? mysqli_num_rows($result) : 0));
+                }
             }
         }
         
