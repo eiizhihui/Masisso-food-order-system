@@ -143,6 +143,13 @@ CREATE TABLE `orders` (
   `order_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `offers`
+--
+
+INSERT INTO `orders` (`user_id`, `order_type`, `total_price`, `order_status`) VALUES
+(1111, 'Takeaway', 19.40, 'Preparing'),
+(1111, 'Delivery', 32.80, 'Completed');
 -- --------------------------------------------------------
 
 --
