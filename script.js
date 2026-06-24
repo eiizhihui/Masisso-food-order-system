@@ -1,60 +1,54 @@
 // Dynamic Greeting 
 window.onload = function() {
-    // use data from mysql - need sn change ba , do profile, login
     let customerName = "Joey"; 
     let greetingElement = document.getElementById("greeting");
-    
-    greetingElement.innerText = "Hey, " + customerName + " 👋";
+    if (greetingElement) greetingElement.innerText = "Hey, " + customerName + " 👋";
 };
 
 // load the menu from the database 
 document.addEventListener('DOMContentLoaded', () => {
-    
     fetch('fetch_menu.php?nocache=' + new Date().getTime())
         .then(response => response.json())
         .then(data => {
             const menuContainer = document.getElementById('popular-menu-container');
-            menuContainer.innerHTML = ''; // Clear the "Loading..." text
-
-            // Group the food items by their database Category
-            const menuByCategory = {};
+            if(menuContainer) menuContainer.innerHTML = ''; 
             
+            window.masissoMenu = data;
+            
+            if(!menuContainer) return;
+
+            const menuByCategory = {};
             data.forEach(item => {
                 let categoryName = item.category ? item.category : 'Other'; 
-                
                 if (!menuByCategory[categoryName]) {
                     menuByCategory[categoryName] = [];
                 }
-                
                 menuByCategory[categoryName].push(item);
             });
 
-            // 2. Loop through our new grouped categories to build the screen
             for (const category in menuByCategory) {
-                
-                // Print the Section Title
-                menuContainer.innerHTML += `
-                    <h2 class="section-title">${category}</h2>
-                `;
-
-                // Print every food item
+                menuContainer.innerHTML += `<h2 class="section-title">${category}</h2>`;
                 menuByCategory[category].forEach(item => {
-                    
-                    // Safety check: if no image is in the database, use a blank/default one
                     let imgFile = item.image_url ? item.image_url : 'default.jpg';
+                    
+                    let isAvailable = (item.is_available === undefined || item.is_available == 1 || item.is_available === "1");
+
+                    let cardOpacity = isAvailable ? "1" : "0.6";
+                    let imgFilter = isAvailable ? "none" : "grayscale(100%)";
+                    
+                    let buttonHtml = isAvailable 
+                        ? `<button class="add-btn" onclick="openCustomization(${item.item_id})">+ Add</button>` 
+                        : `<button class="add-btn" style="background: #999; cursor: not-allowed; border-color: #999; color: white;" disabled>Unavailable</button>`;
 
                     menuContainer.innerHTML += `
-                        <div class="menu-card">
-                            
-                            <img src="images/${imgFile}" alt="${item.name}" class="menu-image">
-
+                        <div class="menu-card" style="opacity: ${cardOpacity}">
+                            <img src="images/${imgFile}" alt="${item.name}" class="menu-image" style="filter: ${imgFilter}">
                             <div class="menu-info">
                                 <h3 class="menu-title">${item.name}</h3>
                                 <p class="menu-price">RM ${parseFloat(item.price).toFixed(2)}</p>
                                 <p class="menu-desc">${item.description}</p>
                             </div>
-                            
-                            <button class="add-btn" onclick="openCustomization('${item.name}', ${parseFloat(item.price)}, '${imgFile}', '${category}')">+ Add</button>
+                            ${buttonHtml}
                         </div>
                     `;
                 });
@@ -62,30 +56,27 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error("Error loading menu:", error);
-            document.getElementById('popular-menu-container').innerHTML = "<p>Failed to load menu. Is XAMPP running?</p>";
+            if(document.getElementById('popular-menu-container')) {
+                document.getElementById('popular-menu-container').innerHTML = "<p>Failed to load menu. Is XAMPP running?</p>";
+            }
         });
 });
 
-// 2. Address / Map Feature
 function openMapSelector() {
-    // In a real app, this would open Google Maps API. For the project, a prompt works perfectly.
     let address = prompt("Please enter your delivery address or drop a pin:");
     if (address && address.trim() !== "") {
         document.getElementById("delivery-address").innerText = "Delivery to: " + address;
     }
 }
 
-// Customization Modal
 let currentItem = "";
 let currentPrice = 0.00;
 let currentQuantity = 1; 
 
-// Initialize from localStorage so cart survives page refreshes!
 let cartCount = parseInt(localStorage.getItem('masisso_cart_count')) || 0;
 let cartTotal = parseFloat(localStorage.getItem('masisso_cart_total')) || 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Restore the floating cart if there are items from a previous session
     if (cartCount > 0) {
         let floatingCart = document.getElementById('floating-cart');
         if (floatingCart) {
@@ -94,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cartTextDiv) {
                 cartTextDiv.innerText = cartCount + (cartCount === 1 ? ' item' : ' items') + ' • RM ' + cartTotal.toFixed(2);
             }
-            // Restore the image of the last item added to the cart
             let cartItemsArray = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
             if (cartItemsArray.length > 0) {
                 let lastItem = cartItemsArray[cartItemsArray.length - 1];
@@ -107,21 +97,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Add a new variable at the top to track the image
 let currentItemImage = "";
 
-function openCustomization(itemName, itemPrice, itemImage, itemCategory) { 
+function openCustomization(itemId) { 
+    let item = window.masissoMenu.find(m => m.item_id == itemId);
+    if (!item) return;
+
+    let itemName = item.name;
+    let itemPrice = parseFloat(item.price);
+    let itemImage = item.image_url ? item.image_url : 'default.jpg';
+    let itemCategory = item.category ? item.category : 'Other';
+
     currentItem = itemName;
     currentPrice = itemPrice;
     currentItemImage = itemImage; 
     currentQuantity = 1; 
 
-    // Logic to show/hide sections intelligently!
     let comboSection = document.getElementById('combo-section');
     let comboDivider = document.getElementById('combo-divider');
     let preferencesSection = document.getElementById('preferences-section');
+    let dynamicPreferencesList = document.getElementById('dynamic-preferences-list');
     
-    // 1. Show "Choose Your Combo" for everything EXCEPT existing combos
     if (comboSection && comboDivider) {
         if (itemCategory === 'Combo' || itemName.toLowerCase().includes('combo') || itemName.includes('+')) {
             comboSection.style.display = 'none';
@@ -131,8 +127,6 @@ function openCustomization(itemName, itemPrice, itemImage, itemCategory) {
         } else {
             comboSection.style.display = 'block';
             comboDivider.style.display = 'block';
-
-            // Dynamically update the combo text and prices!
             document.getElementById('combo-name-1').innerText = `A La Carte (Just the ${itemName})`;
             document.getElementById('combo-price-1').innerText = `+ RM 0.00`;
             document.getElementById('combo-radio-1').value = 0;
@@ -141,7 +135,6 @@ function openCustomization(itemName, itemPrice, itemImage, itemCategory) {
                 document.getElementById('combo-name-2').innerText = `Add Teh C Beng Special (三色奶茶)`;
                 document.getElementById('combo-price-2').innerText = `+ RM 4.50`;
                 document.getElementById('combo-radio-2').value = 4.50;
-
                 document.getElementById('combo-name-3').innerText = `Add Fruit Rojak`;
                 document.getElementById('combo-price-3').innerText = `+ RM 3.00`;
                 document.getElementById('combo-radio-3').value = 3.00;
@@ -149,7 +142,6 @@ function openCustomization(itemName, itemPrice, itemImage, itemCategory) {
                 document.getElementById('combo-name-2').innerText = `Add Laksa`;
                 document.getElementById('combo-price-2').innerText = `+ RM 14.90`;
                 document.getElementById('combo-radio-2').value = 14.90;
-
                 document.getElementById('combo-name-3').innerText = `Add Teh C Beng Special`;
                 document.getElementById('combo-price-3').innerText = `+ RM 4.50`;
                 document.getElementById('combo-radio-3').value = 4.50;
@@ -157,7 +149,6 @@ function openCustomization(itemName, itemPrice, itemImage, itemCategory) {
                 document.getElementById('combo-name-2').innerText = `Add Laksa`;
                 document.getElementById('combo-price-2').innerText = `+ RM 14.90`;
                 document.getElementById('combo-radio-2').value = 14.90;
-
                 document.getElementById('combo-name-3').innerText = `Add Fruit Rojak`;
                 document.getElementById('combo-price-3').innerText = `+ RM 6.90`;
                 document.getElementById('combo-radio-3').value = 6.90;
@@ -165,7 +156,6 @@ function openCustomization(itemName, itemPrice, itemImage, itemCategory) {
                 document.getElementById('combo-name-2').innerText = `Add Teh C Beng Special`;
                 document.getElementById('combo-price-2').innerText = `+ RM 4.50`;
                 document.getElementById('combo-radio-2').value = 4.50;
-
                 document.getElementById('combo-name-3').innerText = `Add Fruit Rojak`;
                 document.getElementById('combo-price-3').innerText = `+ RM 6.90`;
                 document.getElementById('combo-radio-3').value = 6.90;
@@ -173,36 +163,43 @@ function openCustomization(itemName, itemPrice, itemImage, itemCategory) {
         }
     }
 
-    // 2. Hide "Preferences" (No Coriander, etc) if it's a Drink!
-    if (preferencesSection) {
-        if (itemCategory.toLowerCase().includes('drink') || itemCategory.toLowerCase().includes('beverage') || itemName.toLowerCase().includes('teh') || itemName.toLowerCase().includes('kopi')) {
-            preferencesSection.style.display = 'none';
-        } else {
+    if (preferencesSection && dynamicPreferencesList) {
+        dynamicPreferencesList.innerHTML = ''; 
+        let prefObj = null;
+        try {
+            if (item.preferences) {
+                prefObj = JSON.parse(item.preferences);
+            }
+        } catch(e) {
+            console.error("Error parsing preferences", e);
+        }
+
+        if (prefObj && Object.keys(prefObj).length > 0) {
             preferencesSection.style.display = 'block';
+            for (const category in prefObj) {
+                dynamicPreferencesList.innerHTML += `<h4 style="margin: 15px 0 5px; color: #e65100; font-size: 14px; border-bottom: 1px solid #ffe0b2; padding-bottom: 3px;">${category}</h4>`;
+                prefObj[category].forEach(pref => {
+                    dynamicPreferencesList.innerHTML += `
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="${pref}"> ${pref}
+                        </label>
+                    `;
+                });
+            }
+        } else {
+            preferencesSection.style.display = 'none';
         }
     }
 
-    // 1. Update the text at the top of the modal
     document.getElementById("modal-item-name").innerText = itemName;
     document.getElementById("modal-base-price").innerText = currentPrice.toFixed(2);
-
-    // 2. THE MAGIC: Update the image at the top of the modal dynamically!
     let modalImage = document.querySelector('.product-hero img');
     if (modalImage) {
         modalImage.src = 'images/' + itemImage;
     }
-
-    // 3. Update the sticky button at the bottom immediately
     document.getElementById("display-total").innerText = currentPrice.toFixed(2);
     document.getElementById("display-quantity").innerText = currentQuantity;
-
-    // 4. Reset all checkboxes and radio buttons to default
-    document.getElementById("no-coriander").checked = false;
-    document.getElementById("no-shrimp-sauce").checked = false;
-    document.getElementById("extra-sambal").checked = false;
     document.querySelector('input[name="combo"][value="0"]').checked = true;
-
-    // 5. Show the modal
     document.getElementById("customize-modal").style.display = "block";
 }
 
@@ -210,39 +207,25 @@ function closeModal() {
     document.getElementById("customize-modal").style.display = "none";
 }
 
-// Function to handle + and - buttons AND recalculate price
 function updateQuantity(change) {
     currentQuantity += change;
-    
-    // Prevent quantity from going below 1
     if (currentQuantity < 1) {
         currentQuantity = 1;
     }
-    
     document.getElementById('display-quantity').innerText = currentQuantity;
-    
-    // Check if a combo is selected 
     let comboPrice = parseFloat(document.querySelector('input[name="combo"]:checked').value);
-    
-    // Calculate the real total: (Base Price + Combo Price) * Quantity
     let finalTotal = (currentPrice + comboPrice) * currentQuantity;
-    
-    // Update the button
     document.getElementById('display-total').innerText = finalTotal.toFixed(2);
 }
 
-// 4. Cart Logic
 function calculateModalPrice() {
-    updateQuantity(0); // Trigger a recalculation without adding to the quantity!
+    updateQuantity(0); 
 }
 
-// Function when they actually click Add to Order
 function confirmAddToCart() {
-    // Calculate the final price of the item they just customized
     let comboElement = document.querySelector('input[name="combo"]:checked');
     let comboPrice = comboElement ? parseFloat(comboElement.value) : 0;
     
-    // Get the name of the selected combo from the span beside the radio button
     let comboName = "";
     if (comboElement && comboElement.nextElementSibling) {
         let nameSpan = comboElement.nextElementSibling.querySelector('.option-name');
@@ -251,13 +234,12 @@ function confirmAddToCart() {
     
     let finalPrice = (currentPrice + comboPrice) * currentQuantity;
     
-    // Gather any checked preferences
     let preferences = [];
-    if (document.getElementById("no-coriander").checked) preferences.push("No Coriander");
-    if (document.getElementById("no-shrimp-sauce").checked) preferences.push("No Shrimp Sauce");
-    if (document.getElementById("extra-sambal").checked) preferences.push("Extra Sambal");
+    let checkedBoxes = document.querySelectorAll('#dynamic-preferences-list input[type="checkbox"]:checked');
+    checkedBoxes.forEach(box => {
+        preferences.push(box.value);
+    });
 
-    // Construct the complete item object
     let cartItem = {
         name: currentItem,
         image: currentItemImage,
@@ -269,57 +251,43 @@ function confirmAddToCart() {
         totalPrice: finalPrice
     };
 
-    // Pull the existing array of items from localStorage, or start a new empty array
     let cartItemsArray = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
     cartItemsArray.push(cartItem);
-    // Save the updated array back to localStorage
     localStorage.setItem('masisso_cart_items', JSON.stringify(cartItemsArray));
 
-    // Update Cart numbers (This accumulates EVERY time you click Add!)
     cartCount += currentQuantity;
     cartTotal += finalPrice;
     
-    // Show the floating cart button and update the text
     let floatingCart = document.getElementById('floating-cart');
     if (floatingCart) {
         floatingCart.classList.remove('hidden');
         let cartTextDiv = document.querySelector('.cart-text div:nth-child(2)');
         if (cartTextDiv) {
-            // Display the accumulated Grand Total on the floating button
             cartTextDiv.innerText = cartCount + (cartCount === 1 ? ' item' : ' items') + ' • RM ' + cartTotal.toFixed(2);
         }
-        
-        // Update the cart image to the one we just added!
         let cartImg = document.getElementById('floating-cart-img');
         if (cartImg && currentItemImage) {
             cartImg.src = 'images/' + currentItemImage;
         }
     }
 
-    // Save the grand total to the browser's memory so it doesn't get lost when you switch to your cart.html page!
     localStorage.setItem('masisso_cart_total', cartTotal.toFixed(2));
     localStorage.setItem('masisso_cart_count', cartCount);
-
-    // Close the modal
     closeModal();
 }
 
-// delivery/pickup toggle
 document.addEventListener('DOMContentLoaded', () => {
-    
     const btnDelivery = document.getElementById('btn-delivery');
     const btnPickup   = document.getElementById('btn-pickup');
 
-    let currentMode = "Delivery"; // Default state
+    let currentMode = "Delivery"; 
 
     if (btnDelivery && btnPickup) {
-        // Clicking Delivery button → open delivery modal & mark as active
         btnDelivery.addEventListener('click', () => {
             openOrderModal('delivery-modal');
             setActiveToggle('Delivery');
         });
 
-        // Clicking Pickup button → open pickup modal & mark as active
         btnPickup.addEventListener('click', () => {
             openOrderModal('pickup-modal');
             setActiveToggle('Pickup');
@@ -338,51 +306,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Open an order modal by id
 function openOrderModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.classList.add('show'); // Fix: Add 'show' instead of removing 'hidden'
+        modal.classList.add('show'); 
     }
 }
 
-// Close an order modal by id
 function closeOrderModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.classList.remove('show'); // Fix: Remove 'show' instead of adding 'hidden'
+        modal.classList.remove('show'); 
     }
 }
 
-// Close modal when clicking the dark overlay background
 document.addEventListener('DOMContentLoaded', () => {
     ['delivery-modal', 'pickup-modal'].forEach(id => {
         const overlay = document.getElementById(id);
         if (overlay) {
             overlay.addEventListener('click', function(e) {
-                // Only close if they clicked the overlay itself, not the card inside
                 if (e.target === overlay) closeOrderModal(id);
             });
         }
     });
 });
 
-
-// Function to handle the accordion (Nutritional Info dropdown)
 function toggleAccordion() {
     const content = document.getElementById('accordion-content');
     const icon = document.getElementById('accordion-icon');
     
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)'; // Flips the caret upside down
+        icon.style.transform = 'rotate(180deg)'; 
     } else {
         content.classList.add('hidden');
         icon.style.transform = 'rotate(0deg)';
     }
 }
 
-// SEARCH FEATURE 
 function executeSearch() {
     const inputElement = document.getElementById('searchInput');
     if (!inputElement) return; 
@@ -391,7 +352,6 @@ function executeSearch() {
     const resultsContainer = document.getElementById('search-results-container');
     if (!resultsContainer) return;
 
-    // FIX: If the user deletes their text, stop searching and show the prompt!
     if (keyword === "") {
         resultsContainer.innerHTML = '<p style="color: #888; text-align: center; margin-top: 20px;">Start typing to search menu...</p>';
         return;
@@ -403,6 +363,9 @@ function executeSearch() {
         .then(response => response.json())
         .then(data => {
             resultsContainer.innerHTML = ''; 
+            
+            // Store search results so openCustomization works!
+            window.masissoMenu = data;
 
             if(data.length === 0) {
                 resultsContainer.innerHTML = '<p style="text-align:center; color:#888;">No items found matching "' + keyword + '".</p>';
@@ -410,21 +373,26 @@ function executeSearch() {
             }
 
             data.forEach(item => {
-                // Grab the image just like the main menu
                 let imgFile = item.image_url ? item.image_url : 'default.jpg';
 
-                resultsContainer.innerHTML += `
-                    <div class="menu-card">
-                        
-                        <img src="images/${imgFile}" alt="${item.name}" class="menu-image">
+                let isAvailable = (item.is_available === undefined || item.is_available == 1 || item.is_available === "1");
 
+                let cardOpacity = isAvailable ? "1" : "0.6";
+                let imgFilter = isAvailable ? "none" : "grayscale(100%)";
+                
+                let buttonHtml = isAvailable 
+                    ? `<button class="add-btn" onclick="openCustomization(${item.item_id})">+ Add</button>` 
+                    : `<button class="add-btn" style="background: #999; cursor: not-allowed; border-color: #999; color: white;" disabled>Unavailable</button>`;
+
+                resultsContainer.innerHTML += `
+                    <div class="menu-card" style="opacity: ${cardOpacity}">
+                        <img src="images/${imgFile}" alt="${item.name}" class="menu-image" style="filter: ${imgFilter}">
                         <div class="menu-info">
                             <h3 class="menu-title">${item.name}</h3>
                             <p class="menu-price">RM ${parseFloat(item.price).toFixed(2)}</p>
                             <p class="menu-desc">${item.description}</p>
                         </div>
-                        
-                        <button class="add-btn" onclick="openCustomization('${item.name}', ${parseFloat(item.price)}, '${imgFile}', '${item.category ? item.category : 'Other'}')">+ Add</button>
+                        ${buttonHtml}
                     </div>
                 `;
             });
@@ -438,20 +406,15 @@ function executeSearch() {
 // OFFERS PAGE 
 document.addEventListener('DOMContentLoaded', () => {
     const offersContainer = document.getElementById('offers-container');
-    
-    // Only run this fetch code if the offers-container exists on the screen
     if (offersContainer) {
         fetch('fetch_offers.php')
             .then(response => response.json())
             .then(data => {
-                offersContainer.innerHTML = ''; // Clear the loading text
-
+                offersContainer.innerHTML = ''; 
                 if (data.length === 0) {
                     offersContainer.innerHTML = '<p style="text-align:center;">No offers available right now.</p>';
                     return;
                 }
-
-                // Loop through the SQL data and create the cards
                 data.forEach(offer => {
                     offersContainer.innerHTML += `
                         <div class="dash-card" style="border-left: 5px solid #E91E63; margin-bottom: 15px; text-align: left; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
@@ -469,7 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Simple function when user clicks "Add Voucher"
 function applyPromo(code) {
     localStorage.setItem('masisso_active_voucher', code);
     alert("Voucher " + code + " has been added! It will be automatically applied at checkout.");
@@ -478,25 +440,19 @@ function applyPromo(code) {
 // REWARDS PAGE LOGIC
 document.addEventListener('DOMContentLoaded', () => {
     const rewardsContainer = document.getElementById('rewards-container');
-    
-    // Only run if we are actually on the rewards page
     if (rewardsContainer) {
         fetch('fetch_rewards.php')
             .then(response => response.json())
             .then(data => {
-                rewardsContainer.innerHTML = ''; // Clear loading text
-
+                rewardsContainer.innerHTML = ''; 
                 data.forEach(reward => {
                     rewardsContainer.innerHTML += `
                         <div class="menu-card" style="display: flex; align-items: center; margin-bottom: 15px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                            
                             <img src="images/${reward.image_url}" alt="${reward.reward_name}" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover; margin-right: 15px;">
-                            
                             <div style="flex-grow: 1;">
                                 <h3 style="margin: 0 0 5px 0; font-size: 16px;">${reward.reward_name}</h3>
                                 <p style="margin: 0; color: #E65100; font-weight: bold;">🪙 ${reward.points_required} pts</p>
                             </div>
-                            
                             <button onclick="redeemItem('${reward.reward_name}', ${reward.points_required}, '${reward.image_url}')" style="background: #E65100; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">Redeem</button>
                         </div>
                     `;
@@ -509,18 +465,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Mock function for when they click Redeem
-let currentUserPoints = 1000; // In a full system, this comes from the database too!
+let currentUserPoints = 1000; 
 
 function redeemItem(itemName, pointsCost, itemImage) {
     if (currentUserPoints >= pointsCost) {
         let confirmRedeem = confirm(`Do you want to spend ${pointsCost} points for a free ${itemName}?`);
-        
         if (confirmRedeem) {
             currentUserPoints -= pointsCost;
-            document.getElementById('user-points-display').innerText = currentUserPoints;
+            let pointsDisplay = document.getElementById('user-points-display');
+            if(pointsDisplay) pointsDisplay.innerText = currentUserPoints;
             
-            // Add the free item to the cart!
             let cartItem = {
                 name: "Free " + itemName + " (Reward)",
                 image: itemImage || "default.jpg",
@@ -536,7 +490,6 @@ function redeemItem(itemName, pointsCost, itemImage) {
             cartItemsArray.push(cartItem);
             localStorage.setItem('masisso_cart_items', JSON.stringify(cartItemsArray));
             
-            // Update cart count in memory
             let cartCount = parseInt(localStorage.getItem('masisso_cart_count')) || 0;
             localStorage.setItem('masisso_cart_count', cartCount + 1);
 
@@ -569,18 +522,15 @@ function setupLocationSearch(inputId, resultsId, dataList, modalId) {
 
     input.addEventListener('input', function() {
         const keyword = this.value.toLowerCase();
-        resultsBox.innerHTML = ''; // Clear old results
+        resultsBox.innerHTML = ''; 
 
-        // Hide the box if they delete their text
         if (keyword === "") {
             resultsBox.style.display = 'none';
             return;
         }
 
-        // Filter the fake database
         const filtered = dataList.filter(item => item.toLowerCase().includes(keyword));
 
-        // Show the results
         resultsBox.style.display = 'block';
         if (filtered.length > 0) {
             filtered.forEach(item => {
@@ -596,12 +546,9 @@ function setupLocationSearch(inputId, resultsId, dataList, modalId) {
     });
 }
 
-// When a user clicks a search result
-let activeOrderMode = "Delivery"; // Remembers what they locked in!
+let activeOrderMode = "Delivery"; 
 
-// When a user clicks a search result OR a nearby branch
 function selectLocation(locName, modalId) {
-    // 1. Update the Locked Header Text & Icons
     if (modalId === 'delivery-modal') {
         activeOrderMode = "Delivery";
         document.getElementById('header-selected-icon').innerText = "🛵";
@@ -610,16 +557,16 @@ function selectLocation(locName, modalId) {
         activeOrderMode = "Pickup";
         document.getElementById('header-selected-icon').innerText = "🏪";
         document.getElementById('header-selected-mode').innerText = "Picking up from";
-        locName = locName.split(' (')[0]; // Clean up the name for the header
+        locName = locName.split(' (')[0]; 
     }
 
+    localStorage.setItem('masisso_order_mode', activeOrderMode);
+    localStorage.setItem('masisso_location_name', locName);
     document.getElementById('header-selected-text').innerText = locName;
 
-    // 2. Hide the Big Toggle Buttons & Show the Locked Header
     document.getElementById('header-toggle-state').classList.add('hidden');
     document.getElementById('header-selected-state').classList.remove('hidden');
 
-    // 3. Clean up and close
     document.getElementById('delivery-search-input').value = "";
     document.getElementById('pickup-search-input').value = "";
     if(document.getElementById('delivery-results')) document.getElementById('delivery-results').style.display = 'none';
@@ -628,16 +575,11 @@ function selectLocation(locName, modalId) {
     closeOrderModal(modalId);
 }
 
-// Allows them to change their mind between Delivery and Pickup!
 function reopenCurrentModal() {
-    // 1. Hide the compact locked display
     document.getElementById('header-selected-state').classList.add('hidden');
-    
-    // 2. Bring back the big Delivery/Pickup toggle buttons!
     document.getElementById('header-toggle-state').classList.remove('hidden');
 }
 
-// Automatically prints the 3 stores to the screen
 function renderNearbyBranches() {
     const listContainer = document.getElementById('nearby-branches-list');
     if (!listContainer) return;
@@ -652,18 +594,38 @@ function renderNearbyBranches() {
     });
 }
 
-// Start everything when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     setupLocationSearch('delivery-search-input', 'delivery-results', deliveryLocations, 'delivery-modal');
     setupLocationSearch('pickup-search-input', 'pickup-results', pickupStores, 'pickup-modal');
-    
-    // Draw the nearby branches instantly!
     renderNearbyBranches(); 
+
+    // Automatically restore the selected location state!
+    let savedMode = localStorage.getItem('masisso_order_mode');
+    let savedLocation = localStorage.getItem('masisso_location_name');
+    if (savedMode && savedLocation) {
+        let elIcon = document.getElementById('header-selected-icon');
+        let elMode = document.getElementById('header-selected-mode');
+        let elText = document.getElementById('header-selected-text');
+        let elToggle = document.getElementById('header-toggle-state');
+        let elSelected = document.getElementById('header-selected-state');
+
+        if (elIcon && elMode && elText && elToggle && elSelected) {
+            if (savedMode === "Delivery") {
+                elIcon.innerText = "🛵";
+                elMode.innerText = "Delivering to";
+            } else {
+                elIcon.innerText = "🏪";
+                elMode.innerText = "Picking up from";
+            }
+            elText.innerText = savedLocation;
+            elToggle.classList.add('hidden');
+            elSelected.classList.remove('hidden');
+        }
+    }
 });
 
 // --- PROFILE PAGE LOGIC ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Only run this if we are on the profile page
     if (document.getElementById('profile-view-mode')) {
         loadProfile();
     }
@@ -675,18 +637,19 @@ function loadProfile() {
         .then(data => {
             if (data.success) {
                 let profile = data.profile;
-                // Update View Mode text
                 document.getElementById('display-name').innerText = profile.name || "N/A";
                 document.getElementById('display-email').innerText = profile.email || "N/A";
-                document.getElementById('display-phone').innerText = profile.phone || "N/A";
-                document.getElementById('display-address').innerText = profile.address || "N/A";
-                document.getElementById('display-role').innerText = profile.role || "Customer";
+                let dp = document.getElementById('display-phone');
+                if(dp) dp.innerText = profile.phone || "N/A";
+                let da = document.getElementById('display-address');
+                if(da) da.innerText = profile.address || "N/A";
                 
-                // Pre-fill Edit Mode inputs
                 document.getElementById('edit-name').value = profile.name || "";
                 document.getElementById('edit-email').value = profile.email || "";
-                document.getElementById('edit-phone').value = profile.phone || "";
-                document.getElementById('edit-address').value = profile.address || "";
+                let ep = document.getElementById('edit-phone');
+                if(ep) ep.value = profile.phone || "";
+                let ea = document.getElementById('edit-address');
+                if(ea) ea.value = profile.address || "";
             } else {
                 console.error("Failed to load profile", data.message);
             }
@@ -711,18 +674,16 @@ function saveProfile() {
     let updatedData = {
         name: document.getElementById('edit-name').value.trim(),
         email: document.getElementById('edit-email').value.trim(),
-        phone: document.getElementById('edit-phone').value.trim(),
-        address: document.getElementById('edit-address').value.trim()
+        phone: document.getElementById('edit-phone') ? document.getElementById('edit-phone').value.trim() : "",
+        address: document.getElementById('edit-address') ? document.getElementById('edit-address').value.trim() : ""
     };
     
-    // Safety check
     if (!updatedData.name || !updatedData.email) {
         alert("Name and Email are required!");
         return;
     }
 
-    // Change button text while saving
-    let saveBtn = document.querySelector('#profile-edit-mode button.solid-btn');
+    let saveBtn = document.querySelector('#profile-edit-mode button.add-btn');
     let originalText = saveBtn.innerText;
     saveBtn.innerText = "Saving...";
 
@@ -735,8 +696,8 @@ function saveProfile() {
     .then(data => {
         if (data.success) {
             alert(data.message);
-            toggleEditProfile(); // go back to view mode
-            loadProfile(); // refresh data
+            toggleEditProfile(); 
+            loadProfile(); 
         } else {
             alert("Error: " + data.message);
         }

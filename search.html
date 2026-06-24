@@ -14,7 +14,7 @@
         </div>
     </header>
 
-    <main class="main-content">
+    <main class="main-content" style="padding-bottom: 120px;">
         <div style="display: flex; gap: 10px; margin-bottom: 30px;">
             <input type="text" id="searchInput" onkeyup="executeSearch()" placeholder="Search for Laksa, drinks, rojak..." style="flex-grow: 1; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 16px;">
             <!--button onclick="executeSearch()" style="background-color: #e65100; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Search</button-->
@@ -29,7 +29,7 @@
     <div id="customize-modal" class="modal" style="z-index: 9999;">
         <span class="close-btn" onclick="closeModal()" style="position: absolute; top: 15px; right: 20px; font-size: 35px; color: white; z-index: 1002; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">&times;</span>
 
-        <div class="product-page-container" style="display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; background: white; position: relative; width: 90%; max-width: 500px; margin: 5vh auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div class="product-page-container" style="display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; background: white; position: relative; width: 90%; max-width: 500px; margin: 5vh auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             
             <div style="overflow-y: auto; flex-grow: 1; padding-bottom: 100px;">
                 <div class="product-hero">
@@ -46,45 +46,47 @@
                     <p class="product-desc">Authentic thin rice vermicelli topped with shredded chicken breast, fresh shrimp, and golden omelette strips in our rich, spicy broth.</p>
                     <div class="product-price">Base Price: RM <span id="modal-base-price">14.90</span></div>
 
-                    <hr class="divider">
+                    <hr class="divider" id="combo-divider">
 
-                    <div class="custom-options customization-section">
+                    <div class="custom-options customization-section" id="combo-section">
                         <h3>Choose Your Combo</h3>
                         <p class="section-subtitle">Select one option</p>
                         
                         <label class="custom-radio-card">
-                            <input type="radio" name="combo" value="0" checked onchange="calculateModalPrice()">
+                            <input type="radio" name="combo" id="combo-radio-1" value="0" checked onchange="calculateModalPrice()">
                             <div class="card-content">
-                                <span class="option-name">A La Carte (Just the Laksa)</span>
-                                <span class="option-price">+ RM 0.00</span>
+                                <span class="option-name" id="combo-name-1">A La Carte (Just the Laksa)</span>
+                                <span class="option-price" id="combo-price-1">+ RM 0.00</span>
                             </div>
                         </label>
 
                         <label class="custom-radio-card">
-                            <input type="radio" name="combo" value="4.50" onchange="calculateModalPrice()">
+                            <input type="radio" name="combo" id="combo-radio-2" value="4.50" onchange="calculateModalPrice()">
                             <div class="card-content">
-                                <span class="option-name">Laksa + Teh C Beng Special (三色奶茶)</span>
-                                <span class="option-price">+ RM 4.50</span>
+                                <span class="option-name" id="combo-name-2">Laksa + Teh C Beng Special (三色奶茶)</span>
+                                <span class="option-price" id="combo-price-2">+ RM 4.50</span>
                             </div>
                         </label>
 
                         <label class="custom-radio-card">
-                            <input type="radio" name="combo" id="add-rojak" value="3.00" onchange="calculateModalPrice()">
+                            <input type="radio" name="combo" id="combo-radio-3" value="3.00" onchange="calculateModalPrice()">
                             <div class="card-content">
-                                <span class="option-name">Laksa + Fruit Rojak</span>
-                                <span class="option-price">+ RM 3.00</span>
+                                <span class="option-name" id="combo-name-3">Laksa + Fruit Rojak</span>
+                                <span class="option-price" id="combo-price-3">+ RM 3.00</span>
                             </div>
                         </label>
+                    </div>
 
+                    <div class="custom-options customization-section" id="preferences-section">
                         <h3 class="margin-top">Preferences</h3>
-                        <label class="custom-checkbox"><input type="checkbox" id="no-coriander"> No Coriander</label>
-                        <label class="custom-checkbox"><input type="checkbox" id="no-shrimp-sauce"> No Shrimp Sauce</label>
-                        <label class="custom-checkbox"><input type="checkbox" id="extra-sambal"> Extra Sambal</label>
+                        <div id="dynamic-preferences-list">
+                            <!-- Checkboxes will be automatically generated here by script.js! -->
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="sticky-action-bar" style="background: white; padding: 15px; display: flex; gap: 15px; border-top: 1px solid #eee; align-items: center; flex-shrink: 0;">
+            <div class="sticky-action-bar" style="background: white; padding: 15px 15px 30px 15px; display: flex; gap: 15px; border-top: 1px solid #eee; align-items: center; flex-shrink: 0;">
                 <div class="quantity-pill" style="display: flex; align-items: center; justify-content: space-between; background-color: #f4f4f4; border-radius: 25px; padding: 0 10px; width: 110px; height: 50px;">
                     <button class="qty-control-btn" onclick="updateQuantity(-1)" style="background: none; border: none; font-size: 24px; color: #777; cursor: pointer; padding: 0 10px;">−</button>
                     <span id="display-quantity" class="qty-number" style="font-weight: bold; font-size: 18px; color: #000;">1</span>
@@ -101,7 +103,7 @@
     
     <div id="floating-cart" class="floating-cart hidden" onclick="window.location.href='checkout.html'">
         <div class="cart-img-circle">
-            <img src="laksa-thumbnail.jpg" alt="item" style="width: 100%; border-radius: 50%;">
+            <img id="floating-cart-img" src="images/default.jpg" alt="item" style="width: 100%; border-radius: 50%;">
         </div>
         <div class="cart-text">
             <div style="font-weight: bold; font-size: 18px;">Checkout</div>
@@ -110,6 +112,6 @@
         <div class="cart-arrow">&gt;</div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=11"></script>
 </body>
 </html>
