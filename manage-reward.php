@@ -47,13 +47,18 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         }
 
         .add-new-btn {
-            background: white;
-            color: var(--primary-orange);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 6px 15px;
             border-radius: 20px;
             font-weight: bold;
             cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-new-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
         }
 
         .list-container {

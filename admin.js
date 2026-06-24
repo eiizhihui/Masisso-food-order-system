@@ -58,9 +58,9 @@ function hideAddForm() {
 // 1. DASHBOARD FEATURE
 // ==========================================
 async function loadDashboard() {
-    const orders = await fetchApi('admin-php/order-read.php') || [];
-    const users = await fetchApi('admin-php/user-read.php') || [];
-    const offers = await fetchApi('admin-php/offer-read.php') || [];
+    const orders = await fetchApi('staff-php/orders_read.php') || [];
+    const users = await fetchApi('staff-php/user_read.php') || [];
+    const offers = await fetchApi('staff-php/offer_read.php') || [];
 
     users.forEach(u => usersDict[u.user_id] = u.name);
 
@@ -135,7 +135,7 @@ async function globalSearch(query) {
     if (dashDiv) dashDiv.style.display = 'none';
     if (list) list.innerHTML = 'Searching...';
 
-    const results = await fetchApi('admin-php/global_search.php?q=' + encodeURIComponent(query));
+    const results = await fetchApi('staff-php/global_search.php?q=' + encodeURIComponent(query));
     if (list) {
         list.innerHTML = '';
         if (!results || results.length === 0) {
@@ -172,20 +172,20 @@ async function globalSearch(query) {
 }
 
 async function completeOrderDash(id) {
-    const res = await fetchApi('admin-php/order-update.php', 'POST', { order_id: id, order_status: 'Completed' });
+    const res = await fetchApi('staff-php/order_update.php', 'POST', { order_id: id, order_status: 'Completed' });
     if (res && res.success) loadDashboard();
 }
 
 async function deleteOrderDash(id) {
     if (confirm('Delete this order?')) {
-        const res = await fetchApi('admin-php/order-delete.php', 'POST', { order_id: id });
+        const res = await fetchApi('staff-php/order_delete.php', 'POST', { order_id: id });
         if (res && res.success) loadDashboard();
     }
 }
 
 async function deleteEventDash(id) {
     if (confirm('Delete this event?')) {
-        const res = await fetchApi('admin-php/offer-delete.php', 'POST', { offer_id: id });
+        const res = await fetchApi('staff-php/offer_delete.php', 'POST', { offer_id: id });
         if (res && res.success) loadDashboard();
     }
 }
@@ -195,7 +195,7 @@ async function deleteEventDash(id) {
 // 2. USERS FEATURE
 // ==========================================
 async function loadUsers() {
-    const users = await fetchApi('admin-php/user-read.php');
+    const users = await fetchApi('staff-php/user_read.php');
     renderUsers(users);
 }
 
@@ -204,7 +204,7 @@ async function searchUsers(query) {
         loadUsers();
         return;
     }
-    const users = await fetchApi('admin-php/user-search.php?q=' + encodeURIComponent(query));
+    const users = await fetchApi('staff-php/user_search.php?q=' + encodeURIComponent(query));
     renderUsers(users);
 }
 
@@ -324,10 +324,10 @@ async function saveUser() {
 
     if (!data.name || !data.email) return alert("Name and Email are required");
 
-    let url = 'admin-php/user-create.php';
+    let url = 'staff-php/user_create.php';
     if (currentEditingId) {
         data.user_id = currentEditingId;
-        url = 'admin-php/user-update.php';
+        url = 'staff-php/user_update.php';
     }
 
     const res = await fetchApi(url, 'POST', data);
@@ -341,7 +341,7 @@ async function saveUser() {
 
 async function deleteUser(id, role) {
     if (confirm('Are you sure you want to delete this user?')) {
-        const res = await fetchApi('admin-php/user-delete.php', 'POST', { user_id: id, role: role });
+        const res = await fetchApi('staff-php/user_delete.php', 'POST', { user_id: id, role: role });
         if (res && res.success) {
             loadUsers();
         } else {
@@ -355,7 +355,7 @@ async function deleteUser(id, role) {
 // 3. ORDERS FEATURE
 // ==========================================
 async function loadOrdersData() {
-    const users = await fetchApi('admin-php/user-read.php');
+    const users = await fetchApi('staff-php/user_read.php');
     if (users) {
         users.forEach(u => usersDict[u.user_id] = u.name);
     }
@@ -363,7 +363,7 @@ async function loadOrdersData() {
 }
 
 async function loadOrders() {
-    const orders = await fetchApi('admin-php/order-read.php');
+    const orders = await fetchApi('staff-php/orders_read.php');
     renderOrders(orders);
 }
 
@@ -372,7 +372,7 @@ async function searchOrders(query) {
         loadOrders();
         return;
     }
-    const orders = await fetchApi('admin-php/order-search.php?q=' + encodeURIComponent(query));
+    const orders = await fetchApi('staff-php/orders_read.php?q=' + encodeURIComponent(query));
     renderOrders(orders);
 }
 
@@ -422,7 +422,7 @@ function renderOrders(orders) {
 }
 
 async function completeOrder(id) {
-    const res = await fetchApi('admin-php/order-update.php', 'POST', { order_id: id, order_status: 'Completed' });
+    const res = await fetchApi('staff-php/order_update.php', 'POST', { order_id: id, order_status: 'Completed' });
     if (res && res.success) {
         loadOrders();
     } else {
@@ -432,7 +432,7 @@ async function completeOrder(id) {
 
 async function deleteOrder(id) {
     if (confirm('Are you sure you want to delete this order?')) {
-        const res = await fetchApi('admin-php/order-delete.php', 'POST', { order_id: id });
+        const res = await fetchApi('staff-php/order_delete.php', 'POST', { order_id: id });
         if (res && res.success) {
             loadOrders();
         } else {
@@ -446,7 +446,7 @@ async function deleteOrder(id) {
 // 4. MENU FEATURE
 // ==========================================
 async function loadMenu() {
-    const menu = await fetchApi('admin-php/menu-read.php');
+    const menu = await fetchApi('staff-php/menu_read.php');
     renderMenu(menu);
 }
 
@@ -455,7 +455,7 @@ async function searchMenu(query) {
         loadMenu();
         return;
     }
-    const menu = await fetchApi('admin-php/menu-search.php?q=' + encodeURIComponent(query));
+    const menu = await fetchApi('staff-php/menu_search.php?q=' + encodeURIComponent(query));
     renderMenu(menu);
 }
 
@@ -525,10 +525,10 @@ async function saveMenu() {
 
     if (!data.name) return alert("Name is required");
 
-    let url = 'admin-php/menu-create.php';
+    let url = 'staff-php/menu_create.php';
     if (editingMenuId) {
         data.item_id = editingMenuId;
-        url = 'admin-php/menu-update.php';
+        url = 'staff-php/menu_update.php';
     }
 
     const res = await fetchApi(url, 'POST', data);
@@ -542,7 +542,7 @@ async function saveMenu() {
 
 async function deleteMenu(id) {
     if (confirm('Are you sure you want to delete this menu item?')) {
-        const res = await fetchApi('admin-php/menu-delete.php', 'POST', { item_id: id });
+        const res = await fetchApi('staff-php/menu_delete.php', 'POST', { item_id: id });
         if (res && res.success) {
             loadMenu();
         } else {
@@ -556,7 +556,7 @@ async function deleteMenu(id) {
 // 5. EVENTS/OFFERS FEATURE
 // ==========================================
 async function loadOffers() {
-    const offers = await fetchApi('admin-php/offer-read.php');
+    const offers = await fetchApi('staff-php/offer_read.php');
     renderOffers(offers);
 }
 
@@ -565,7 +565,7 @@ async function searchOffers(query) {
         loadOffers();
         return;
     }
-    const offers = await fetchApi('admin-php/offer-search.php?q=' + encodeURIComponent(query));
+    const offers = await fetchApi('staff-php/offer_search.php?q=' + encodeURIComponent(query));
     renderOffers(offers);
 }
 
@@ -642,10 +642,10 @@ async function saveOffer() {
 
     if (!data.code || !data.title) return alert("Code and Title are required");
 
-    let url = 'admin-php/offer-create.php';
+    let url = 'staff-php/offer_create.php';
     if (editingOfferId) {
         data.offer_id = editingOfferId;
-        url = 'admin-php/offer-update.php';
+        url = 'staff-php/offer_update.php';
     }
 
     const res = await fetchApi(url, 'POST', data);
@@ -659,7 +659,7 @@ async function saveOffer() {
 
 async function deleteOffer(id) {
     if (confirm('Are you sure you want to delete this offer?')) {
-        const res = await fetchApi('admin-php/offer-delete.php', 'POST', { offer_id: id });
+        const res = await fetchApi('staff-php/offer_delete.php', 'POST', { offer_id: id });
         if (res && res.success) {
             loadOffers();
         } else {
@@ -673,7 +673,7 @@ async function deleteOffer(id) {
 // 6. REWARDS FEATURE
 // ==========================================
 async function loadRewards() {
-    const rewards = await fetchApi('admin-php/reward-read.php');
+    const rewards = await fetchApi('staff-php/reward_read.php');
     renderRewards(rewards);
 }
 
@@ -682,7 +682,7 @@ async function searchRewards(query) {
         loadRewards();
         return;
     }
-    const rewards = await fetchApi('admin-php/reward-search.php?q=' + encodeURIComponent(query));
+    const rewards = await fetchApi('staff-php/reward_search.php?q=' + encodeURIComponent(query));
     renderRewards(rewards);
 }
 
@@ -745,10 +745,10 @@ async function saveReward() {
 
     if (!data.title || data.bowls_required <= 0) return alert("Title and positive Bowls Required are mandatory");
 
-    let url = 'admin-php/reward-create.php';
+    let url = 'staff-php/reward_create.php';
     if (editingRewardId) {
         data.reward_id = editingRewardId;
-        url = 'admin-php/reward-update.php';
+        url = 'staff-php/reward_update.php';
     }
 
     const res = await fetchApi(url, 'POST', data);
@@ -762,7 +762,7 @@ async function saveReward() {
 
 async function deleteReward(id) {
     if (confirm('Are you sure you want to delete this reward?')) {
-        const res = await fetchApi('admin-php/reward-delete.php', 'POST', { reward_id: id });
+        const res = await fetchApi('staff-php/reward_delete.php', 'POST', { reward_id: id });
         if (res && res.success) {
             loadRewards();
         } else {
@@ -791,7 +791,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const editId = urlParams.get('editId');
         if (editId) {
             setTimeout(async () => {
-                const offers = await fetchApi('admin-php/offer-read.php');
+                const offers = await fetchApi('staff-php/offer_read.php');
                 if (offers) {
                     const offer = offers.find(o => o.offer_id == editId);
                     if (offer) editOffer(offer);

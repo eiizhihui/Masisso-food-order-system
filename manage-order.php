@@ -1,9 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['admin', 'super admin'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['staff', 'admin', 'super admin'])) {
     header("Location: login.php");
     exit();
 }
+$role = strtolower($_SESSION['role']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +18,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
     <style>
         .main-content {
             margin: 0 auto !important;
+            padding: 20px;
         }
 
         .header {
@@ -59,18 +61,14 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             margin-top: 20px;
         }
 
-        .list-card {
+        .order-card-admin {
             background: white;
             border-radius: 10px;
             padding: 15px;
             display: flex;
             flex-direction: column;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid #2196F3;
-        }
-
-        .list-card.completed {
-            border-left-color: #4CAF50;
+            border-left: 5px solid var(--primary-orange);
         }
 
         .order-header {
@@ -82,25 +80,15 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             margin-bottom: 10px;
         }
 
-        .order-header h4 {
-            margin: 0;
-            color: #333;
-        }
-
-        .badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
+        .order-id {
             font-weight: bold;
-            color: white;
+            color: var(--primary-orange);
+            font-size: 16px;
         }
 
-        .badge.pending {
-            background: #FF9800;
-        }
-
-        .badge.completed {
-            background: #4CAF50;
+        .order-date {
+            font-size: 12px;
+            color: #888;
         }
 
         .order-details p {
@@ -109,12 +97,27 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             font-size: 14px;
         }
 
-        .order-actions {
+        .update-section {
             margin-top: 10px;
-            text-align: right;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            justify-content: space-between;
+            flex-wrap: wrap;
         }
 
-        .status-btn {
+        .status-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .add-btn {
             background: var(--primary-orange);
             color: white;
             border: none;
@@ -122,6 +125,12 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .add-btn:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -130,54 +139,222 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 
     <div class="header">
         <div class="header-left">
-            <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
-            <h2>Manage Orders</h2>
+            <?php if ($role === 'staff'): ?>
+                <a href="staff_dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <?php else: ?>
+                <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <?php endif; ?>
+            <h2>Customer Orders</h2>
         </div>
     </div>
 
     <div class="main-content">
         <div class="nav-search" style="margin-bottom: 20px;">
-            <input type="text" id="search-input" placeholder="Search orders..." oninput="searchOrders(this.value)"
-                style="width:100%; padding: 10px;">
+            <input type="text" id="search-input" placeholder="Search orders by customer, ID, status or type..." oninput="filterOrders(this.value)"
+                style="width:100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; outline: none;">
         </div>
         <div class="list-container" id="order-list">
-            <!-- Order items injected by JS -->
+            <p style="text-align: center; color: #666;">Loading orders...</p>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <a href="admin-dashboard.php" class="nav-item-bottom">
-            <i class="fas fa-home"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="manage-user.php" class="nav-item-bottom">
-            <i class="fas fa-users"></i>
-            <span>Users</span>
-        </a>
-        <a href="manage-order.php" class="nav-item-bottom active">
-            <i class="fas fa-clipboard-list"></i>
-            <span>Orders</span>
-        </a>
-        <a href="manage-menu.php" class="nav-item-bottom">
-            <i class="fas fa-utensils"></i>
-            <span>Menu</span>
-        </a>
-        <a href="manage-event.php" class="nav-item-bottom">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Events</span>
-        </a>
-        <a href="manage-reward.php" class="nav-item-bottom">
-            <i class="fas fa-gift"></i>
-            <span>Rewards</span>
-        </a>
-        <a href="manage-profile.php" class="nav-item-bottom">
-            <i class="fas fa-user-cog"></i>
-            <span>Profile</span>
-        </a>
+        <?php if ($role === 'staff'): ?>
+            <a href="staff_dashboard.php" class="nav-item-bottom">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="manage-menu.php" class="nav-item-bottom">
+                <i class="fas fa-utensils"></i>
+                <span>Menu</span>
+            </a>
+            <a href="manage-order.php" class="nav-item-bottom active">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="manage-profile.php" class="nav-item-bottom">
+                <i class="fas fa-user-cog"></i>
+                <span>Profile</span>
+            </a>
+        <?php else: ?>
+            <a href="admin-dashboard.php" class="nav-item-bottom">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="manage-user.php" class="nav-item-bottom">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="manage-order.php" class="nav-item-bottom active">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="manage-menu.php" class="nav-item-bottom">
+                <i class="fas fa-utensils"></i>
+                <span>Menu</span>
+            </a>
+            <a href="manage-event.php" class="nav-item-bottom">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </a>
+            <a href="manage-reward.php" class="nav-item-bottom">
+                <i class="fas fa-gift"></i>
+                <span>Rewards</span>
+            </a>
+            <a href="manage-profile.php" class="nav-item-bottom">
+                <i class="fas fa-user-cog"></i>
+                <span>Profile</span>
+            </a>
+        <?php endif; ?>
     </div>
 
-    <script src="admin.js"></script>
+    <script>
+        const userRole = <?php echo json_encode($role); ?>;
+        let allOrders = [];
 
+        async function loadOrders() {
+            try {
+                const response = await fetch('staff-php/orders_read.php');
+                allOrders = await response.json() || [];
+                renderOrders(allOrders);
+            } catch (e) {
+                console.error("Error loading orders:", e);
+                document.getElementById('order-list').innerHTML = '<p style="text-align: center; color: red;">Failed to load orders.</p>';
+            }
+        }
+
+        function renderOrders(orders) {
+            const list = document.getElementById('order-list');
+            if (!list) return;
+
+            if (orders.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #666;">No orders found.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+
+            orders.forEach(order => {
+                const orderId = order.order_id;
+                const currentStatus = order.order_status || 'Pending';
+                
+                const dateObj = new Date(order.order_date);
+                const formattedDate = dateObj.toLocaleString();
+
+                const card = document.createElement('div');
+                card.className = 'order-card-admin';
+                
+                let borderColor = '#ffc107'; // Pending yellow
+                if (currentStatus === 'Preparing') borderColor = '#ff9800'; // Preparing orange
+                if (currentStatus === 'Completed') borderColor = '#4caf50'; // Completed green
+
+                let deleteBtnHtml = '';
+                if (userRole === 'admin' || userRole === 'super admin') {
+                    deleteBtnHtml = `<button class="add-btn" style="padding: 8px 15px; margin: 0; background: #f44336;" onclick="deleteOrder(${orderId})"><i class="fas fa-trash"></i> Delete</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-id">Order #${orderId}</span>
+                        <span class="order-date">${formattedDate}</span>
+                    </div>
+                    <div class="order-details">
+                        <p><strong>Customer:</strong> ${order.customer_name || 'Guest'}</p>
+                        <p><strong>Type:</strong> ${order.order_type}</p>
+                        <p><strong>Total:</strong> RM ${parseFloat(order.total_price).toFixed(2)}</p>
+                    </div>
+                    <div class="update-section" style="border-left: 4px solid ${borderColor};">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="font-weight: bold; font-size: 14px; color: #333;">Status:</label>
+                            <select id="status-${orderId}" class="status-select">
+                                <option value="Pending" ${currentStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Preparing" ${currentStatus === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                                <option value="Completed" ${currentStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="add-btn" onclick="updateOrderStatus(${orderId})">Update</button>
+                            ${deleteBtnHtml}
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function filterOrders(query) {
+            const lowerQuery = query.toLowerCase().trim();
+            if (!lowerQuery) {
+                renderOrders(allOrders);
+                return;
+            }
+
+            const filtered = allOrders.filter(order => {
+                const orderIdMatch = String(order.order_id).includes(lowerQuery);
+                const nameMatch = (order.customer_name || '').toLowerCase().includes(lowerQuery);
+                const typeMatch = (order.order_type || '').toLowerCase().includes(lowerQuery);
+                const statusMatch = (order.order_status || '').toLowerCase().includes(lowerQuery);
+                const dateMatch = (order.order_date || '').toLowerCase().includes(lowerQuery);
+                const totalMatch = String(order.total_price).includes(lowerQuery);
+
+                return orderIdMatch || nameMatch || typeMatch || statusMatch || dateMatch || totalMatch;
+            });
+
+            renderOrders(filtered);
+        }
+
+        async function updateOrderStatus(orderId) {
+            const selectEl = document.getElementById(`status-${orderId}`);
+            const newStatus = selectEl.value;
+
+            try {
+                const res = await fetch('staff-php/order_update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        order_status: newStatus
+                    })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    alert(`Order #${orderId} updated to ${newStatus}!`);
+                    loadOrders();
+                } else {
+                    alert('Failed to update order status: ' + (data?.error || ''));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error updating order status.');
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (!confirm('Are you sure you want to delete this order?')) return;
+
+            try {
+                const res = await fetch('staff-php/order_delete.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: orderId
+                    })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    alert(`Order #${orderId} deleted successfully.`);
+                    loadOrders();
+                } else {
+                    alert('Failed to delete order: ' + (data?.error || ''));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error deleting order.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
 </body>
 
 </html>

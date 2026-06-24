@@ -1,9 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['admin', 'super admin'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['staff', 'admin', 'super admin'])) {
     header("Location: login.php");
     exit();
 }
+$role = strtolower($_SESSION['role']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,7 +12,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masisso - Manage Profile</title>
+    <title>Masisso - Profile</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -91,8 +92,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             font-size: 14px;
         }
 
-        .form-group input,
-        .form-group textarea {
+        .form-group input {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
@@ -101,6 +101,12 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             font-size: 15px;
             background-color: white;
             font-family: inherit;
+        }
+
+        .form-group input:disabled {
+            background-color: #f9f9f9;
+            color: #555;
+            border-color: #ddd;
         }
 
         .submit-profile-btn {
@@ -120,6 +126,13 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         .submit-profile-btn:active {
             opacity: 0.8;
         }
+
+        .readonly-note {
+            text-align: center;
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 
@@ -127,19 +140,27 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 
     <div class="header">
         <div class="header-left">
-            <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <?php if ($role === 'staff'): ?>
+                <a href="staff_dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <?php else: ?>
+                <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <?php endif; ?>
             <h2>Profile</h2>
         </div>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <button id="edit-profile-btn" onclick="toggleEditMode()" style="background:transparent; border:none; color:white; font-size:18px; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>
-            <a href="logout.php" style="color:white; text-decoration:none; font-size:18px; cursor:pointer; display: flex; align-items: center; gap: 5px;" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <?php if ($role !== 'staff'): ?>
+                <button id="edit-profile-btn" onclick="toggleEditMode()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; font-weight: bold; font-size: 14px; padding: 6px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'"><i class="fas fa-edit"></i> Edit</button>
+            <?php endif; ?>
+            <a href="logout.php" style="color: white; text-decoration: none; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.2); padding: 6px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </div>
 
     <div class="profile-container">
         <div class="profile-header">
-            <h2>Admin Profile</h2>
-            <p>Update your personal and login information</p>
+            <h2>User Profile</h2>
+            <p>Your personal and login information</p>
         </div>
 
         <form onsubmit="return false;">
@@ -168,70 +189,89 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
                 <input type="text" id="branch" placeholder="Branch" disabled>
             </div>
 
-            <div class="form-group">
-                <label for="password">New Password (leave blank to keep current)</label>
-                <input type="password" id="password" placeholder="Enter new password" disabled>
-            </div>
-
-            <button type="button" class="submit-profile-btn" id="update-profile-btn" onclick="saveProfileData()" style="display:none;">Update Profile</button>
+            <?php if ($role !== 'staff'): ?>
+                <div class="form-group">
+                    <label for="password">New Password (leave blank to keep current)</label>
+                    <input type="password" id="password" placeholder="Enter new password" disabled>
+                </div>
+                <button type="button" class="submit-profile-btn" id="update-profile-btn" onclick="saveProfileData()" style="display:none;">Update Profile</button>
+            <?php else: ?>
+                <p class="readonly-note"><i class="fas fa-lock"></i> Profile can only be updated by an Admin.</p>
+            <?php endif; ?>
         </form>
     </div>
 
     <div class="bottom-nav">
-        <a href="admin-dashboard.php" class="nav-item-bottom">
-            <i class="fas fa-home"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="manage-user.php" class="nav-item-bottom">
-            <i class="fas fa-users"></i>
-            <span>Users</span>
-        </a>
-        <a href="manage-order.php" class="nav-item-bottom">
-            <i class="fas fa-clipboard-list"></i>
-            <span>Orders</span>
-        </a>
-        <a href="manage-menu.php" class="nav-item-bottom">
-            <i class="fas fa-utensils"></i>
-            <span>Menu</span>
-        </a>
-        <a href="manage-event.php" class="nav-item-bottom">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Events</span>
-        </a>
-        <a href="manage-reward.php" class="nav-item-bottom">
-            <i class="fas fa-gift"></i>
-            <span>Rewards</span>
-        </a>
-        <a href="manage-profile.php" class="nav-item-bottom active">
-            <i class="fas fa-user-cog"></i>
-            <span>Profile</span>
-        </a>
+        <?php if ($role === 'staff'): ?>
+            <a href="staff_dashboard.php" class="nav-item-bottom">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="manage-menu.php" class="nav-item-bottom">
+                <i class="fas fa-utensils"></i>
+                <span>Menu</span>
+            </a>
+            <a href="manage-order.php" class="nav-item-bottom">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="manage-profile.php" class="nav-item-bottom active">
+                <i class="fas fa-user-cog"></i>
+                <span>Profile</span>
+            </a>
+        <?php else: ?>
+            <a href="admin-dashboard.php" class="nav-item-bottom">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="manage-user.php" class="nav-item-bottom">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="manage-order.php" class="nav-item-bottom">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="manage-menu.php" class="nav-item-bottom">
+                <i class="fas fa-utensils"></i>
+                <span>Menu</span>
+            </a>
+            <a href="manage-event.php" class="nav-item-bottom">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </a>
+            <a href="manage-reward.php" class="nav-item-bottom">
+                <i class="fas fa-gift"></i>
+                <span>Rewards</span>
+            </a>
+            <a href="manage-profile.php" class="nav-item-bottom active">
+                <i class="fas fa-user-cog"></i>
+                <span>Profile</span>
+            </a>
+        <?php endif; ?>
     </div>
 
     <script>
-        const adminUserId = <?php echo (int)$_SESSION['user_id']; ?>;
-        const adminUserRole = '<?php echo $_SESSION['role']; ?>';
+        const currentUserId = <?php echo (int)$_SESSION['user_id']; ?>;
+        const currentUserRole = <?php echo json_encode($_SESSION['role']); ?>;
 
-        function toggleEditMode() {
-            const inputs = document.querySelectorAll('#name, #username, #email, #phone, #branch, #password');
-            inputs.forEach(input => input.disabled = false);
-            document.getElementById('update-profile-btn').style.display = 'block';
-            document.getElementById('edit-profile-btn').style.display = 'none';
-        }
-
+        // ==========================================
+        // 1. SHARED FEATURES (Staff & Admin)
+        // ==========================================
+        
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('admin-php/user-read.php')
+            fetch('staff-php/user_read.php')
                 .then(res => res.json())
                 .then(users => {
-                    const admin = users.find(u => parseInt(u.user_id) === adminUserId);
-                    if (admin) {
-                        document.getElementById('name').value = admin.name || '';
-                        document.getElementById('username').value = admin.username || '';
-                        document.getElementById('email').value = admin.email || '';
-                        document.getElementById('phone').value = admin.phone || '';
-                        document.getElementById('branch').value = admin.branch || '';
+                    const user = users.find(u => parseInt(u.user_id) === currentUserId);
+                    if (user) {
+                        document.getElementById('name').value = user.name || '';
+                        document.getElementById('username').value = user.username || '';
+                        document.getElementById('email').value = user.email || '';
+                        document.getElementById('phone').value = user.phone || '';
+                        document.getElementById('branch').value = user.branch || '';
                     } else {
-                        alert("Could not load admin profile data.");
+                        alert("Could not load profile data.");
                     }
                 })
                 .catch(err => {
@@ -239,6 +279,19 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
                     alert("Error loading profile details.");
                 });
         });
+
+        // ==========================================
+        // 2. ADMIN-ONLY FEATURES
+        // ==========================================
+        
+        function toggleEditMode() {
+            const inputs = document.querySelectorAll('#name, #username, #email, #phone, #branch, #password');
+            inputs.forEach(input => input.disabled = false);
+            const updateBtn = document.getElementById('update-profile-btn');
+            if (updateBtn) updateBtn.style.display = 'block';
+            const editBtn = document.getElementById('edit-profile-btn');
+            if (editBtn) editBtn.style.display = 'none';
+        }
 
         function saveProfileData() {
             const nameVal = document.getElementById('name').value.trim();
@@ -254,8 +307,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             }
 
             const dataPayload = {
-                user_id: adminUserId,
-                role: adminUserRole,
+                user_id: currentUserId,
+                role: currentUserRole,
                 name: nameVal,
                 username: usernameVal,
                 email: emailVal,
@@ -267,7 +320,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
                 dataPayload.password = passwordVal;
             }
 
-            fetch('admin-php/profile-update.php', {
+            fetch('staff-php/profile_update.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

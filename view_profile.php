@@ -110,7 +110,7 @@ $conn->close();
 
     <nav class="navbar">
         <div class="nav-left">
-            <a href="staff_profile.php" class="nav-btn-link">← Manage Profiles</a>
+            <a href="manage-profile.php" class="nav-btn-link">← Manage Profiles</a>
         </div>
         <div class="navbar-title">Masisso Staff Administration</div>
         <div class="nav-right">
@@ -147,7 +147,7 @@ $conn->close();
         <?php else: ?>
             <div style="text-align: center; color: #f44336; padding: 20px 0;">
                 <p>No workplace staff profile record was found for this ID.</p>
-                <a href="staff_profile.php" class="nav-btn-link" style="margin-top: 15px;">Create Profile</a>
+                <a href="manage-profile.php" class="nav-btn-link" style="margin-top: 15px;">Create Profile</a>
             </div>
         <?php endif; ?>
     </div>

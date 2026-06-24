@@ -27,6 +27,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             font-size: 24px;
             font-weight: bold;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .stats-container {
@@ -144,6 +145,10 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 
     <div class="admin-header">
         Masisso Admin Panel
+
+        <a href="logout.php" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: white; text-decoration: none; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.2); padding: 6px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </div>
 
     <div class="main-content">

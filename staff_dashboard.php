@@ -93,7 +93,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         </div>
 
         <div class="dash-card" style="border-left: 5px solid #e65100; text-align: left; cursor: pointer;"
-            onclick="window.location.href='staff_manage_menu.php'">
+            onclick="window.location.href='manage-menu.php'">
             <h3 style="margin-top: 0; color: #333;">🍲 Manage Laksa Menu</h3>
             <p style="color: #666; font-size: 14px;">Update food item availability (Available / Not Available) for customers.</p>
             <button class="add-btn solid-btn" style="width: auto; padding: 10px 20px;">Open Menu Manager</button>
@@ -114,7 +114,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="staff_manage_menu.php" class="nav-item-bottom">
+        <a href="manage-menu.php" class="nav-item-bottom">
             <i class="fas fa-utensils"></i>
             <span>Menu</span>
         </a>
@@ -122,7 +122,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             <i class="fas fa-clipboard-list"></i>
             <span>Orders</span>
         </a>
-        <a href="staff_profile.php" class="nav-item-bottom">
+        <a href="manage-profile.php" class="nav-item-bottom">
             <i class="fas fa-user-cog"></i>
             <span>Profile</span>
         </a>
