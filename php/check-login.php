@@ -34,7 +34,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
         if (mysqli_num_rows($result) === 1) {
             $row = mysqli_fetch_assoc($result);
             
-            if ($row['password'] === $password && $row['role'] == $role) {
+            if ($row['password'] === $password && strcasecmp($row['role'], $role) === 0) {
                 // 3. Save everything to the session
                 $_SESSION['name'] = $row['name'];
                 $_SESSION['user_id'] = $row['user_id']; 
@@ -42,7 +42,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['username'] = $row['username']; // Saving the newly added username
 
-                header("Location: ../index.html");
+                header("Location: ../home.php");
                 exit(); 
 
             } else {

@@ -44,12 +44,22 @@
             <label for="password" class="form-label">Password</label>
             <input type="password" name="password" class="form-control" id="password" placeholder="Create a password" required>
           </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter your phone number" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" name="address" id="address" placeholder="Enter your default address" required></textarea>
+          </div>
           
           <div class="mb-1">
             <label class="form-label">Select User Type:</label>
           </div>
           <select class="form-select mb-3" name="role" aria-label="Default select example">
-              <option selected value="user">User</option>
+              <option selected value="customer">Customer</option>
               <option value="staff">Staff</option>
               <option value="admin">Admin</option>
           </select>

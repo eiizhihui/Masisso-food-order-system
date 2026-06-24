@@ -68,5 +68,5 @@
 </body>
 </html>
 <?php }else{
-	header("Location: index.html");
+	header("Location: home.php");
 } ?>

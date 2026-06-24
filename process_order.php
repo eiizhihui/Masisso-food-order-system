@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo "<script>
                     alert('Success! Your $order_type order for RM $order_total has been placed.');
-                    window.location.href = 'index.html';
+                    window.location.href = 'home.php';
                   </script>";
         }
     } else {
@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 } else {
     // If someone tries to access this file directly without checking out, send them away.
-    header("Location: cart.html");
+    header("Location: home.php");
     exit();
 }
 ?>
