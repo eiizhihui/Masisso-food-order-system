@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Massiso - Register</title>
+    <title>Masisso Food Order System - Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="login-page">
      <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh">
-        <form class="border shadow p-3 rounded"
+        <form class="border shadow p-4 rounded"
               action="php/check-register.php"
               method="post" 
               style="width: 450px;">
-              <h1 class="text-center p-3">REGISTER</h1>
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold" style="color: var(--primary-orange); margin-bottom: 0;">Masisso</h2>
+                    <p class="text-muted small" style="letter-spacing: 1.5px; font-weight: 600; margin-bottom: 10px; font-size: 0.8rem;">FOOD ORDER SYSTEM</p>
+                    <hr style="border-top: 1px solid #eee; margin: 15px 0;">
+                    <h5 class="fw-bold text-secondary" style="margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px;">Register</h5>
+                </div>
               
               <?php if (isset($_GET['error'])) { ?>
               <div class="alert alert-danger" role="alert">
@@ -55,10 +61,14 @@
             <textarea class="form-control" name="address" id="address" placeholder="Enter your default address" required></textarea>
           </div>
           
-              <input type="hidden" name="role" value="customer">
+               <input type="hidden" name="role" value="customer">
          
-          <button type="submit" class="btn btn-primary">REGISTER</button>
-          <a href="login.php" class="btn btn-secondary">Go to Login</a>
+          <button type="submit" class="solid-btn">REGISTER</button>
+
+          <div class="mt-2 text-start">
+              <span class="text-muted">Already have an account?</span><br>
+              <a href="login.php" class="text-primary" style="text-decoration: underline;">Click here to login</a>
+          </div>
         </form>
       </div>
 </body>
