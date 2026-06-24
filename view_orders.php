@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
 }
 include 'db_connect.php';
 
-$query = "SELECT order_id, order_status, order_type, total_price, order_date FROM orders ORDER BY order_id DESC";
+$query = "SELECT o.order_id, o.order_status, o.order_type, o.total_price, o.order_date, c.name AS customer_name FROM orders o LEFT JOIN customer c ON o.user_id = c.user_id ORDER BY o.order_id DESC";
 $result = $conn->query($query);
 ?>
 <!DOCTYPE html>
@@ -44,7 +44,8 @@ $result = $conn->query($query);
                         <span class="badge-promo" style="background-color: var(--text-dark); padding: 5px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 12px;">Order ID: #<?php echo htmlspecialchars($row['order_id']); ?></span>
                         <span class="badge-popular" style="background: #FFF3E0; color: #E65100; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;"><?php echo htmlspecialchars($row['order_status']); ?></span>
                         <span class="badge-info" style="background: #E0F7FA; color: #006064; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Type: <?php echo htmlspecialchars($row['order_type']); ?></span>
-                        <span class="badge-price" style="background: #FFF9C4; color: #BF360C; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Total: RM <?php echo number_format($row['total_price'], 2); ?></span>
+                        <span class="badge-price" style="background: #FFF9C4; color: #BF360C; padding: 10px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Total: RM <?php echo number_format($row['total_price'], 2); ?></span>
+                        <span class="badge-cust" style="background: #E8F5E9; color: #1B5E20; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 5px;">Customer: <?php echo htmlspecialchars($row['customer_name']); ?></span>
                     </div>
                     
                     <div class="menu-info" style="padding: 0; width: 100%;">
