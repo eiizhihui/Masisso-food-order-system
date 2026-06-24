@@ -26,7 +26,7 @@ if (isset($_POST['name']) && isset($_POST['username']) && isset($_POST['email'])
         $hashed_password = md5($password);
 
         // 4. Check if EITHER the username OR the email is already taken
-        $stmt_check = $conn->prepare("SELECT user_id FROM users WHERE username = ? OR email = ?");
+        $stmt_check = $conn->prepare("SELECT user_id FROM customer WHERE username = ? OR email = ?");
         $stmt_check->bind_param("ss", $username, $email);
         $stmt_check->execute();
         $stmt_check->store_result();
@@ -36,11 +36,11 @@ if (isset($_POST['name']) && isset($_POST['username']) && isset($_POST['email'])
             exit();
         } else {
             // 5. Insert all 5 fields into the database including the username column
-            $stmt_insert = $conn->prepare("INSERT INTO users (name, username, email, password, role) VALUES (?, ?, ?, ?, ?)");
+            $stmt_insert = $conn->prepare("INSERT INTO customer (name, username, email, password, role) VALUES (?, ?, ?, ?, ?)");
             $stmt_insert->bind_param("sssss", $name, $username, $email, $hashed_password, $role);
             
             if ($stmt_insert->execute()) {
-                header("Location: ../index.php?success=Account created successfully! Please log in.");
+                header("Location: ../login.php?success=Account created successfully! Please log in.");
                 exit();
             } else {
                 header("Location: ../register.php?error=An unknown error occurred. Please try again.");

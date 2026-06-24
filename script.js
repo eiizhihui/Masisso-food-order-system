@@ -1,8 +1,20 @@
 // Dynamic Greeting 
 window.onload = function() {
-    let customerName = "Joey"; 
     let greetingElement = document.getElementById("greeting");
-    if (greetingElement) greetingElement.innerText = "Hey, " + customerName + " 👋";
+    if (greetingElement) {
+        fetch('fetch_profile.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    greetingElement.innerText = "Hey, " + data.profile.name + " 👋";
+                } else {
+                    greetingElement.innerText = "Hey, Guest 👋";
+                }
+            })
+            .catch(() => {
+                greetingElement.innerText = "Hey, Guest 👋";
+            });
+    }
 };
 
 // load the menu from the database 
@@ -438,10 +450,23 @@ function applyPromo(code) {
 }
 
 // REWARDS PAGE LOGIC
+let currentUserPoints = 0; 
+
 document.addEventListener('DOMContentLoaded', () => {
     const rewardsContainer = document.getElementById('rewards-container');
     if (rewardsContainer) {
-        fetch('fetch_rewards.php')
+        fetch('fetch_profile.php')
+            .then(response => response.json())
+            .then(profileData => {
+                if (profileData.success) {
+                    currentUserPoints = parseInt(profileData.profile.points) || 0;
+                    let pointsDisplay = document.getElementById('user-points-display');
+                    if (pointsDisplay) {
+                        pointsDisplay.innerText = currentUserPoints;
+                    }
+                }
+                return fetch('fetch_rewards.php');
+            })
             .then(response => response.json())
             .then(data => {
                 rewardsContainer.innerHTML = ''; 
@@ -463,9 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rewardsContainer.innerHTML = "<p>Failed to load rewards. Is XAMPP running?</p>";
             });
     }
-});
-
-let currentUserPoints = 1000; 
+}); 
 
 function redeemItem(itemName, pointsCost, itemImage) {
     if (currentUserPoints >= pointsCost) {

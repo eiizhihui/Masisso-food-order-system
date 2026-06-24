@@ -10,7 +10,7 @@ include 'db_connect.php';
 
 $user_id = $_SESSION['user_id'];
 
-$query = "SELECT name, email, phone, address FROM users WHERE id = ?";
+$query = "SELECT name, email, phone, address FROM customer WHERE user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -34,7 +34,7 @@ if ($result->num_rows === 1) {
 <body>
     <header class="app-header" style="background-color: #e65100; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
         <div class="top-brand-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
-            <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;" onclick="window.location.href='index.php'">Masisso</div>
+            <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;" onclick="window.location.href='index.html'">Masisso</div>
         </div>
     </header>
 
@@ -51,7 +51,7 @@ if ($result->num_rows === 1) {
                 <button class="add-btn solid-btn" onclick="toggleEditProfile()" style="margin-top: 20px;">Edit Profile</button>
             </div>
 
-            <form id="profile-edit-mode" action="update-profile.php" method="POST" style="display: none;">
+            <form id="profile-edit-mode" onsubmit="saveProfile(); return false;" style="display: none;">
                 <p><strong>Name:</strong><br>
                     <input type="text" name="name" id="edit-name" value="<?php echo htmlspecialchars($user['name']); ?>" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px;" required>
                 </p>
@@ -76,15 +76,15 @@ if ($result->num_rows === 1) {
     </div>
 
     <nav class="bottom-nav">
-        <a href="index.php" class="nav-item-bottom">
+        <a href="index.html" class="nav-item-bottom">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             <span>Home</span>
         </a>
-        <a href="offers.php" class="nav-item-bottom">
+        <a href="offers.html" class="nav-item-bottom">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
             <span>Offers</span>
         </a>
-        <a href="rewards.php" class="nav-item-bottom">
+        <a href="rewards.html" class="nav-item-bottom">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>
             <span>Rewards</span>
         </a>

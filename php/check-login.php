@@ -27,7 +27,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
         $password = md5($password);
         
         // 2. Query both the email AND username columns
-        $sql = "SELECT * FROM users WHERE (email = '$login_input' OR username = '$login_input') AND password = '$password' AND role = '$role'";
+        $sql = "SELECT * FROM customer WHERE (email = '$login_input' OR username = '$login_input') AND password = '$password' AND role = '$role'";
         
         $result = mysqli_query($conn, $sql);
 
@@ -42,7 +42,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['username'] = $row['username']; // Saving the newly added username
 
-                header("Location: ../home.php");
+                header("Location: ../index.html");
                 exit(); 
 
             } else {

@@ -1,7 +1,7 @@
 <?php 
    session_start();
    include "db_connect.php";
-   if (!isset($_SESSION['username']) && !isset($_SESSION['id'])) {
+   if (!isset($_SESSION['user_id'])) {
       ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,6 +21,11 @@
       	    	<?php if (isset($_GET['error'])) { ?>
       	    	<div class="alert alert-danger" role="alert">
 				<?=$_GET['error']?> 
+				</div>
+				<?php } ?>
+				<?php if (isset($_GET['success'])) { ?>
+				<div class="alert alert-success" role="alert">
+				<?=$_GET['success']?> 
 				</div>
 				<?php } ?>
 		  <div class="mb-3">

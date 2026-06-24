@@ -87,17 +87,43 @@
     </div>
 
     <script>
-        function finishOrder() {
+        async function finishOrder() {
             let cartCount = localStorage.getItem('masisso_cart_count');
             if (!cartCount || parseInt(cartCount) === 0) {
                 alert("Your cart is empty!");
                 return;
             }
-            localStorage.removeItem('masisso_cart_items');
-            localStorage.removeItem('masisso_cart_count');
-            localStorage.removeItem('masisso_cart_total');
-            localStorage.removeItem('masisso_active_voucher');
-            window.location.href = 'order_status.html';
+            
+            let totalVal = document.getElementById('chk-total').innerText;
+            let mode = localStorage.getItem('masisso_order_mode') || 'Delivery';
+            
+            try {
+                let response = await fetch('process_order.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'order_total': totalVal,
+                        'order_type': mode,
+                        'ajax': 'true'
+                    })
+                });
+                
+                let data = await response.json();
+                if (data.success) {
+                    localStorage.removeItem('masisso_cart_items');
+                    localStorage.removeItem('masisso_cart_count');
+                    localStorage.removeItem('masisso_cart_total');
+                    localStorage.removeItem('masisso_active_voucher');
+                    window.location.href = 'order_status.html';
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error submitting order:", error);
+                alert("Could not connect to database. Make sure XAMPP is running!");
+            }
         }
         let currentSubtotal = 0;
         let currentItemCount = 0;

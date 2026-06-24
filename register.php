@@ -55,7 +55,7 @@
           </select>
          
           <button type="submit" class="btn btn-primary">REGISTER</button>
-          <a href="index.php" class="btn btn-secondary">Go to Login</a>
+          <a href="login.php" class="btn btn-secondary">Go to Login</a>
         </form>
       </div>
 </body>
