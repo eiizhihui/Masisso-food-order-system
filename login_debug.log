@@ -1,0 +1,16 @@
+[2026-06-24 03:59:22] Login attempt - Input: 'choong', Role: 'admin'
+[2026-06-24 03:59:22]   Customer query: SELECT * FROM customer WHERE (email = 'choong' OR username = 'choong') AND role = 'admin'
+[2026-06-24 03:59:22]     No match or multiple matches in customer table. Rows: 0
+[2026-06-24 03:59:22]   Staff query: SELECT staff_id as user_id, name, username, email, password, position as role FROM staff WHERE (email = 'choong' OR username = 'choong' OR name = 'choong') AND (position = 'admin' OR position = 'super admin')
+[2026-06-24 03:59:22]     Row found in staff. DB pass: 'adminPass123', Input MD5: 'f8a0ed0f7b37847ebb300f69e99814a6', Input Plain: 'adminPass123'
+[2026-06-24 03:59:22]     Password MATCH in staff table!
+[2026-06-24 03:59:22]   Success! User ID: 2001, Role: admin. Redirecting based on role: admin
+[2026-06-24 04:00:33] Login attempt - Input: 'shan', Role: 'super admin'
+[2026-06-24 04:00:33]   Customer query: SELECT * FROM customer WHERE (email = 'shan' OR username = 'shan') AND role = 'super admin'
+[2026-06-24 04:00:33]     No match or multiple matches in customer table. Rows: 0
+[2026-06-24 04:00:33]   Staff query: SELECT staff_id as user_id, name, username, email, password, position as role FROM staff WHERE (email = 'shan' OR username = 'shan' OR name = 'shan') AND (position = 'admin' OR position = 'super admin')
+[2026-06-24 04:00:33]     Row found in staff. DB pass: '1234567890', Input MD5: 'e807f1fcf82d132f9bb018ca6738a19f', Input Plain: '1234567890'
+[2026-06-24 04:00:33]     Password MATCH in staff table!
+[2026-06-24 04:00:33]   Success! User ID: 2000, Role: super admin. Redirecting based on role: super admin
+[2026-06-24 04:20:45] Login attempt - Input: '', Role: 'customer'
+[2026-06-24 04:20:45]   Failed: Username/Email empty

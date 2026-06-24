@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['admin', 'super admin'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link class="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .main-content {
             margin: 0 auto !important;
@@ -123,7 +130,7 @@
 
     <div class="header">
         <div class="header-left">
-            <a href="admin-dashboard.html" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
             <h2>Manage Orders</h2>
         </div>
     </div>
@@ -139,31 +146,31 @@
     </div>
 
     <div class="bottom-nav">
-        <a href="admin-dashboard.html" class="nav-item-bottom">
+        <a href="admin-dashboard.php" class="nav-item-bottom">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="manage-user.html" class="nav-item-bottom">
+        <a href="manage-user.php" class="nav-item-bottom">
             <i class="fas fa-users"></i>
             <span>Users</span>
         </a>
-        <a href="manage-order.html" class="nav-item-bottom active">
+        <a href="manage-order.php" class="nav-item-bottom active">
             <i class="fas fa-clipboard-list"></i>
             <span>Orders</span>
         </a>
-        <a href="manage-menu.html" class="nav-item-bottom">
+        <a href="manage-menu.php" class="nav-item-bottom">
             <i class="fas fa-utensils"></i>
             <span>Menu</span>
         </a>
-        <a href="manage-event.html" class="nav-item-bottom">
+        <a href="manage-event.php" class="nav-item-bottom">
             <i class="fas fa-calendar-alt"></i>
             <span>Events</span>
         </a>
-        <a href="manage-reward.html" class="nav-item-bottom">
+        <a href="manage-reward.php" class="nav-item-bottom">
             <i class="fas fa-gift"></i>
             <span>Rewards</span>
         </a>
-        <a href="manage-profile.html" class="nav-item-bottom">
+        <a href="manage-profile.php" class="nav-item-bottom">
             <i class="fas fa-user-cog"></i>
             <span>Profile</span>
         </a>

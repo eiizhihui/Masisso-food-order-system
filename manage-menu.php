@@ -1,10 +1,17 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['admin', 'super admin'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Offers</title>
+    <title>Manage Menu</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -56,48 +63,57 @@
             margin-top: 20px;
         }
 
-        .offer-card {
+        .menu-card-admin {
             background: white;
             border-radius: 10px;
             padding: 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid #FF9800;
+            border-left: 5px solid var(--primary-orange);
         }
 
-        .offer-info h4 {
+        .menu-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-right: 15px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+        }
+
+        .menu-info {
+            flex-grow: 1;
+        }
+
+        .menu-info h4 {
             margin: 0 0 5px 0;
             color: #333;
-            font-size: 18px;
         }
 
-        .offer-info p {
-            margin: 3px 0;
-            font-size: 14px;
+        .menu-info p {
+            margin: 0 0 5px 0;
+            font-size: 13px;
             color: #666;
         }
 
-        .offer-code {
-            display: inline-block;
-            background: #fff3e0;
-            color: #e65100;
-            padding: 3px 8px;
-            border-radius: 5px;
+        .menu-price {
             font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 5px;
+            color: var(--primary-orange);
         }
 
-        .offer-actions {
+        .menu-actions {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-left: 10px;
         }
 
-        .offer-actions button {
+        .menu-actions button {
             background: none;
             border: none;
             cursor: pointer;
@@ -180,19 +196,19 @@
     <div id="list-section">
         <div class="header">
             <div class="header-left">
-                <a href="admin-dashboard.html" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
-                <h2>Manage Events / Offers</h2>
+                <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+                <h2>Manage Menu</h2>
             </div>
-            <button class="add-new-btn" onclick="openOfferModal()"><i class="fas fa-plus"></i> Add</button>
+            <button class="add-new-btn" onclick="openMenuModal()"><i class="fas fa-plus"></i> Add</button>
         </div>
 
         <div class="main-content">
             <div class="nav-search" style="margin-bottom: 20px;">
-                <input type="text" id="search-input" placeholder="Search events/offers..."
-                    oninput="searchOffers(this.value)" style="width:100%; padding: 10px;">
+                <input type="text" id="search-input" placeholder="Search menu..." oninput="searchMenu(this.value)"
+                    style="width:100%; padding: 10px;">
             </div>
-            <div class="list-container" id="offer-list">
-                <!-- Offer items injected by JS -->
+            <div class="list-container" id="menu-list">
+                <!-- Menu items injected by JS -->
             </div>
         </div>
     </div>
@@ -201,86 +217,79 @@
         <div class="header">
             <div class="header-left">
                 <a href="#" onclick="hideAddForm()"><i class="fas fa-arrow-left"></i></a>
-                <h2 id="form-title">Add Offer / Event</h2>
+                <h2 id="form-title">Add Menu Item</h2>
             </div>
         </div>
 
         <div class="profile-container">
             <div class="profile-header">
-                <h2>Create Offer</h2>
-                <p>Enter details to save a new offer entry</p>
+                <h2>Create Menu Item</h2>
+                <p>Enter details to save a new menu item entry</p>
             </div>
 
             <form onsubmit="return false;">
                 <div class="form-group">
-                    <label for="offer-code">Code</label>
-                    <input type="text" id="offer-code" placeholder="e.g., MINUS5" required>
+                    <label for="menu-name">Name</label>
+                    <input type="text" id="menu-name" placeholder="e.g., Masisso Signature Laksa" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="offer-title">Title</label>
-                    <input type="text" id="offer-title" placeholder="e.g., 🎫 RM 5 OFF" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="offer-desc">Description</label>
-                    <textarea id="offer-desc" rows="2" placeholder="Enter description"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="offer-type">Discount Type</label>
-                    <select id="offer-type" required>
-                        <option value="fixed">Fixed (RM)</option>
-                        <option value="percentage">Percentage (%)</option>
+                    <label for="menu-category">Category</label>
+                    <select id="menu-category" required>
+                        <option value="A La Carte">A La Carte</option>
+                        <option value="Combo">Combo</option>
+                        <option value="Drinks">Drinks</option>
+                        <option value="Sides">Sides</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="offer-value">Discount Value</label>
-                    <input type="number" id="offer-value" step="0.01" placeholder="e.g., 5.00" required>
+                    <label for="menu-price">Price (RM)</label>
+                    <input type="number" id="menu-price" step="0.01" placeholder="e.g., 14.90" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="offer-min">Min Spend (RM)</label>
-                    <input type="number" id="offer-min" step="0.01" placeholder="e.g., 50.00" required>
+                    <label for="menu-desc">Description</label>
+                    <textarea id="menu-desc" rows="3" placeholder="Enter menu item description"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="offer-valid">Valid Until</label>
-                    <input type="date" id="offer-valid" required>
+                    <label for="menu-image">Image Filename</label>
+                    <input type="text" id="menu-image" placeholder="e.g., laksa.jpg">
                 </div>
 
-                <button type="button" class="submit-profile-btn" id="submit-btn" onclick="saveOffer()">Save Offer Entry</button>
+                <button type="button" class="submit-profile-btn" id="submit-btn" onclick="saveMenu()">Save Menu
+                    Item</button>
             </form>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <a href="admin-dashboard.html" class="nav-item-bottom">
+        <a href="admin-dashboard.php" class="nav-item-bottom">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="manage-user.html" class="nav-item-bottom">
+        <a href="manage-user.php" class="nav-item-bottom">
             <i class="fas fa-users"></i>
             <span>Users</span>
         </a>
-        <a href="manage-order.html" class="nav-item-bottom">
+        <a href="manage-order.php" class="nav-item-bottom">
             <i class="fas fa-clipboard-list"></i>
             <span>Orders</span>
         </a>
-        <a href="manage-menu.html" class="nav-item-bottom">
+        <a href="manage-menu.php" class="nav-item-bottom active">
             <i class="fas fa-utensils"></i>
             <span>Menu</span>
         </a>
-        <a href="manage-event.html" class="nav-item-bottom active">
+        <a href="manage-event.php" class="nav-item-bottom">
             <i class="fas fa-calendar-alt"></i>
             <span>Events</span>
         </a>
-        <a href="manage-reward.html" class="nav-item-bottom">
+        <a href="manage-reward.php" class="nav-item-bottom">
             <i class="fas fa-gift"></i>
             <span>Rewards</span>
         </a>
-        <a href="manage-profile.html" class="nav-item-bottom">
+        <a href="manage-profile.php" class="nav-item-bottom">
             <i class="fas fa-user-cog"></i>
             <span>Profile</span>
         </a>

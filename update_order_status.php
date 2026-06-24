@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "UPDATE orders SET status = '$new_status' WHERE order_id = $order_id";
 
     if ($conn->query($sql) === TRUE) {
-        echo "<script>alert('Success: Order status updated to " . $new_status . "!'); window.location.href='view_orders.html';</script>";
+        echo "<script>alert('Success: Order status updated to " . $new_status . "!'); window.location.href='view_orders.php';</script>";
     } else {
         echo "Error mutating active database records: " . $conn->error;
     }

@@ -111,7 +111,7 @@ async function loadDashboard() {
                     <p>${offer.description}</p>
                 </div>
                 <div class="list-actions">
-                    <button class="edit-btn" aria-label="Edit" title="Edit" onclick="location.href='manage-event.html?editId=${offer.offer_id}'"><i class="fas fa-edit"></i></button>
+                    <button class="edit-btn" aria-label="Edit" title="Edit" onclick="location.href='manage-event.php?editId=${offer.offer_id}'"><i class="fas fa-edit"></i></button>
                     <button class="delete-btn" aria-label="Delete" title="Delete" onclick="deleteEventDash(${offer.offer_id})"><i class="fas fa-trash"></i></button>
                 </div>
             `;
@@ -152,10 +152,10 @@ async function globalSearch(query) {
             let desc = '';
             let link = '';
 
-            if (item.type === 'user') { title = `User: ${item.name}`; desc = item.email; link = 'manage-user.html'; }
-            if (item.type === 'menu') { title = `Menu: ${item.name}`; desc = `RM ${item.price} - ${item.category}`; link = 'manage-menu.html'; }
-            if (item.type === 'offer') { title = `Offer: ${item.title}`; desc = item.code; link = 'manage-event.html'; }
-            if (item.type === 'reward') { title = `Reward: ${item.title}`; desc = `${item.bowls_required} Bowls`; link = 'manage-reward.html'; }
+            if (item.type === 'user') { title = `User: ${item.name}`; desc = item.email; link = 'manage-user.php'; }
+            if (item.type === 'menu') { title = `Menu: ${item.name}`; desc = `RM ${item.price} - ${item.category}`; link = 'manage-menu.php'; }
+            if (item.type === 'offer') { title = `Offer: ${item.title}`; desc = item.code; link = 'manage-event.php'; }
+            if (item.type === 'reward') { title = `Reward: ${item.title}`; desc = `${item.bowls_required} Bowls`; link = 'manage-reward.php'; }
 
             card.innerHTML = `
                 <div class="list-info">
@@ -777,15 +777,15 @@ async function deleteReward(id) {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
-    if (path.includes('admin-dashboard.html')) {
+    if (path.includes('admin-dashboard.html') || path.includes('admin-dashboard.php')) {
         loadDashboard();
-    } else if (path.includes('manage-user.html')) {
+    } else if (path.includes('manage-user.html') || path.includes('manage-user.php')) {
         loadUsers();
-    } else if (path.includes('manage-order.html')) {
+    } else if (path.includes('manage-order.html') || path.includes('manage-order.php')) {
         loadOrdersData();
-    } else if (path.includes('manage-menu.html')) {
+    } else if (path.includes('manage-menu.html') || path.includes('manage-menu.php')) {
         loadMenu();
-    } else if (path.includes('manage-event.html')) {
+    } else if (path.includes('manage-event.html') || path.includes('manage-event.php')) {
         loadOffers();
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('editId');
@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 300);
         }
-    } else if (path.includes('manage-reward.html')) {
+    } else if (path.includes('manage-reward.html') || path.includes('manage-reward.php')) {
         loadRewards();
     }
 });

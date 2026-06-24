@@ -14,6 +14,17 @@ body {
     padding-bottom: 140px;
 }
 
+/* Login Page Styles */
+.login-page {
+    background: var(--bg-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+}
+
+
 .navbar {
     background: white;
     padding: 15px 20px;
@@ -22,6 +33,43 @@ body {
     align-items: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.login-page .border {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+/* Login form elements */
+.login-page .form-control {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 8px;
+    color: #333;
+    padding: 10px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(5px);
+}
+
+.login-page .btn-primary {
+    background: linear-gradient(135deg, #ff6a00, #ff8c00);
+    border: none;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.login-page .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 140, 0, 0.4);
+}
+
+
 
 .nav-search input {
     padding: 8px;

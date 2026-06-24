@@ -45,6 +45,7 @@ INSERT INTO `customer` (`user_id`, `name`, `email`, `phone`, `address`, `passwor
 CREATE TABLE `staff` (
   `staff_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
+  `username` varchar(100) NOT NULL UNIQUE,
   `gender` enum('Male', 'Female', 'Other') NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
@@ -58,21 +59,21 @@ CREATE TABLE `staff` (
 -- Dumping data for table `staff`
 --
 
-INSERT INTO `staff` (`staff_id`, `name`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
+INSERT INTO `staff` (`staff_id`, `name`, `username`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
 -- 1 Super Admin (Joey starting exactly at ID 2000)
-(2000, 'Shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', '1234567890', 'Masisso JB City Square', 'super admin'),
+(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', '1234567890', 'Masisso JB City Square', 'super admin'),
 
 -- 2 Admins
-(2001, 'Choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'adminPass123', 'Masisso Mount Austin', 'admin'),
-(2002, 'Ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', 'adminPass456', 'Masisso Paradigm Mall', 'admin'),
+(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'adminPass123', 'Masisso Mount Austin', 'admin'),
+(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', 'adminPass456', 'Masisso Paradigm Mall', 'admin'),
 
 -- 6 Staff members balanced across your operational branches
-(2003, 'Jin Xuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', 'staffPass1', 'Masisso JB City Square', 'staff'),
-(2004, 'Alvin Tan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', 'staffPass2', 'Masisso JB City Square', 'staff'),
-(2005, 'Siti Aminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', 'staffPass3', 'Masisso Mount Austin', 'staff'),
-(2006, 'Kumar Rao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', 'staffPass4', 'Masisso Mount Austin', 'staff'),
-(2007, 'Chloe Wong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', 'staffPass5', 'Masisso Paradigm Mall', 'staff'),
-(2008, 'Muhammad Faiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', 'staffPass6', 'Masisso Paradigm Mall', 'staff');
+(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', 'staffPass1', 'Masisso JB City Square', 'staff'),
+(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', 'staffPass2', 'Masisso JB City Square', 'staff'),
+(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', 'staffPass3', 'Masisso Mount Austin', 'staff'),
+(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', 'staffPass4', 'Masisso Mount Austin', 'staff'),
+(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', 'staffPass5', 'Masisso Paradigm Mall', 'staff'),
+(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', 'staffPass6', 'Masisso Paradigm Mall', 'staff');
 -- --------------------------------------------------------
 
 --

@@ -1,10 +1,17 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['admin', 'super admin'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users</title>
+    <title>Manage Offers</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -56,7 +63,7 @@
             margin-top: 20px;
         }
 
-        .list-card {
+        .offer-card {
             background: white;
             border-radius: 10px;
             padding: 15px;
@@ -64,26 +71,44 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid var(--primary-orange);
+            border-left: 5px solid #FF9800;
         }
 
-        .list-info h4 {
+        .offer-info h4 {
             margin: 0 0 5px 0;
             color: #333;
+            font-size: 18px;
         }
 
-        .list-info p {
-            margin: 0;
-            color: #777;
+        .offer-info p {
+            margin: 3px 0;
             font-size: 14px;
+            color: #666;
         }
 
-        .list-actions button {
+        .offer-code {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .offer-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        .offer-actions button {
             background: none;
             border: none;
             cursor: pointer;
             font-size: 18px;
-            margin-left: 10px;
         }
 
         .edit-btn {
@@ -106,6 +131,7 @@
         }
 
         .form-group input,
+        .form-group textarea,
         .form-group select {
             width: 100%;
             padding: 8px;
@@ -161,23 +187,19 @@
     <div id="list-section">
         <div class="header">
             <div class="header-left">
-                <a href="admin-dashboard.html" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
-                <h2>Manage Users</h2>
+                <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+                <h2>Manage Events / Offers</h2>
             </div>
-            <button class="add-new-btn" onclick="openUserModal()"><i class="fas fa-plus"></i> Add</button>
+            <button class="add-new-btn" onclick="openOfferModal()"><i class="fas fa-plus"></i> Add</button>
         </div>
 
         <div class="main-content">
-            <div class="toggle-container" style="margin-bottom: 15px;">
-                <button class="toggle-option active" id="tab-customer" onclick="switchUserTab('Customer')">Customer</button>
-                <button class="toggle-option" id="tab-staff" onclick="switchUserTab('Staff')">Staff</button>
-            </div>
             <div class="nav-search" style="margin-bottom: 20px;">
-                <input type="text" id="search-input" placeholder="Search users..." oninput="searchUsers(this.value)"
-                    style="width:100%; padding: 10px;">
+                <input type="text" id="search-input" placeholder="Search events/offers..."
+                    oninput="searchOffers(this.value)" style="width:100%; padding: 10px;">
             </div>
-            <div class="list-container" id="user-list">
-                <!-- User items injected by JS -->
+            <div class="list-container" id="offer-list">
+                <!-- Offer items injected by JS -->
             </div>
         </div>
     </div>
@@ -186,104 +208,86 @@
         <div class="header">
             <div class="header-left">
                 <a href="#" onclick="hideAddForm()"><i class="fas fa-arrow-left"></i></a>
-                <h2 id="form-title">Add User</h2>
+                <h2 id="form-title">Add Offer / Event</h2>
             </div>
         </div>
+
         <div class="profile-container">
             <div class="profile-header">
-                <h2>User Profile</h2>
-                <p>Enter details to save a user profile entry</p>
+                <h2>Create Offer</h2>
+                <p>Enter details to save a new offer entry</p>
             </div>
 
             <form onsubmit="return false;">
                 <div class="form-group">
-                    <label for="edit-name">Full Name</label>
-                    <input type="text" id="edit-name" placeholder="Enter full name" required>
+                    <label for="offer-code">Code</label>
+                    <input type="text" id="offer-code" placeholder="e.g., MINUS5" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit-email">Email Address</label>
-                    <input type="email" id="edit-email" placeholder="name@masisso.com" required>
+                    <label for="offer-title">Title</label>
+                    <input type="text" id="offer-title" placeholder="e.g., 🎫 RM 5 OFF" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit-role">Role</label>
-                    <select id="edit-role" onchange="toggleUserFormFields()" required>
-                        <option value="Customer" selected>Customer</option>
-                        <option value="staff">Staff</option>
-                        <option value="admin">Admin</option>
+                    <label for="offer-desc">Description</label>
+                    <textarea id="offer-desc" rows="2" placeholder="Enter description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="offer-type">Discount Type</label>
+                    <select id="offer-type" required>
+                        <option value="fixed">Fixed (RM)</option>
+                        <option value="percentage">Percentage (%)</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit-phone">Phone Number</label>
-                    <input type="text" id="edit-phone" placeholder="+60 12-345 6789">
-                </div>
-
-                <div class="form-group" id="group-bowls">
-                    <label for="edit-bowls">Points (Bowls)</label>
-                    <input type="number" id="edit-bowls" placeholder="Enter bowls count" min="0">
-                </div>
-
-                <div class="form-group" id="group-address">
-                    <label for="edit-address">Address</label>
-                    <textarea id="edit-address" rows="3" placeholder="Enter address" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;"></textarea>
-                </div>
-
-                <div class="form-group" id="group-gender" style="display:none;">
-                    <label for="edit-gender">Gender</label>
-                    <select id="edit-gender">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="group-branch" style="display:none;">
-                    <label for="edit-branch">Branch</label>
-                    <select id="edit-branch">
-                        <option value="Masisso JB City Square">Masisso JB City Square</option>
-                        <option value="Masisso Mount Austin">Masisso Mount Austin</option>
-                        <option value="Masisso Paradigm Mall">Masisso Paradigm Mall</option>
-                    </select>
+                    <label for="offer-value">Discount Value</label>
+                    <input type="number" id="offer-value" step="0.01" placeholder="e.g., 5.00" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit-password">Password (leave blank to keep current)</label>
-                    <input type="password" id="edit-password" placeholder="Enter new password">
+                    <label for="offer-min">Min Spend (RM)</label>
+                    <input type="number" id="offer-min" step="0.01" placeholder="e.g., 50.00" required>
                 </div>
 
-                <button type="button" class="submit-profile-btn" id="submit-btn" onclick="saveUser()">Save User Entry</button>
+                <div class="form-group">
+                    <label for="offer-valid">Valid Until</label>
+                    <input type="date" id="offer-valid" required>
+                </div>
+
+                <button type="button" class="submit-profile-btn" id="submit-btn" onclick="saveOffer()">Save Offer Entry</button>
             </form>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <a href="admin-dashboard.html" class="nav-item-bottom">
+        <a href="admin-dashboard.php" class="nav-item-bottom">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="manage-user.html" class="nav-item-bottom active">
+        <a href="manage-user.php" class="nav-item-bottom">
             <i class="fas fa-users"></i>
             <span>Users</span>
         </a>
-        <a href="manage-order.html" class="nav-item-bottom">
+        <a href="manage-order.php" class="nav-item-bottom">
             <i class="fas fa-clipboard-list"></i>
             <span>Orders</span>
         </a>
-        <a href="manage-menu.html" class="nav-item-bottom">
+        <a href="manage-menu.php" class="nav-item-bottom">
             <i class="fas fa-utensils"></i>
             <span>Menu</span>
         </a>
-        <a href="manage-event.html" class="nav-item-bottom">
+        <a href="manage-event.php" class="nav-item-bottom active">
             <i class="fas fa-calendar-alt"></i>
             <span>Events</span>
         </a>
-        <a href="manage-reward.html" class="nav-item-bottom">
+        <a href="manage-reward.php" class="nav-item-bottom">
             <i class="fas fa-gift"></i>
             <span>Rewards</span>
         </a>
-        <a href="manage-profile.html" class="nav-item-bottom">
+        <a href="manage-profile.php" class="nav-item-bottom">
             <i class="fas fa-user-cog"></i>
             <span>Profile</span>
         </a>

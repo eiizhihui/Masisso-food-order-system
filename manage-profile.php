@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['admin', 'super admin'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -120,10 +127,13 @@
 
     <div class="header">
         <div class="header-left">
-            <a href="admin-dashboard.html" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+            <a href="admin-dashboard.php" aria-label="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
             <h2>Profile</h2>
         </div>
-        <button id="edit-profile-btn" onclick="toggleEditMode()" style="background:transparent; border:none; color:white; font-size:18px; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button id="edit-profile-btn" onclick="toggleEditMode()" style="background:transparent; border:none; color:white; font-size:18px; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>
+            <a href="logout.php" style="color:white; text-decoration:none; font-size:18px; cursor:pointer; display: flex; align-items: center; gap: 5px;" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
     </div>
 
     <div class="profile-container">
@@ -136,6 +146,11 @@
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" placeholder="Enter your name" required disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Choose a username" required disabled>
             </div>
 
             <div class="form-group">
@@ -163,41 +178,42 @@
     </div>
 
     <div class="bottom-nav">
-        <a href="admin-dashboard.html" class="nav-item-bottom">
+        <a href="admin-dashboard.php" class="nav-item-bottom">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="manage-user.html" class="nav-item-bottom">
+        <a href="manage-user.php" class="nav-item-bottom">
             <i class="fas fa-users"></i>
             <span>Users</span>
         </a>
-        <a href="manage-order.html" class="nav-item-bottom">
+        <a href="manage-order.php" class="nav-item-bottom">
             <i class="fas fa-clipboard-list"></i>
             <span>Orders</span>
         </a>
-        <a href="manage-menu.html" class="nav-item-bottom">
+        <a href="manage-menu.php" class="nav-item-bottom">
             <i class="fas fa-utensils"></i>
             <span>Menu</span>
         </a>
-        <a href="manage-event.html" class="nav-item-bottom">
+        <a href="manage-event.php" class="nav-item-bottom">
             <i class="fas fa-calendar-alt"></i>
             <span>Events</span>
         </a>
-        <a href="manage-reward.html" class="nav-item-bottom">
+        <a href="manage-reward.php" class="nav-item-bottom">
             <i class="fas fa-gift"></i>
             <span>Rewards</span>
         </a>
-        <a href="manage-profile.html" class="nav-item-bottom active">
+        <a href="manage-profile.php" class="nav-item-bottom active">
             <i class="fas fa-user-cog"></i>
             <span>Profile</span>
         </a>
     </div>
 
     <script>
-        const adminUserId = 2000;
+        const adminUserId = <?php echo (int)$_SESSION['user_id']; ?>;
+        const adminUserRole = '<?php echo $_SESSION['role']; ?>';
 
         function toggleEditMode() {
-            const inputs = document.querySelectorAll('#name, #email, #phone, #branch, #password');
+            const inputs = document.querySelectorAll('#name, #username, #email, #phone, #branch, #password');
             inputs.forEach(input => input.disabled = false);
             document.getElementById('update-profile-btn').style.display = 'block';
             document.getElementById('edit-profile-btn').style.display = 'none';
@@ -210,6 +226,7 @@
                     const admin = users.find(u => parseInt(u.user_id) === adminUserId);
                     if (admin) {
                         document.getElementById('name').value = admin.name || '';
+                        document.getElementById('username').value = admin.username || '';
                         document.getElementById('email').value = admin.email || '';
                         document.getElementById('phone').value = admin.phone || '';
                         document.getElementById('branch').value = admin.branch || '';
@@ -225,20 +242,22 @@
 
         function saveProfileData() {
             const nameVal = document.getElementById('name').value.trim();
+            const usernameVal = document.getElementById('username').value.trim();
             const emailVal = document.getElementById('email').value.trim();
             const phoneVal = document.getElementById('phone').value.trim();
             const branchVal = document.getElementById('branch').value.trim();
             const passwordVal = document.getElementById('password').value;
 
-            if (!nameVal || !emailVal) {
-                alert("Name and Email are mandatory.");
+            if (!nameVal || !usernameVal || !emailVal) {
+                alert("Name, Username, and Email are mandatory.");
                 return;
             }
 
             const dataPayload = {
                 user_id: adminUserId,
-                role: 'super admin',
+                role: adminUserRole,
                 name: nameVal,
+                username: usernameVal,
                 email: emailVal,
                 phone: phoneVal,
                 branch: branchVal
@@ -260,6 +279,12 @@
                     if (data.success) {
                         alert("Profile updated successfully!");
                         document.getElementById('password').value = ''; // clear password field
+                        
+                        // Disable input fields again and toggle edit button back
+                        const inputs = document.querySelectorAll('#name, #username, #email, #phone, #branch, #password');
+                        inputs.forEach(input => input.disabled = true);
+                        document.getElementById('update-profile-btn').style.display = 'none';
+                        document.getElementById('edit-profile-btn').style.display = 'block';
                     } else {
                         alert("Database Error: " + (data.error || 'Unknown error'));
                     }

@@ -1,16 +1,16 @@
 <?php 
    session_start();
    include "db_connect.php";
-   if (!isset($_SESSION['user_id'])) {
-      ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Massiso - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="login-page">
     <div class="container d-flex justify-content-center align-items-center"
 		style="min-height: 100vh">
     	<form class="border shadow p-3 rounded"
@@ -53,10 +53,11 @@
 			  <option selected value="customer">Customer</option>
               <option value="staff">Staff</option>
 			  <option value="admin">Admin</option>
+			  <option value="super admin">Super Admin</option>
 		  </select>
 		 
 		  <button type="submit" 
-		        class="btn btn-primary">LOGIN</button>
+		        class="solid-btn">LOGIN</button>
 
 			<div class="mt-2 text-start">
               <span class="text-muted">Don't have an account?</span><br>
@@ -67,6 +68,3 @@
       </div>
 </body>
 </html>
-<?php }else{
-	header("Location: home.php");
-} ?>

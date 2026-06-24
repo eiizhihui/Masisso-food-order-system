@@ -62,6 +62,7 @@
               <option selected value="customer">Customer</option>
               <option value="staff">Staff</option>
               <option value="admin">Admin</option>
+              <option value="super admin">Super Admin</option>
           </select>
          
           <button type="submit" class="btn btn-primary">REGISTER</button>
