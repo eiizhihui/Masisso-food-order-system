@@ -26,17 +26,18 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `customer`
 --
-
 CREATE TABLE `customer` (
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `username` varchar(100) NOT NULL UNIQUE,
   `phone` varchar(20) DEFAULT NULL,
   `address` text DEFAULT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
   `password` varchar(255) NOT NULL,
-  `points` int(11) NOT NULL
+  `role` varchar(20) DEFAULT 'Customer',
+  `points` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `customer`
 --
