@@ -9,7 +9,7 @@ function write_log($msg) {
 }
 
 // 1. Changed to look for 'username' which contains either the username or the email
-if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role'])) {
+if (isset($_POST['username']) && isset($_POST['password'])) {
 
     function test_input($data) {
         $data = trim($data);
@@ -20,7 +20,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
 
     $login_input = test_input($_POST['username']); // Holds either email or username
     $password = test_input($_POST['password']);
-    $role = test_input($_POST['role']);
+    $role = isset($_POST['role']) ? test_input($_POST['role']) : 'customer';
 
     write_log("Login attempt - Input: '$login_input', Role: '$role'");
 
