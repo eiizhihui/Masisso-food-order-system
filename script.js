@@ -617,10 +617,53 @@ function renderNearbyBranches() {
     });
 }
 
+function loadSavedAddressForDelivery() {
+    const card = document.getElementById('profile-address-card');
+    const nameEl = document.getElementById('profile-address-name');
+    const subEl = document.getElementById('profile-address-sub');
+    
+    if (!card || !nameEl) return;
+
+    fetch('fetch_profile.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.profile.address) {
+                const savedAddress = data.profile.address;
+                
+                // Format the display: split at first comma for name vs sub address
+                const parts = savedAddress.split(',');
+                const mainName = parts[0].trim();
+                const subName = parts.slice(1).join(',').trim();
+
+                nameEl.innerText = mainName;
+                if (subEl) {
+                    subEl.innerText = subName || "";
+                }
+
+                // Add click event to set active location
+                card.onclick = () => {
+                    selectLocation(savedAddress, 'delivery-modal');
+                };
+            } else {
+                nameEl.innerText = "No saved address found";
+                if (subEl) subEl.innerText = "Please set one in your profile";
+                card.onclick = () => {
+                    alert("Please set a default address in your profile first.");
+                    window.location.href = 'profile.php';
+                };
+            }
+        })
+        .catch(err => {
+            console.error("Error loading delivery address:", err);
+            nameEl.innerText = "Failed to load saved address";
+        });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     setupLocationSearch('delivery-search-input', 'delivery-results', deliveryLocations, 'delivery-modal');
     setupLocationSearch('pickup-search-input', 'pickup-results', pickupStores, 'pickup-modal');
     renderNearbyBranches(); 
+    loadSavedAddressForDelivery();
 
     // Automatically restore the selected location state!
     let savedMode = localStorage.getItem('masisso_order_mode');
