@@ -15,6 +15,39 @@ if ($is_logged_in) {
 
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
+        
+        // Fetch user's order history
+        $orders_query = "SELECT order_id, order_type, total_price, order_status, order_date, items, delivery_fee FROM orders WHERE user_id = ? ORDER BY order_id DESC";
+        $orders_stmt = $conn->prepare($orders_query);
+        $orders_stmt->bind_param("i", $user_id);
+        $orders_stmt->execute();
+        $orders_result = $orders_stmt->get_result();
+        $user_orders = [];
+        
+        while ($row = $orders_result->fetch_assoc()) {
+            $items_arr = json_decode($row['items'], true);
+            if (!is_array($items_arr)) {
+                $items_arr = [];
+            }
+            $total_qty = 0;
+            $item_names = [];
+            foreach ($items_arr as $item) {
+                $qty = isset($item['quantity']) ? intval($item['quantity']) : 1;
+                $total_qty += $qty;
+                $name = isset($item['name']) ? $item['name'] : 'Unknown Item';
+                $item_names[] = $name . ($qty > 1 ? " (x{$qty})" : "");
+            }
+            $row['total_qty'] = $total_qty;
+            $row['items_summary'] = implode(', ', $item_names);
+            
+            // Format order date & time
+            $timestamp = strtotime($row['order_date']);
+            $row['formatted_time'] = date('h:i a', $timestamp);
+            $row['formatted_date'] = date('d-m-Y', $timestamp);
+            
+            $user_orders[] = $row;
+        }
+        $orders_stmt->close();
     } else {
         session_destroy();
         $is_logged_in = false;
@@ -48,9 +81,8 @@ if ($is_logged_in) {
     <div style="padding: 20px; max-width: 800px; margin: auto;">
         <h2 style="color: var(--primary-orange);">My Profile</h2>
         
-        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            
-            <?php if ($is_logged_in): ?>
+        <?php if ($is_logged_in): ?>
+        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px;">
             <div id="profile-view-mode">
                 <p><strong>Name:</strong> <span id="display-name"><?php echo htmlspecialchars($user['name']); ?></span></p>
                 <p><strong>Email:</strong> <span id="display-email"><?php echo htmlspecialchars($user['email']); ?></span></p>
@@ -78,7 +110,84 @@ if ($is_logged_in) {
                     <button type="button" class="add-btn" onclick="toggleEditProfile()" style="flex: 1; border-color: #ccc; color: #555; margin: 0;">Cancel</button>
                 </div>
             </form>
-            <?php else: ?>
+        </div>
+
+        <!-- ORDER HISTORY SECTION START -->
+        <div class="orders-container">
+            <h3 class="orders-title">Order History</h3>
+
+            <div class="order-list" id="orders-list-wrapper">
+                <?php if (empty($user_orders)): ?>
+                    <div class="empty-orders-state">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <p>You have no orders yet.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($user_orders as $order): 
+                        $status = strtolower($order['order_status']);
+                        
+                        // Determine appropriate status badge class & label
+                        $badge_class = 'badge-completed';
+                        $status_display = $order['order_status'];
+                        if ($status === 'preparing') {
+                            $badge_class = 'badge-preparing';
+                            $status_display = 'Preparing';
+                        } elseif ($status === 'pending') {
+                            $badge_class = 'badge-pending';
+                            $status_display = 'Pending';
+                        }
+                        
+                        // Determine appropriate icon (Delivery vs Takeaway)
+                        $icon_class = 'fa-motorcycle';
+                        if (strtolower($order['order_type']) !== 'delivery') {
+                            $icon_class = 'fa-box-open';
+                        }
+                    ?>
+                        <div class="order-card" data-status="<?php echo $status; ?>">
+                            <div class="order-icon-wrapper">
+                                <i class="fa-solid <?php echo $icon_class; ?>"></i>
+                            </div>
+                            <div class="order-content">
+                                <div class="order-card-header">
+                                    <span class="order-status-badge <?php echo $badge_class; ?>">
+                                        <?php echo htmlspecialchars($status_display); ?>
+                                    </span>
+                                    <span class="order-card-title">Masisso <?php echo htmlspecialchars($order['order_type']); ?></span>
+                                    <span class="order-dot-separator">•</span>
+                                    <span class="order-number">Order #<?php echo htmlspecialchars($order['order_id']); ?></span>
+                                </div>
+                                <div class="order-meta-info">
+                                    <div class="order-meta-item">
+                                        <i class="fa-solid fa-utensils"></i>
+                                        <span><?php echo intval($order['total_qty']); ?> pieces</span>
+                                    </div>
+                                    <span class="order-dot-separator">•</span>
+                                    <div class="order-meta-item">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span><?php echo htmlspecialchars($order['formatted_time']); ?></span>
+                                    </div>
+                                    <span class="order-dot-separator">•</span>
+                                    <div class="order-meta-item">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        <span><?php echo htmlspecialchars($order['formatted_date']); ?></span>
+                                    </div>
+                                </div>
+                                <?php if (!empty($order['items_summary'])): ?>
+                                    <span class="order-items-tooltip"><?php echo htmlspecialchars($order['items_summary']); ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="order-price">
+                                RM <?php echo number_format($order['total_price'], 2); ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+        <!-- ORDER HISTORY SECTION END -->
+
+        <?php else: ?>
+        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <div style="padding: 20px 0; text-align: center;">
                 <div style="font-size: 64px; color: #ddd; margin-bottom: 20px;"><i class="fas fa-user-circle"></i></div>
                 <h3 style="color: #333; margin-bottom: 10px;">Guest Access</h3>
@@ -90,7 +199,9 @@ if ($is_logged_in) {
                     <button class="add-btn" onclick="window.location.href='register.php'" style="margin: 0; flex: 1; border-color: #ccc; color: #555;">Register</button>
                 </div>
             </div>
-            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+    </div>
 
     <nav class="bottom-nav">
         <a href="home.php" class="nav-item-bottom">
