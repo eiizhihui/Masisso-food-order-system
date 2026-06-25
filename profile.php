@@ -1,27 +1,24 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
 include 'db_connect.php'; 
 
-$user_id = $_SESSION['user_id'];
+$is_logged_in = isset($_SESSION['user_id']);
+$user = null;
 
-$query = "SELECT name, email, phone, address FROM customer WHERE user_id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+if ($is_logged_in) {
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT name, email, phone, address FROM customer WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-if ($result->num_rows === 1) {
-    $user = $result->fetch_assoc();
-} else {
-    session_destroy();
-    header("Location: login.php");
-    exit();
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+    } else {
+        session_destroy();
+        $is_logged_in = false;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -36,9 +33,15 @@ if ($result->num_rows === 1) {
     <header class="app-header" style="background-color: #e65100; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
         <div class="top-brand-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
             <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;" onclick="window.location.href='home.php'">Masisso</div>
+            <?php if ($is_logged_in): ?>
             <a href="logout.php" style="color: white; text-decoration: none; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.2); padding: 6px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
+            <?php else: ?>
+            <a href="login.php" style="color: white; text-decoration: none; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.2); padding: 6px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <?php endif; ?>
         </div>
     </header>
 
@@ -47,6 +50,7 @@ if ($result->num_rows === 1) {
         
         <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             
+            <?php if ($is_logged_in): ?>
             <div id="profile-view-mode">
                 <p><strong>Name:</strong> <span id="display-name"><?php echo htmlspecialchars($user['name']); ?></span></p>
                 <p><strong>Email:</strong> <span id="display-email"><?php echo htmlspecialchars($user['email']); ?></span></p>
@@ -74,10 +78,19 @@ if ($result->num_rows === 1) {
                     <button type="button" class="add-btn" onclick="toggleEditProfile()" style="flex: 1; border-color: #ccc; color: #555; margin: 0;">Cancel</button>
                 </div>
             </form>
-
-
-        </div>
-    </div>
+            <?php else: ?>
+            <div style="padding: 20px 0; text-align: center;">
+                <div style="font-size: 64px; color: #ddd; margin-bottom: 20px;"><i class="fas fa-user-circle"></i></div>
+                <h3 style="color: #333; margin-bottom: 10px;">Guest Access</h3>
+                <p style="color: #666; font-size: 14px; line-height: 1.5; margin-bottom: 25px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    You are currently visiting as a Guest. Log in to view your profile, manage your orders, edit your delivery address, and track your reward points.
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center; max-width: 300px; margin: 0 auto;">
+                    <button class="add-btn solid-btn" onclick="window.location.href='login.php'" style="margin: 0; flex: 1;">Log In</button>
+                    <button class="add-btn" onclick="window.location.href='register.php'" style="margin: 0; flex: 1; border-color: #ccc; color: #555;">Register</button>
+                </div>
+            </div>
+            <?php endif; ?>
 
     <nav class="bottom-nav">
         <a href="home.php" class="nav-item-bottom">
