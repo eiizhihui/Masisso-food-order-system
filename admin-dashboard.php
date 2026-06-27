@@ -136,7 +136,16 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         }
 
         .badge.pending {
-            background: #FF9800;
+            background: #ffc107;
+            color: white;
+        }
+        .badge.preparing {
+            background: #ff9800;
+            color: white;
+        }
+        .badge.completed {
+            background: #4caf50;
+            color: white;
         }
     </style>
 </head>
@@ -217,7 +226,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         </a>
     </div>
 
-    <script src="admin.js"></script>
+    <script src="admin.js?v=1"></script>
 
 </body>
 

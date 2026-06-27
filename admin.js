@@ -85,7 +85,7 @@ async function loadDashboard() {
             card.className = 'list-card order';
             card.innerHTML = `
                 <div class="list-info">
-                    <span class="badge ${order.order_status === 'Pending' ? 'pending' : ''}" style="${order.order_status === 'Completed' ? 'background:#4CAF50' : ''}">${order.order_status}</span>
+                    <span class="badge ${order.order_status.toLowerCase()}">${order.order_status}</span>
                     <h4>Order #${order.order_id} - ${usersDict[order.user_id] || 'Unknown'}</h4>
                     <p>Total: RM ${parseFloat(order.total_price).toFixed(2)} | Date: ${order.order_date}</p>
                 </div>

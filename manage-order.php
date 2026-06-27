@@ -153,6 +153,13 @@ $role = strtolower($_SESSION['role']);
             <button class="toggle-option active" id="tab-active" onclick="switchOrderTab('Active')">Active Orders</button>
             <button class="toggle-option" id="tab-completed" onclick="switchOrderTab('Completed')">Completed Orders</button>
         </div>
+        <div class="export-container" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between; background: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-weight: bold; font-size: 14px; color: #333;"><i class="fas fa-chart-bar"></i> Monthly sale:</label>
+                <input type="month" id="report-month" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-weight: bold; outline: none; font-size: 14px; color: #333;">
+            </div>
+            <button class="add-btn" onclick="exportMonthlyReport()" style="margin: 0; background: #e65100;"><i class="fas fa-file-pdf"></i> Export Report</button>
+        </div>
         <div class="nav-search" style="margin-bottom: 20px;">
             <input type="text" id="search-input" placeholder="Search orders by customer, ID, status or type..." oninput="filterOrders(this.value)"
                 style="width:100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; outline: none;">
@@ -435,7 +442,321 @@ $role = strtolower($_SESSION['role']);
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadOrders);
+        function exportMonthlyReport() {
+            const selectedMonth = document.getElementById('report-month').value;
+            if (!selectedMonth) {
+                alert("Please select a month first.");
+                return;
+            }
+
+            const [year, month] = selectedMonth.split('-');
+            const yearInt = parseInt(year);
+            const monthInt = parseInt(month);
+
+            // Filter orders for the selected month (Completed orders represent actual sales/income)
+            const completedOrders = allOrders.filter(o => {
+                const oDate = new Date(o.order_date);
+                return oDate.getFullYear() === yearInt && 
+                       (oDate.getMonth() + 1) === monthInt && 
+                       (o.order_status || '').toLowerCase() === 'completed';
+            });
+
+            // If no completed orders, check if there are any orders at all so we can show warning
+            const totalOrdersInMonth = allOrders.filter(o => {
+                const oDate = new Date(o.order_date);
+                return oDate.getFullYear() === yearInt && (oDate.getMonth() + 1) === monthInt;
+            });
+
+            if (totalOrdersInMonth.length === 0) {
+                alert(`No orders found for ${selectedMonth}.`);
+                return;
+            }
+
+            // Calculations
+            let totalRevenue = 0;
+            let dineInCount = 0;
+            let deliveryCount = 0;
+            let takeawayCount = 0;
+            const itemsSold = {};
+            const dailyIncome = {};
+
+            completedOrders.forEach(o => {
+                const price = parseFloat(o.total_price) || 0;
+                totalRevenue += price;
+
+                // Order type count
+                const type = (o.order_type || '').toLowerCase();
+                if (type === 'dine-in') dineInCount++;
+                else if (type === 'delivery') deliveryCount++;
+                else if (type === 'takeaway') takeawayCount++;
+
+                // Daily income grouping
+                const dayStr = new Date(o.order_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                dailyIncome[dayStr] = (dailyIncome[dayStr] || 0) + price;
+
+                // Parse items JSON
+                if (o.items) {
+                    try {
+                        const itemsArr = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                        if (Array.isArray(itemsArr)) {
+                            itemsArr.forEach(item => {
+                                const name = item.name || 'Unknown Item';
+                                const qty = parseInt(item.quantity) || 1;
+                                const itemPrice = parseFloat(item.totalPrice) || 0;
+                                if (!itemsSold[name]) {
+                                    itemsSold[name] = { quantity: 0, revenue: 0 };
+                                }
+                                itemsSold[name].quantity += qty;
+                                itemsSold[name].revenue += itemPrice;
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error parsing order items for PDF report", e);
+                    }
+                }
+            });
+
+            // Highest daily income
+            let highestDailyIncome = 0;
+            let highestDailyDay = 'N/A';
+            for (const day in dailyIncome) {
+                if (dailyIncome[day] > highestDailyIncome) {
+                    highestDailyIncome = dailyIncome[day];
+                    highestDailyDay = day;
+                }
+            }
+
+            // New Customer Total (customers whose first-ever order date was in this month)
+            const customerFirstOrder = {};
+            allOrders.forEach(o => {
+                const uid = o.user_id;
+                if (!uid) return;
+                const oTime = new Date(o.order_date).getTime();
+                if (!customerFirstOrder[uid] || oTime < customerFirstOrder[uid]) {
+                    customerFirstOrder[uid] = oTime;
+                }
+            });
+
+            let newCustomers = 0;
+            for (const uid in customerFirstOrder) {
+                const firstDate = new Date(customerFirstOrder[uid]);
+                if (firstDate.getFullYear() === yearInt && (firstDate.getMonth() + 1) === monthInt) {
+                    newCustomers++;
+                }
+            }
+
+            // Sort items sold by quantity descending
+            const sortedItems = Object.entries(itemsSold)
+                .map(([name, data]) => ({ name, ...data }))
+                .sort((a, b) => b.quantity - a.quantity);
+
+            // Month display name
+            const monthName = new Date(yearInt, monthInt - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            // Generate Print Document
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Sales Report - ${monthName}</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <style>
+                        body {
+                            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                            color: #333;
+                            padding: 40px;
+                            line-height: 1.6;
+                        }
+                        .report-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            border-bottom: 3px solid #E65100;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        .report-title h1 {
+                            margin: 0;
+                            color: #E65100;
+                            font-size: 28px;
+                        }
+                        .report-title p {
+                            margin: 5px 0 0 0;
+                            color: #666;
+                            font-size: 14px;
+                        }
+                        .report-month {
+                            text-align: right;
+                            font-size: 20px;
+                            font-weight: bold;
+                            color: #E65100;
+                        }
+                        .stats-grid {
+                            display: grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 15px;
+                            margin-bottom: 30px;
+                        }
+                        .stat-card {
+                            background: #F9F9F9;
+                            border: 1px solid #EEE;
+                            border-radius: 8px;
+                            padding: 15px;
+                            text-align: center;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+                        }
+                        .stat-card h3 {
+                            margin: 0;
+                            font-size: 20px;
+                            color: #E65100;
+                        }
+                        .stat-card p {
+                            margin: 5px 0 0 0;
+                            color: #777;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+                        .section-title {
+                            border-bottom: 2px solid #EEE;
+                            padding-bottom: 8px;
+                            margin-top: 30px;
+                            margin-bottom: 15px;
+                            color: #333;
+                            font-size: 18px;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 30px;
+                        }
+                        th, td {
+                            padding: 12px;
+                            text-align: left;
+                            border-bottom: 1px solid #EEE;
+                        }
+                        th {
+                            background-color: #F5F5F5;
+                            font-weight: bold;
+                            color: #555;
+                        }
+                        .text-right {
+                            text-align: right;
+                        }
+                        .footer {
+                            margin-top: 50px;
+                            text-align: center;
+                            font-size: 12px;
+                            color: #999;
+                            border-top: 1px solid #EEE;
+                            padding-top: 15px;
+                        }
+                        @media print {
+                            body { padding: 0; }
+                            button { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align: right; margin-bottom: 20px;">
+                        <button onclick="window.print()" style="background:#E65100; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:14px;"><i class="fas fa-print"></i> Print / Save as PDF</button>
+                    </div>
+                    <div class="report-header">
+                        <div class="report-title">
+                            <h1>Masisso Sales Report</h1>
+                            <p>Generated on ${new Date().toLocaleDateString()} | System Administrator Panel</p>
+                        </div>
+                        <div class="report-month">
+                            ${monthName}
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>RM ${totalRevenue.toFixed(2)}</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${completedOrders.length} / ${totalOrdersInMonth.length}</h3>
+                            <p>Completed / Total Orders</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${newCustomers}</h3>
+                            <p>New Customers</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>RM ${highestDailyIncome.toFixed(2)}</h3>
+                            <p>Highest Day (${highestDailyDay})</p>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title"><i class="fas fa-chart-line"></i> Order Type Breakdown</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order Type</th>
+                                <th class="text-right">Completed Orders Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fas fa-utensils"></i> Dine-In</td>
+                                <td class="text-right">${dineInCount}</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-box-open"></i> Takeaway</td>
+                                <td class="text-right">${takeawayCount}</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-motorcycle"></i> Delivery</td>
+                                <td class="text-right">${deliveryCount}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="section-title"><i class="fas fa-utensils"></i> Total Item Sales (Ordered by Quantity Sold)</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Rank</th>
+                                <th>Item Name</th>
+                                <th class="text-right">Quantity Sold</th>
+                                <th class="text-right">Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sortedItems.length > 0 ? sortedItems.map((item, index) => `
+                                <tr>
+                                    <td>#${index + 1}</td>
+                                    <td><strong>${item.name}</strong></td>
+                                    <td class="text-right">${item.quantity}</td>
+                                    <td class="text-right">RM ${item.revenue.toFixed(2)}</td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="4" style="text-align:center; color:#999;">No items sold.</td></tr>'}
+                        </tbody>
+                    </table>
+
+                    <div class="footer">
+                        <p>© ${new Date().getFullYear()} Masisso Food Order System. Confidential internal document.</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOrders();
+            // Set default month in the report select
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const monthEl = document.getElementById('report-month');
+            if (monthEl) monthEl.value = `${year}-${month}`;
+        });
     </script>
 </body>
 
