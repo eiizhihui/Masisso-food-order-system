@@ -325,8 +325,18 @@ $role = strtolower($_SESSION['role']);
                     </div>
 
                     <div class="form-group">
-                        <label for="menu-image">Image Filename</label>
-                        <input type="text" id="menu-image" placeholder="e.g., laksa.jpg">
+                        <label for="menu-image">Menu Item Image</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px; background: #fdfdfd; border: 1px dashed #ccc; border-radius: 8px; padding: 15px; align-items: center; justify-content: center;">
+                            <img id="menu-image-preview" src="" style="max-width: 120px; max-height: 120px; display: none; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+                                <button type="button" class="add-new-btn" style="background-color: var(--primary-orange); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; border: none; font-size: 13px;" onclick="document.getElementById('menu-image-file').click()">
+                                    <i class="fas fa-upload"></i> Select File
+                                </button>
+                                <span id="upload-status" style="font-size: 13px; color: #666; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">No file chosen</span>
+                            </div>
+                            <input type="file" id="menu-image-file" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+                            <input type="hidden" id="menu-image">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -475,6 +485,47 @@ $role = strtolower($_SESSION['role']);
             if (addSec) addSec.style.display = 'none';
         }
 
+        async function handleImageUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('upload-status');
+            const previewEl = document.getElementById('menu-image-preview');
+            const imageInput = document.getElementById('menu-image');
+
+            statusEl.innerText = "Uploading...";
+            statusEl.style.color = "#666";
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('staff-php/upload_image.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const res = await response.json();
+                if (res && res.success) {
+                    statusEl.innerText = "Upload successful!";
+                    statusEl.style.color = "#28a745";
+                    imageInput.value = res.image_url;
+                    previewEl.src = 'images/' + res.image_url;
+                    previewEl.style.display = 'block';
+                } else {
+                    statusEl.innerText = "Upload failed: " + (res.error || "Unknown error");
+                    statusEl.style.color = "#dc3545";
+                    imageInput.value = '';
+                    previewEl.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("Upload error:", e);
+                statusEl.innerText = "Upload error.";
+                statusEl.style.color = "#dc3545";
+                imageInput.value = '';
+                previewEl.style.display = 'none';
+            }
+        }
+
         function openMenuModal() {
             editingMenuId = null;
             showAddForm();
@@ -486,6 +537,22 @@ $role = strtolower($_SESSION['role']);
             document.getElementById('menu-desc').value = '';
             document.getElementById('menu-image').value = '';
             document.getElementById('menu-status').value = '1';
+
+            // Reset image upload preview and state
+            const previewEl = document.getElementById('menu-image-preview');
+            const statusEl = document.getElementById('upload-status');
+            const fileInput = document.getElementById('menu-image-file');
+            if (previewEl) {
+                previewEl.src = '';
+                previewEl.style.display = 'none';
+            }
+            if (statusEl) {
+                statusEl.innerText = "No file chosen";
+                statusEl.style.color = "#666";
+            }
+            if (fileInput) {
+                fileInput.value = '';
+            }
         }
 
         function editMenu(item) {
@@ -499,6 +566,33 @@ $role = strtolower($_SESSION['role']);
             document.getElementById('menu-desc').value = item.description || '';
             document.getElementById('menu-image').value = item.image_url || '';
             document.getElementById('menu-status').value = item.is_available.toString();
+
+            // Set image preview from edit data
+            const previewEl = document.getElementById('menu-image-preview');
+            const statusEl = document.getElementById('upload-status');
+            const fileInput = document.getElementById('menu-image-file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            if (item.image_url) {
+                if (previewEl) {
+                    previewEl.src = 'images/' + item.image_url;
+                    previewEl.style.display = 'block';
+                }
+                if (statusEl) {
+                    statusEl.innerText = "Current image: " + item.image_url;
+                    statusEl.style.color = "#666";
+                }
+            } else {
+                if (previewEl) {
+                    previewEl.src = '';
+                    previewEl.style.display = 'none';
+                }
+                if (statusEl) {
+                    statusEl.innerText = "No file chosen";
+                    statusEl.style.color = "#666";
+                }
+            }
         }
 
         async function saveMenu() {

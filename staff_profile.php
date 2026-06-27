@@ -123,6 +123,11 @@ $staff = $result->fetch_assoc();
         </div>
 
         <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="profile-username" value="<?php echo htmlspecialchars($staff['username'] ?? ''); ?>" disabled>
+        </div>
+
+        <div class="form-group">
             <label>Email Address</label>
             <input type="email" id="profile-email" value="<?php echo htmlspecialchars($staff['email'] ?? ''); ?>" disabled>
         </div>
