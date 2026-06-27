@@ -147,9 +147,9 @@ CREATE TABLE `orders` (
 -- Dumping data for table `offers`
 --
 
-INSERT INTO `orders` (`user_id`, `order_type`, `total_price`, `order_status`) VALUES
-(1111, 'Takeaway', 19.40, 'Preparing'),
-(1111, 'Delivery', 32.80, 'Completed');
+INSERT INTO `orders` (`order_id`, `user_id`, `order_type`, `total_price`, `order_status`) VALUES
+(0001, 1111, 'Takeaway', 19.40, 'Preparing'),
+(0002, 1111, 'Delivery', 32.80, 'Completed');
 -- --------------------------------------------------------
 
 --
