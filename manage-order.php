@@ -149,6 +149,10 @@ $role = strtolower($_SESSION['role']);
     </div>
 
     <div class="main-content">
+        <div class="toggle-container" style="margin-bottom: 15px;">
+            <button class="toggle-option active" id="tab-active" onclick="switchOrderTab('Active')">Active Orders</button>
+            <button class="toggle-option" id="tab-completed" onclick="switchOrderTab('Completed')">Completed Orders</button>
+        </div>
         <div class="nav-search" style="margin-bottom: 20px;">
             <input type="text" id="search-input" placeholder="Search orders by customer, ID, status or type..." oninput="filterOrders(this.value)"
                 style="width:100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; outline: none;">
@@ -211,12 +215,20 @@ $role = strtolower($_SESSION['role']);
     <script>
         const userRole = <?php echo json_encode($role); ?>;
         let allOrders = [];
+        let currentTab = 'Active';
+
+        function switchOrderTab(tabName) {
+            currentTab = tabName;
+            document.querySelectorAll('.toggle-option').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName === 'Active' ? 'tab-active' : 'tab-completed').classList.add('active');
+            filterAndRenderOrders();
+        }
 
         async function loadOrders() {
             try {
                 const response = await fetch('staff-php/orders_read.php');
                 allOrders = await response.json() || [];
-                renderOrders(allOrders);
+                filterAndRenderOrders();
             } catch (e) {
                 console.error("Error loading orders:", e);
                 document.getElementById('order-list').innerHTML = '<p style="text-align: center; color: red;">Failed to load orders.</p>';
@@ -309,35 +321,45 @@ $role = strtolower($_SESSION['role']);
             });
         }
 
-        function filterOrders(query) {
-            const lowerQuery = query.toLowerCase().trim();
-            if (!lowerQuery) {
-                renderOrders(allOrders);
-                return;
-            }
-
+        function filterAndRenderOrders() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            
             const filtered = allOrders.filter(order => {
-                const orderIdMatch = String(order.order_id).includes(lowerQuery);
-                const nameMatch = (order.customer_name || '').toLowerCase().includes(lowerQuery);
-                const typeMatch = (order.order_type || '').toLowerCase().includes(lowerQuery);
-                const statusMatch = (order.order_status || '').toLowerCase().includes(lowerQuery);
-                const dateMatch = (order.order_date || '').toLowerCase().includes(lowerQuery);
-                const totalMatch = String(order.total_price).includes(lowerQuery);
-
-                let itemsMatch = false;
-                if (order.items) {
-                    try {
-                        const itemsArr = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-                        if (Array.isArray(itemsArr)) {
-                            itemsMatch = itemsArr.some(item => (item.name || '').toLowerCase().includes(lowerQuery));
-                        }
-                    } catch (e) {}
+                // First filter by active/completed tab
+                const status = (order.order_status || 'Pending').toLowerCase();
+                const isCompleted = status === 'completed';
+                if (currentTab === 'Active' && isCompleted) return false;
+                if (currentTab === 'Completed' && !isCompleted) return false;
+                
+                // Then filter by search query if exists
+                if (query) {
+                    const orderIdMatch = String(order.order_id).includes(query);
+                    const nameMatch = (order.customer_name || '').toLowerCase().includes(query);
+                    const typeMatch = (order.order_type || '').toLowerCase().includes(query);
+                    const statusMatch = (order.order_status || '').toLowerCase().includes(query);
+                    const dateMatch = (order.order_date || '').toLowerCase().includes(query);
+                    const totalMatch = String(order.total_price).includes(query);
+                    
+                    let itemsMatch = false;
+                    if (order.items) {
+                        try {
+                            const itemsArr = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+                            if (Array.isArray(itemsArr)) {
+                                itemsMatch = itemsArr.some(item => (item.name || '').toLowerCase().includes(query));
+                            }
+                        } catch (e) {}
+                    }
+                    return orderIdMatch || nameMatch || typeMatch || statusMatch || dateMatch || totalMatch || itemsMatch;
                 }
-
-                return orderIdMatch || nameMatch || typeMatch || statusMatch || dateMatch || totalMatch || itemsMatch;
+                
+                return true;
             });
-
+            
             renderOrders(filtered);
+        }
+
+        function filterOrders(query) {
+            filterAndRenderOrders();
         }
 
         async function updateOrderStatus(orderId) {

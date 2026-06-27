@@ -5,7 +5,7 @@ require_once("../config.php");
 $query = "SELECT o.order_id, o.order_type, o.total_price, o.order_status, o.order_date, o.items, c.name AS customer_name 
           FROM orders o 
           LEFT JOIN customer c ON o.user_id = c.user_id 
-          ORDER BY o.order_id DESC";
+          ORDER BY o.order_date DESC";
 
 $result = mysqli_query($conn, $query);
 
