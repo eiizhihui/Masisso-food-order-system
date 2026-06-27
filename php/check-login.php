@@ -25,7 +25,6 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     } else {
 
         $plain_password = $password;
-        $hashed_password = md5($password);
         
         $user_found = false;
         $row = null;
@@ -37,7 +36,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $result = mysqli_query($conn, $sql);
             if ($result && mysqli_num_rows($result) === 1) {
                 $row = mysqli_fetch_assoc($result);
-                if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                if ($row['password'] === $plain_password) {
                     $user_found = true;
                 }
             }
@@ -48,7 +47,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
                 $result = mysqli_query($conn, $sql);
                 if ($result && mysqli_num_rows($result) === 1) {
                     $row = mysqli_fetch_assoc($result);
-                    if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                    if ($row['password'] === $plain_password) {
                         $user_found = true;
                     }
                 }
@@ -59,7 +58,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $result = mysqli_query($conn, $sql);
             if ($result && mysqli_num_rows($result) === 1) {
                 $row = mysqli_fetch_assoc($result);
-                if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                if ($row['password'] === $plain_password) {
                     $user_found = true;
                 }
             }
@@ -70,7 +69,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
                 $result = mysqli_query($conn, $sql);
                 if ($result && mysqli_num_rows($result) === 1) {
                     $row = mysqli_fetch_assoc($result);
-                    if ($row['password'] === $hashed_password || $row['password'] === $plain_password) {
+                    if ($row['password'] === $plain_password) {
                         $user_found = true;
                     }
                 }

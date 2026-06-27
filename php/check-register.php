@@ -25,7 +25,7 @@ if (isset($_POST['name']) && isset($_POST['username']) && isset($_POST['email'])
         header("Location: ../register.php?error=All fields are required");
         exit();
     } else {
-        $hashed_password = md5($password);
+        $hashed_password = $password;
 
         // 4. Check if the username or email is already taken in customer or staff table
         $username_exists = false;
