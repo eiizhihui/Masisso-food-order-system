@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadStaffMenu();
     } else if (path.includes('staff_profile.html')) {
         loadStaffProfile();
-    } else if (path.includes('staff_vieworders.html') || path.includes('view_orders.php')) {
+    } else if (path.includes('staff_vieworders.html') || path.includes('manage-order.php')) {
         loadStaffOrders();
     }
 });

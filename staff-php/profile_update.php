@@ -30,7 +30,7 @@ if ((int)$id >= 2000) {
         $sql .= "branch='" . mysqli_real_escape_string($conn, $data['branch']) . "', ";
     }
     if (isset($data['password']) && !empty($data['password'])) {
-        $hashed = md5($data['password']);
+        $hashed = $data['password'];
         $sql .= "password='" . mysqli_real_escape_string($conn, $hashed) . "', ";
     }
     
@@ -55,7 +55,7 @@ if ((int)$id >= 2000) {
         $sql .= "address='" . mysqli_real_escape_string($conn, $data['address']) . "', ";
     }
     if (isset($data['password']) && !empty($data['password'])) {
-        $hashed = md5($data['password']);
+        $hashed = $data['password'];
         $sql .= "password='" . mysqli_real_escape_string($conn, $hashed) . "', ";
     }
     

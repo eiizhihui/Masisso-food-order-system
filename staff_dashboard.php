@@ -101,7 +101,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
         <br>
         <br>
         <div class="dash-card" style="border-left: 5px solid #e65100; text-align: left; cursor: pointer;"
-            onclick="window.location.href='view_orders.php'">
+            onclick="window.location.href='manage-order.php'">
             <h3 style="margin-top: 0; color: #333;">📦 View Customer Orders</h3>
             <p style="color: #666; font-size: 14px;">Monitor and manage incoming customer orders.</p>
             <button class="add-btn solid-btn" style="width: auto; padding: 10px 20px;">View Orders</button>
@@ -118,7 +118,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             <i class="fas fa-utensils"></i>
             <span>Menu</span>
         </a>
-        <a href="view_orders.php" class="nav-item-bottom">
+        <a href="manage-order.php" class="nav-item-bottom">
             <i class="fas fa-clipboard-list"></i>
             <span>Orders</span>
         </a>
