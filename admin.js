@@ -90,7 +90,7 @@ async function loadDashboard() {
                     <p>Total: RM ${parseFloat(order.total_price).toFixed(2)} | Date: ${order.order_date}</p>
                 </div>
                 <div class="list-actions">
-                    ${order.order_status === 'Pending' ? `<button class="complete-btn" aria-label="Complete" title="Mark Completed" onclick="completeOrderDash(${order.order_id})"><i class="fas fa-check-circle"></i></button>` : `<button class="complete-btn" style="color:#ccc; cursor:not-allowed;" disabled><i class="fas fa-check-circle"></i></button>`}
+                    ${(order.order_status === 'Pending' || order.order_status === 'Preparing') ? `<button class="complete-btn" aria-label="Complete" title="Mark Completed" onclick="completeOrderDash(${order.order_id})"><i class="fas fa-check-circle"></i></button>` : `<button class="complete-btn" style="color:#ccc; cursor:not-allowed;" disabled><i class="fas fa-check-circle"></i></button>`}
                     <button class="delete-btn" aria-label="Delete" title="Delete" onclick="deleteOrderDash(${order.order_id})"><i class="fas fa-trash"></i></button>
                 </div>
             `;
