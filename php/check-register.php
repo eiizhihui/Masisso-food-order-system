@@ -27,14 +27,62 @@ if (isset($_POST['name']) && isset($_POST['username']) && isset($_POST['email'])
     } else {
         $hashed_password = md5($password);
 
-        // 4. Check if EITHER the username OR the email is already taken
-        $stmt_check = $conn->prepare("SELECT user_id FROM customer WHERE username = ? OR email = ?");
-        $stmt_check->bind_param("ss", $username, $email);
-        $stmt_check->execute();
-        $stmt_check->store_result();
+        // 4. Check if the username or email is already taken in customer or staff table
+        $username_exists = false;
+        $email_exists = false;
 
-        if ($stmt_check->num_rows > 0) {
-            header("Location: ../register.php?error=Username or Email is already taken");
+        // Check customer table for username
+        $stmt_user_cust = $conn->prepare("SELECT user_id FROM customer WHERE username = ?");
+        $stmt_user_cust->bind_param("s", $username);
+        $stmt_user_cust->execute();
+        $stmt_user_cust->store_result();
+        if ($stmt_user_cust->num_rows > 0) {
+            $username_exists = true;
+        }
+        $stmt_user_cust->close();
+
+        // Check staff table for username
+        if (!$username_exists) {
+            $stmt_user_staff = $conn->prepare("SELECT staff_id FROM staff WHERE username = ?");
+            $stmt_user_staff->bind_param("s", $username);
+            $stmt_user_staff->execute();
+            $stmt_user_staff->store_result();
+            if ($stmt_user_staff->num_rows > 0) {
+                $username_exists = true;
+            }
+            $stmt_user_staff->close();
+        }
+
+        // Check customer table for email
+        $stmt_email_cust = $conn->prepare("SELECT user_id FROM customer WHERE email = ?");
+        $stmt_email_cust->bind_param("s", $email);
+        $stmt_email_cust->execute();
+        $stmt_email_cust->store_result();
+        if ($stmt_email_cust->num_rows > 0) {
+            $email_exists = true;
+        }
+        $stmt_email_cust->close();
+
+        // Check staff table for email
+        if (!$email_exists) {
+            $stmt_email_staff = $conn->prepare("SELECT staff_id FROM staff WHERE email = ?");
+            $stmt_email_staff->bind_param("s", $email);
+            $stmt_email_staff->execute();
+            $stmt_email_staff->store_result();
+            if ($stmt_email_staff->num_rows > 0) {
+                $email_exists = true;
+            }
+            $stmt_email_staff->close();
+        }
+
+        if ($username_exists && $email_exists) {
+            header("Location: ../register.php?error=Username and Email are already taken");
+            exit();
+        } else if ($username_exists) {
+            header("Location: ../register.php?error=Username is already taken");
+            exit();
+        } else if ($email_exists) {
+            header("Location: ../register.php?error=Email is already taken");
             exit();
         } else {
             // 5. Insert all fields into the database including the username, phone, address and starting points (0)

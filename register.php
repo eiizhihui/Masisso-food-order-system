@@ -594,7 +594,11 @@
                                     <div class="dropdown-item" onclick="selectCountry('🇮🇩', '+62', 'Indonesia')">🇮🇩 Indonesia (+62)</div>
                                 </div>
                             </div>
-                            <input type="text" class="custom-input" id="phone-number-field" placeholder="12-345 6789" required oninput="this.value = this.value.replace(/[^0-9\- ]/g, '')">
+                            <div class="phone-field-wrapper" style="position: relative; flex: 1;">
+                                <input type="text" class="custom-input" id="phone-number-field" placeholder="12-345 6789" required oninput="this.value = this.value.replace(/[^0-9\- ]/g, '')" style="padding-right: 85px;">
+                                <button type="button" class="btn-verify" id="btn-verify-phone" onclick="startPhoneVerification()">Verify</button>
+                                <span class="verification-success-badge" id="phone-ok-badge"><i class="fa-solid fa-circle-check"></i></span>
+                            </div>
                         </div>
                     </div>
 
@@ -657,8 +661,8 @@
     <!-- CODE VERIFICATION POPUP MODAL -->
     <div class="verify-modal-overlay" id="verify-overlay">
         <div class="verify-modal">
-            <h4>Verify your Email</h4>
-            <p>We've simulated sending a 4-digit code to <br><strong id="verifying-email-label">email@example.com</strong>.<br><br><span style="background: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 11px;">Demo Code: 1234</span></p>
+            <h4 id="verify-modal-title">Verify your Email</h4>
+            <p id="verify-modal-desc">We've simulated sending a 4-digit code to <br><strong id="verifying-email-label">email@example.com</strong>.<br><br><span style="background: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 11px;">Demo Code: 1234</span></p>
             
             <div class="code-inputs-container">
                 <input type="text" class="code-input-single" maxlength="1" id="c1" onkeyup="focusNextInput(this, 'c2')">
@@ -678,6 +682,8 @@
     <script>
         // State variables
         let isEmailVerified = false;
+        let isPhoneVerified = false;
+        let verifyingType = ''; // 'email' or 'phone'
         let selectedCountryFlag = '🇲🇾';
         let selectedCountryCode = '+60';
 
@@ -746,13 +752,72 @@
                         showJsError('Email is already registered. Please use another.');
                     } else {
                         // Open code modal
-                        document.getElementById('verifying-email-label').innerText = emailVal;
+                        verifyingType = 'email';
+                        document.getElementById('verify-modal-title').innerText = 'Verify your Email';
+                        document.getElementById('verify-modal-desc').innerHTML = `We've simulated sending a 4-digit code to <br><strong>${emailVal}</strong>.<br><br><span style="background: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 11px;">Demo Code: 1234</span>`;
                         document.getElementById('verify-overlay').style.display = 'flex';
                         clearCodeInputs();
                         document.getElementById('c1').focus();
                     }
                 } else {
                     showJsError(data.message || 'Error checking email.');
+                }
+            } catch (e) {
+                console.error(e);
+                showJsError('Could not contact database server. Try again.');
+            }
+        }
+
+        // 2b. Phone verification
+        async function startPhoneVerification() {
+            const phoneInput = document.getElementById('phone-number-field');
+            const phoneVal = phoneInput.value.trim();
+            const errAlert = document.getElementById('js-error-alert');
+
+            errAlert.style.display = 'none';
+
+            if (!phoneVal) {
+                showJsError('Please enter a phone number first.');
+                phoneInput.focus();
+                return;
+            }
+
+            // Simple format check (at least 6 digits)
+            const cleanPhone = phoneVal.replace(/[^0-9]/g, '');
+            if (cleanPhone.length < 6) {
+                showJsError('Please enter a valid phone number.');
+                phoneInput.focus();
+                return;
+            }
+
+            const fullPhone = selectedCountryCode + ' ' + cleanPhone;
+
+            // AJAX Check to verify-phone.php
+            try {
+                const formData = new URLSearchParams();
+                formData.append('phone', fullPhone);
+
+                const response = await fetch('php/verify-phone.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (data.exists) {
+                        showJsError('Phone number is already registered. Please use another.');
+                    } else {
+                        // Open code modal
+                        verifyingType = 'phone';
+                        document.getElementById('verify-modal-title').innerText = 'Verify your Phone';
+                        document.getElementById('verify-modal-desc').innerHTML = `We've simulated sending a 4-digit code to <br><strong>${fullPhone}</strong>.<br><br><span style="background: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 11px;">Demo Code: 1234</span>`;
+                        document.getElementById('verify-overlay').style.display = 'flex';
+                        clearCodeInputs();
+                        document.getElementById('c1').focus();
+                    }
+                } else {
+                    showJsError(data.message || 'Error checking phone number.');
                 }
             } catch (e) {
                 console.error(e);
@@ -786,17 +851,30 @@
             const code = c1 + c2 + c3 + c4;
 
             if (code === '1234') {
-                isEmailVerified = true;
-                
-                // Hide button & show success badge
-                document.getElementById('btn-verify-email').style.display = 'none';
-                document.getElementById('email-ok-badge').style.display = 'block';
-                
-                // Lock email field
-                document.getElementById('email').readOnly = true;
-                
+                if (verifyingType === 'email') {
+                    isEmailVerified = true;
+                    // Hide button & show success badge
+                    document.getElementById('btn-verify-email').style.display = 'none';
+                    document.getElementById('email-ok-badge').style.display = 'block';
+                    // Lock email field
+                    document.getElementById('email').readOnly = true;
+                    alert('Email address verified successfully!');
+                } else if (verifyingType === 'phone') {
+                    isPhoneVerified = true;
+                    // Hide button & show success badge
+                    document.getElementById('btn-verify-phone').style.display = 'none';
+                    document.getElementById('phone-ok-badge').style.display = 'block';
+                    // Lock phone field and country code select
+                    document.getElementById('phone-number-field').readOnly = true;
+                    const selectCodeEl = document.querySelector('.selected-code');
+                    if (selectCodeEl) {
+                        selectCodeEl.onclick = null;
+                        selectCodeEl.style.cursor = 'default';
+                        selectCodeEl.style.opacity = '0.7';
+                    }
+                    alert('Phone number verified successfully!');
+                }
                 closeVerificationModal();
-                alert('Email address verified successfully!');
             } else {
                 alert('Invalid verification code. Please enter 1234.');
                 clearCodeInputs();
@@ -885,6 +963,12 @@
             // Check email verification
             if (!isEmailVerified) {
                 showJsError('Please verify your email address by clicking the "Verify" button.');
+                return false;
+            }
+
+            // Check phone verification
+            if (!isPhoneVerified) {
+                showJsError('Please verify your phone number by clicking the "Verify" button.');
                 return false;
             }
 
