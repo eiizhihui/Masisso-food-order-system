@@ -1,3 +1,12 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Jun 25, 2026 at 05:58 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -17,63 +26,26 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `customer`
 --
+
 CREATE TABLE `customer` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `username` varchar(100) NOT NULL UNIQUE,
+  `username` varchar(100) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` text DEFAULT NULL,
-  `email` varchar(100) NOT NULL UNIQUE,
+  `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(20) DEFAULT 'Customer',
-  `points` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`)
+  `points` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Dumping data for table `customer`
 --
 
-INSERT INTO `customer` (`user_id`, `name`, `email`, `phone`, `address`, `password`, `points`) VALUES
-(1111, 'Joey', 'joeybaobei@gmail.com', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', '1223334444', 1000);
+INSERT INTO `customer` (`user_id`, `name`, `username`, `phone`, `address`, `email`, `password`, `role`, `points`) VALUES
+(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', '1223334444', 'Customer', 1192);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `staff`
---
-
-CREATE TABLE `staff` (
-  `staff_id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `username` varchar(100) NOT NULL UNIQUE,
-  `gender` enum('Male', 'Female', 'Other') NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) NOT NULL UNIQUE,
-  `password` varchar(255) NOT NULL,
-  `branch` enum('Masisso JB City Square', 'Masisso Mount Austin', 'Masisso Paradigm Mall') NOT NULL,
-  `position` enum('staff', 'admin', 'super admin') NOT NULL,
-  PRIMARY KEY (`staff_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `staff`
---
-
-INSERT INTO `staff` (`staff_id`, `name`, `username`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
--- 1 Super Admin (Joey starting exactly at ID 2000)
-(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', '1234567890', 'Masisso JB City Square', 'super admin'),
-
--- 2 Admins
-(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'adminPass123', 'Masisso Mount Austin', 'admin'),
-(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', 'adminPass456', 'Masisso Paradigm Mall', 'admin'),
-
--- 6 Staff members balanced across your operational branches
-(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', 'staffPass1', 'Masisso JB City Square', 'staff'),
-(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', 'staffPass2', 'Masisso JB City Square', 'staff'),
-(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', 'staffPass3', 'Masisso Mount Austin', 'staff'),
-(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', 'staffPass4', 'Masisso Mount Austin', 'staff'),
-(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', 'staffPass5', 'Masisso Paradigm Mall', 'staff'),
-(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', 'staffPass6', 'Masisso Paradigm Mall', 'staff');
 -- --------------------------------------------------------
 
 --
@@ -139,17 +111,19 @@ CREATE TABLE `orders` (
   `user_id` int(11) DEFAULT NULL,
   `order_type` varchar(20) NOT NULL,
   `total_price` decimal(10,2) NOT NULL,
+  `delivery_fee` decimal(10,2) DEFAULT 0.00,
+  `items` text DEFAULT NULL,
   `order_status` varchar(20) DEFAULT 'Pending',
   `order_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `offers`
+-- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `user_id`, `order_type`, `total_price`, `order_status`) VALUES
-(0001, 1111, 'Takeaway', 19.40, 'Preparing'),
-(0002, 1111, 'Delivery', 32.80, 'Completed');
+INSERT INTO `orders` (`order_id`, `user_id`, `order_type`, `total_price`, `delivery_fee`, `items`, `order_status`, `order_date`) VALUES
+(1, 1111, 'Delivery', 20.99, 5.20, '[{\"name\":\"Masisso Signature Laksa\",\"image\":\"laksa.jpg\",\"basePrice\":14.9,\"comboName\":\"A La Carte (Just the Masisso Signature Laksa)\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":14.9}]', 'Pending', '2026-06-25 14:32:47');
+
 -- --------------------------------------------------------
 
 --
@@ -171,6 +145,39 @@ INSERT INTO `rewards` (`id`, `reward_name`, `points_required`, `image_url`) VALU
 (1, 'Teh C Beng Special', 500, 'TehCBengSpecial.jpg'),
 (2, 'Fruit Rojak', 800, 'rojak.jpg');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `staff`
+--
+
+CREATE TABLE `staff` (
+  `staff_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `username` varchar(100) NOT NULL,
+  `gender` enum('Male','Female','Other') NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `branch` enum('Masisso JB City Square','Masisso Mount Austin','Masisso Paradigm Mall') NOT NULL,
+  `position` enum('staff','admin','super admin') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `staff`
+--
+
+INSERT INTO `staff` (`staff_id`, `name`, `username`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
+(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', '1234567890', 'Masisso JB City Square', 'super admin'),
+(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'adminPass123', 'Masisso Mount Austin', 'admin'),
+(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', 'adminPass456', 'Masisso Paradigm Mall', 'admin'),
+(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', 'staffPass1', 'Masisso JB City Square', 'staff'),
+(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', 'staffPass2', 'Masisso JB City Square', 'staff'),
+(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', 'staffPass3', 'Masisso Mount Austin', 'staff'),
+(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', 'staffPass4', 'Masisso Mount Austin', 'staff'),
+(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', 'staffPass5', 'Masisso Paradigm Mall', 'staff'),
+(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', 'staffPass6', 'Masisso Paradigm Mall', 'staff');
+
 --
 -- Indexes for dumped tables
 --
@@ -180,27 +187,23 @@ INSERT INTO `rewards` (`id`, `reward_name`, `points_required`, `image_url`) VALU
 --
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`);
-
---
--- Indexes for table `menu_items`
---
-ALTER TABLE `menu_items`
-  ADD PRIMARY KEY (`item_id`);
-
---
--- Indexes for table `offers`
---
-ALTER TABLE `offers`
-  ADD PRIMARY KEY (`offer_id`),
-  ADD UNIQUE KEY `code` (`code`);
 
 --
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `fk_orders_customer` (`user_id`);
+
+--
+-- Indexes for table `staff`
+--
+ALTER TABLE `staff`
+  ADD PRIMARY KEY (`staff_id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -213,28 +216,16 @@ ALTER TABLE `customer`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1112;
 
 --
--- AUTO_INCREMENT for table `staff`
---
-ALTER TABLE `staff`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2000;
-
---
--- AUTO_INCREMENT for table `menu_items`
---
-ALTER TABLE `menu_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `offers`
---
-ALTER TABLE `offers`
-  MODIFY `offer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `staff`
+--
+ALTER TABLE `staff`
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2009;
 
 --
 -- Constraints for dumped tables
@@ -244,7 +235,7 @@ ALTER TABLE `orders`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `customer` (`user_id`);
+  ADD CONSTRAINT `fk_orders_customer` FOREIGN KEY (`user_id`) REFERENCES `customer` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

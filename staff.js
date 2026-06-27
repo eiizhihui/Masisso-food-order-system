@@ -27,7 +27,7 @@ async function fetchApi(url, method = 'GET', data = null) {
 // ==========================================
 async function loadStaffDashboard() {
     const menu = await fetchApi('staff-php/menu_read.php') || [];
-    
+
     // Count available vs unavailable
     // Ensure we parse the integer from the DB properly
     const available = menu.filter(m => parseInt(m.is_available) === 1).length;
@@ -36,7 +36,7 @@ async function loadStaffDashboard() {
     // Update the HTML stats
     const availEl = document.getElementById('stat-available');
     const unavailEl = document.getElementById('stat-unavailable');
-    
+
     if (availEl) availEl.innerText = available;
     if (unavailEl) unavailEl.innerText = unavailable;
 }
@@ -58,7 +58,7 @@ function renderStaffMenu(items) {
         const isAvail = parseInt(item.is_available) === 1;
         const card = document.createElement('div');
         card.className = 'menu-card-admin';
-        
+
         // Build the card with dynamic colors and buttons based on status
         card.innerHTML = `
             <div class="menu-img">
@@ -95,7 +95,7 @@ async function toggleMenuStatus(itemId, newStatus) {
 
     if (res && res.success) {
         // Reload the menu to instantly show the updated status
-        loadStaffMenu(); 
+        loadStaffMenu();
     } else {
         alert('Error updating item status.');
     }
@@ -113,7 +113,7 @@ async function searchStaffMenu(query) {
 async function loadStaffProfile() {
     const users = await fetchApi('staff-php/user_read.php') || [];
     const staff = users.find(u => parseInt(u.user_id) === staffUserId);
-    
+
     if (staff) {
         const setVal = (id, val) => {
             const el = document.getElementById(id);
@@ -147,18 +147,18 @@ async function loadStaffOrders() {
     orders.forEach(order => {
         const orderId = order.order_id;
         const currentStatus = order.order_status || 'Pending';
-        
+
         // Format date slightly
         const dateObj = new Date(order.order_date);
         const formattedDate = dateObj.toLocaleString();
 
         const card = document.createElement('div');
         card.className = 'order-card-admin';
-        
+
         // Define dropdown colors based on status
         let borderColor = '#ccc';
-        if(currentStatus === 'Preparing') borderColor = '#ff9800';
-        if(currentStatus === 'Completed') borderColor = '#4caf50';
+        if (currentStatus === 'Preparing') borderColor = '#ff9800';
+        if (currentStatus === 'Completed') borderColor = '#4caf50';
 
         card.innerHTML = `
             <div class="order-header">
@@ -206,14 +206,14 @@ async function updateOrderStatus(orderId) {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
-    
+
     if (path.includes('staff_dashboard.html') || path.includes('staff_dashboard.php')) {
         loadStaffDashboard();
     } else if (path.includes('staff_manage_menu.html') || path.includes('staff_manage_menu.php') || path.includes('manage_menu.html')) {
         loadStaffMenu();
     } else if (path.includes('staff_profile.html')) {
         loadStaffProfile();
-    } else if (path.includes('staff_vieworders.html') || path.includes('view_orders.php')) { 
-        loadStaffOrders();                               
+    } else if (path.includes('staff_vieworders.html') || path.includes('view_orders.php')) {
+        loadStaffOrders();
     }
 });

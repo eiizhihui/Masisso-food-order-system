@@ -3,116 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Status - Masisso</title>
+    <title>Order Status & Receipt - Masisso</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        body { background-color: #f5f5f5; font-family: Arial, sans-serif; margin: 0; padding-bottom: 20px; }
-        
-        .header { background: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .back-btn { font-size: 24px; cursor: pointer; color: #333; text-decoration: none; }
-        
-        .status-card { background: white; margin: 15px; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        
-        .mode-pill { background: #00796b; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
-        
-        .eta-time { font-size: 28px; font-weight: bold; margin: 5px 0; color: #333; }
-        .eta-desc { font-size: 15px; color: #666; margin-bottom: 20px; }
-
-        /* Progress Bar Styles */
-        .progress-container { display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 10px; height: 65px; }
-        
-        .progress-line { position: absolute; top: 12px; left: 10px; right: 10px; height: 3px; background: #e0e0e0; z-index: 1; }
-        .progress-line-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: #e65100; transition: width 0.5s ease; }
-
-        .progress-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 40px; }
-        .step-icon { width: 26px; height: 26px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; transition: background 0.3s ease; }
-        .step-icon.active { background: #e65100; }
-        .step-icon.done { background: #e65100; }
-        
-        .step-label { font-size: 11px; text-align: center; color: #888; margin-top: 5px; font-weight: bold; position: absolute; top: 30px; width: 80px; }
-        .step-label.active { color: #e65100; }
-
-        .delay-msg { color: #e65100; font-size: 13px; font-weight: bold; margin-top: 10px; visibility: hidden; min-height: 15px; }
-
-        .driver-card { background: white; margin: 15px; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .driver-avatar { width: 50px; height: 50px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .driver-info { flex: 1; margin-left: 15px; }
-        .driver-name { font-weight: bold; font-size: 16px; margin: 0 0 3px 0; }
-        .driver-rating { font-size: 13px; color: #666; margin: 0; }
-        .contact-btn { border: 1px solid #ccc; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="order-status-page">
 
     <div class="header">
         <a href="home.php" class="back-btn">←</a>
-        <div style="font-weight: bold; font-size: 16px;"></div>
+        <div style="font-weight: bold; font-size: 16px; color: #111;">Order Status</div>
+        <div style="width: 24px;"></div> <!-- balancer spacer -->
     </div>
 
-    <div class="status-card">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <div>
-                <div class="mode-pill" id="mode-pill-text">Saver Delivery</div>
-                <div class="eta-time" id="eta-time">Loading...</div>
-                <div class="eta-desc" id="eta-desc">Sending your order to the restaurant...</div>
+    <!-- 1. Real-time Status Card -->
+    <div style="max-width: 960px; margin: 20px auto 0 auto; padding: 0 15px; box-sizing: border-box;">
+        <div class="card" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div class="mode-pill" id="mode-pill-text">Saver Delivery</div>
+                    <div class="eta-time" id="eta-time">Loading...</div>
+                    <div class="eta-desc" id="eta-desc">Sending your order to the restaurant...</div>
+                </div>
+                <div style="font-size: 50px;">🍲</div>
             </div>
-            <div style="font-size: 50px;">🍲</div>
-        </div>
 
-        <div class="progress-container" style="margin-top: 20px;">
-            <div class="progress-line">
-                <div class="progress-line-fill" id="progress-fill"></div>
+            <div class="progress-container" style="margin-top: 20px;">
+                <div class="progress-line">
+                    <div class="progress-line-fill" id="progress-fill"></div>
+                </div>
+                
+                <div class="progress-step">
+                    <div class="step-icon active" id="icon-1">✓</div>
+                    <div class="step-label active" id="label-1">Order Placed</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-icon" id="icon-2">2</div>
+                    <div class="step-label" id="label-2">In Kitchen</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-icon" id="icon-3">3</div>
+                    <div class="step-label" id="label-3">Out for Delivery</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-icon" id="icon-4">4</div>
+                    <div class="step-label" id="label-4">Delivered</div>
+                </div>
+            </div>
+
+            <div class="delay-msg" id="delay-msg">
+                We're preparing it as fast as we can! →
             </div>
             
-            <div class="progress-step">
-                <div class="step-icon active" id="icon-1">✓</div>
-                <div class="step-label active" id="label-1">Order Placed</div>
+            <div class="driver-card" id="driver-card">
+                <div class="driver-avatar">🛵</div>
+                <div class="driver-info">
+                    <p class="driver-name">Ahmad Fahad</p>
+                    <p class="driver-rating">⭐ 5.0 (Masisso Rider)</p>
+                </div>
+                <div class="contact-btn" onclick="alert('Calling rider at +60 12-345 9876...')">📞</div>
             </div>
-            <div class="progress-step">
-                <div class="step-icon" id="icon-2">2</div>
-                <div class="step-label" id="label-2">In Kitchen</div>
-            </div>
-            <div class="progress-step">
-                <div class="step-icon" id="icon-3">3</div>
-                <div class="step-label" id="label-3">Out for Delivery</div>
-            </div>
-            <div class="progress-step">
-                <div class="step-icon" id="icon-4">4</div>
-                <div class="step-label" id="label-4">Delivered</div>
-            </div>
-        </div>
-
-        <div class="delay-msg" id="delay-msg">
-            We're preparing it as fast as we can! →
         </div>
     </div>
 
-    <div class="driver-card" id="driver-card">
-        <div class="driver-avatar">🛵</div>
-        <div class="driver-info">
-            <p class="driver-name">Ahmad Fahad</p>
-            <p class="driver-rating">⭐ 5.0 (Masisso Rider)</p>
+    <!-- 2. Dual Column Receipt Details -->
+    <div class="receipt-layout">
+        <!-- LEFT COLUMN: Receipt -->
+        <div class="col-left">
+            <div class="card">
+                <div class="receipt-header">
+                    <h3 class="receipt-brand">Masisso</h3>
+                    <span class="receipt-order-id" id="receipt-order-id">Order: #48347</span>
+                </div>
+                
+                <div class="receipt-section-label">Your order</div>
+                
+                <!-- Dynamic Items Container -->
+                <div id="receipt-items-container">
+                    <!-- Loaded via JavaScript -->
+                </div>
+                
+                <hr class="divider" style="margin: 20px 0 15px 0;">
+                
+                <!-- Pricing Breakdown -->
+                <div class="breakdown-row">
+                    <span>Subtotal</span>
+                    <span>RM <span id="r-subtotal">0.00</span></span>
+                </div>
+                <div class="breakdown-row" id="r-discount-row" style="display: none; color: #e65100; font-weight: bold;">
+                    <span>Voucher Discount (<span id="r-voucher-code"></span>)</span>
+                    <span>- RM <span id="r-discount">0.00</span></span>
+                </div>
+                <div class="breakdown-row">
+                    <span>6% Tax</span>
+                    <span>RM <span id="r-tax">0.00</span></span>
+                </div>
+                <div class="breakdown-row" id="r-delivery-row">
+                    <span>Delivery fee</span>
+                    <span>RM <span id="r-delivery">0.00</span></span>
+                </div>
+                <div class="breakdown-row" id="r-service-row">
+                    <span>Service fee</span>
+                    <span>RM <span id="r-service">0.00</span></span>
+                </div>
+                
+                <div class="breakdown-total">
+                    <span>Total</span>
+                    <span>RM <span id="r-total">0.00</span></span>
+                </div>
+                
+                <!-- Dynamic Points Box (Only shows if logged in customer) -->
+                <div class="points-box" id="r-points-box" style="display: none;">
+                    <div class="points-icon">🪙</div>
+                    <div>
+                        <p class="points-text">Masisso Points Added!</p>
+                        <p class="points-text" style="font-weight: 500; font-size: 12px; margin-top: 2px;">
+                            You earned <span id="r-earned-points" style="font-weight: 800; font-size: 14px;">0</span> points from this order.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Paid by -->
+                <div class="payment-badge-container">
+                    <span style="font-size: 13px; color: #666; font-weight: bold;">Paid by</span>
+                    <div class="payment-badge" id="r-payment-badge">
+                        <i class="fas fa-wallet" id="r-payment-icon" style="color: #3b82f6;"></i>
+                        <span id="r-payment-text">Touch 'n Go e-Wallet</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="contact-btn">📞</div>
+        
+        <!-- RIGHT COLUMN: Delivery & Notes -->
+        <div class="col-right">
+            <!-- Delivery Info Card -->
+            <div class="card">
+                <div class="card-title">Delivery Details</div>
+                
+                <p class="details-label">Ordered:</p>
+                <p class="details-value" id="r-time-ordered">Loading...</p>
+                
+                <p class="details-label" id="r-time-label">Estimated Delivery:</p>
+                <p class="details-value" id="r-time-eta">Loading...</p>
+                
+                <p class="details-label" id="r-dest-label">Delivered to:</p>
+                <p class="details-value" id="r-delivery-address">Loading address...</p>
+                
+                <p class="details-label">Delivery notes:</p>
+                <p class="details-value" style="font-style: italic; color: #555;">Please leave the food at the lobby counter. Thank you!</p>
+            </div>
+            
+            <!-- Issue Report Card -->
+            <div class="card" style="background: #fafafa;">
+                <div class="card-title" style="font-size: 16px;">Something not right?</div>
+                <p style="color: #666; font-size: 13px; line-height: 1.5; margin: 0 0 15px 0;">
+                    Let us know if anything was missing or not quite right with your order. We're here to make it right.
+                </p>
+                <button class="report-btn" onclick="alert('Our support agent has been notified. We will contact you shortly!')">Report an issue</button>
+            </div>
+        </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // 1. Determine Mode
-            let mode = localStorage.getItem('masisso_order_mode') || 'Delivery';
-            
+            // 1. Retrieve order details from localStorage
+            let items = JSON.parse(localStorage.getItem('masisso_last_order_items')) || [];
+            let subtotal = parseFloat(localStorage.getItem('masisso_last_order_subtotal')) || 0.00;
+            let discount = parseFloat(localStorage.getItem('masisso_last_order_discount')) || 0.00;
+            let tax = parseFloat(localStorage.getItem('masisso_last_order_tax')) || 0.00;
+            let deliveryFee = parseFloat(localStorage.getItem('masisso_last_order_delivery_fee')) || 0.00;
+            let total = parseFloat(localStorage.getItem('masisso_last_order_total')) || 0.00;
+            let voucher = localStorage.getItem('masisso_last_order_voucher') || '';
+            let mode = localStorage.getItem('masisso_last_order_mode') || 'Delivery';
+            let location = localStorage.getItem('masisso_last_order_location') || 'Self Pick-up Branch';
+            let payment = localStorage.getItem('masisso_last_order_payment') || 'tng';
+            let orderId = localStorage.getItem('masisso_last_order_id') || 'N/A';
+            let points = parseInt(localStorage.getItem('masisso_last_order_points')) || 0;
+            let isLoggedIn = localStorage.getItem('masisso_last_order_is_logged_in') === 'true';
+
             let isDelivery = (mode === 'Delivery');
-            
+
+            // 2. Render Header details
+            document.getElementById('receipt-order-id').innerText = `Order: #${orderId}`;
             document.getElementById('mode-pill-text').innerText = isDelivery ? "Standard Delivery" : "Self Pick-up";
             
             if (!isDelivery) {
                 document.getElementById('mode-pill-text').style.background = "#e65100";
                 document.getElementById('label-3').innerText = "Ready for Pickup";
                 document.getElementById('label-4').innerText = "Picked Up";
-                document.getElementById('driver-card').style.display = 'none'; // No driver for pickup
+                document.getElementById('driver-card').style.display = 'none'; // hide rider
+                document.getElementById('r-delivery-row').style.display = 'none'; // hide delivery fee
+                
+                document.getElementById('r-dest-label').innerText = "Picking up from:";
+                document.getElementById('r-time-label').innerText = "Estimated Pickup Time:";
             }
 
-            // 2. Calculate ETA (Current time + 30 mins)
+            // 3. Render items
+            const itemsContainer = document.getElementById('receipt-items-container');
+            if (items.length > 0) {
+                itemsContainer.innerHTML = '';
+                items.forEach(item => {
+                    let comboText = item.comboPrice > 0 ? `<div class="item-desc">Combo: ${item.comboName} (+RM ${item.comboPrice.toFixed(2)})</div>` : '';
+                    let prefText = item.preferences && item.preferences.length > 0 ? `<div class="item-desc">Prefs: ${item.preferences.join(', ')}</div>` : '';
+                    
+                    itemsContainer.innerHTML += `
+                        <div class="receipt-item">
+                            <span class="item-qty">${item.quantity}</span>
+                            <div class="item-details">
+                                <div class="item-name">${item.name}</div>
+                                ${comboText}
+                                ${prefText}
+                            </div>
+                            <span class="item-price">RM ${item.totalPrice.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                itemsContainer.innerHTML = '<p style="color:#888; font-size:14px; text-align:center;">No recent items found.</p>';
+            }
+
+            // 4. Pricing Breakdown
+            document.getElementById('r-subtotal').innerText = subtotal.toFixed(2);
+            if (discount > 0) {
+                document.getElementById('r-discount-row').style.display = 'flex';
+                document.getElementById('r-voucher-code').innerText = voucher;
+                document.getElementById('r-discount').innerText = discount.toFixed(2);
+            }
+            document.getElementById('r-tax').innerText = tax.toFixed(2);
+            
+            if (isDelivery) {
+                document.getElementById('r-delivery').innerText = deliveryFee.toFixed(2);
+            }
+            document.getElementById('r-service').innerText = "0.00 (Waived)";
+            
+            // Total matches the exact amount from checkout
+            document.getElementById('r-total').innerText = total.toFixed(2);
+
+            // 5. Points Box
+            if (isLoggedIn && points > 0) {
+                document.getElementById('r-points-box').style.display = 'flex';
+                document.getElementById('r-earned-points').innerText = points;
+            }
+
+            // 6. Payment Badge
+            const payText = document.getElementById('r-payment-text');
+            const payIcon = document.getElementById('r-payment-icon');
+            if (payment === 'bank') {
+                payText.innerText = "Online Bank Transfer";
+                payIcon.className = "fas fa-university";
+                payIcon.style.color = "#00796b";
+            } else {
+                payText.innerText = "Touch 'n Go e-Wallet";
+                payIcon.className = "fas fa-wallet";
+                payIcon.style.color = "#3b82f6";
+            }
+
+            // 7. Time details
             let now = new Date();
             let later = new Date(now.getTime() + 30 * 60000);
             
@@ -127,15 +272,21 @@
             }
             
             document.getElementById('eta-time').innerText = formatTime(now) + " - " + formatTime(later);
-
-            // 3. Animation Logic to simulate progress!
-            let step = 1;
             
+            // Date formatting
+            let dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('r-time-ordered').innerText = dateStr + ", " + formatTime(now);
+            document.getElementById('r-time-eta').innerText = dateStr + ", " + formatTime(later);
+            
+            // Address details
+            document.getElementById('r-delivery-address').innerText = location;
+
+            // 8. Progress Simulation
+            let step = 1;
             const fill = document.getElementById('progress-fill');
             const desc = document.getElementById('eta-desc');
             const delayMsg = document.getElementById('delay-msg');
 
-            // Quick simulation: Advances every 4 seconds for demonstration
             let interval = setInterval(() => {
                 step++;
                 
@@ -145,7 +296,7 @@
                     document.getElementById('icon-2').innerText = "✓";
                     document.getElementById('label-2').classList.add('active');
                     desc.innerText = "Your order's in the kitchen.";
-                    delayMsg.style.visibility = "visible"; // Show the Foodpanda style sub-message
+                    delayMsg.style.visibility = "visible";
                 }
                 else if (step === 3) {
                     fill.style.width = "66%";
@@ -166,7 +317,6 @@
                     
                     clearInterval(interval);
                 }
-
             }, 4000); // 4 seconds per step
         });
     </script>

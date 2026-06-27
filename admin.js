@@ -65,7 +65,7 @@ async function loadDashboard() {
     users.forEach(u => usersDict[u.user_id] = u.name);
 
     document.getElementById('total-orders').innerText = orders.filter(o => o.order_status === 'Pending').length;
-    
+
     const numCustomers = users.filter(u => u.role === 'Customer').length;
     const numStaff = users.length - numCustomers;
     document.getElementById('total-users').innerText = users.length;
@@ -212,7 +212,7 @@ function renderUsers(users) {
     const list = document.getElementById('user-list');
     if (!list) return;
     list.innerHTML = '';
-    
+
     let filteredUsers = [];
     if (users && users.length > 0) {
         filteredUsers = users.filter(user => {
@@ -225,11 +225,11 @@ function renderUsers(users) {
         list.innerHTML = `<p>No ${currentTab}s found.</p>`;
         return;
     }
-    
+
     filteredUsers.forEach(user => {
         const isSuperAdmin = user.role === 'super admin';
         const infoHtml = currentTab === 'Customer' ? `🍜 Bowls: ${user.bowls}` : `ID: ${user.user_id}`;
-        
+
         const card = document.createElement('div');
         card.className = 'list-card';
         card.innerHTML = `
@@ -292,7 +292,7 @@ function editUser(user) {
     toggleUserFormFields();
     document.getElementById('edit-phone').value = user.phone || '';
     document.getElementById('edit-password').value = '';
-    
+
     if (user.role === 'Customer') {
         document.getElementById('edit-bowls').value = user.bowls || 0;
         document.getElementById('edit-address').value = user.address || '';
@@ -310,7 +310,7 @@ async function saveUser() {
         role: role,
         phone: document.getElementById('edit-phone').value,
     };
-    
+
     const pw = document.getElementById('edit-password').value;
     if (pw) data.password = pw;
 

@@ -1,3 +1,11 @@
+// Clear stale localStorage values if starting a brand new browser tab session
+if (!sessionStorage.getItem('masisso_session_active')) {
+    localStorage.removeItem('masisso_location_name');
+    localStorage.removeItem('masisso_order_mode');
+    localStorage.removeItem('masisso_active_voucher');
+    sessionStorage.setItem('masisso_session_active', 'true');
+}
+
 // Dynamic Greeting 
 window.onload = function() {
     let greetingElement = document.getElementById("greeting");
@@ -451,6 +459,7 @@ function applyPromo(code) {
 
 // REWARDS PAGE LOGIC
 let currentUserPoints = 0; 
+let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     const rewardsContainer = document.getElementById('rewards-container');
@@ -459,10 +468,26 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(profileData => {
                 if (profileData.success) {
+                    isUserLoggedIn = true;
                     currentUserPoints = parseInt(profileData.profile.points) || 0;
                     let pointsDisplay = document.getElementById('user-points-display');
                     if (pointsDisplay) {
                         pointsDisplay.innerText = currentUserPoints;
+                    }
+                } else {
+                    isUserLoggedIn = false;
+                    currentUserPoints = 0;
+                    let pointsDisplay = document.getElementById('user-points-display');
+                    if (pointsDisplay) {
+                        pointsDisplay.innerText = "0";
+                        let pointsBox = pointsDisplay.closest('div');
+                        if (pointsBox) {
+                            pointsBox.innerHTML = `
+                                <p style="margin: 0; font-size: 16px; font-weight: bold;">Visiting as Guest</p>
+                                <p style="margin: 5px 0 15px 0; font-size: 13px; opacity: 0.9;">Log in to earn and redeem reward points!</p>
+                                <button onclick="window.location.href='login.php'" style="background: white; color: #E65100; border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'">Log In</button>
+                            `;
+                        }
                     }
                 }
                 return fetch('fetch_rewards.php');
@@ -491,6 +516,13 @@ document.addEventListener('DOMContentLoaded', () => {
 }); 
 
 function redeemItem(itemName, pointsCost, itemImage) {
+    if (!isUserLoggedIn) {
+        let confirmLogin = confirm("You must be logged in to redeem rewards. Would you like to log in now?");
+        if (confirmLogin) {
+            window.location.href = 'login.php';
+        }
+        return;
+    }
     if (currentUserPoints >= pointsCost) {
         let confirmRedeem = confirm(`Do you want to spend ${pointsCost} points for a free ${itemName}?`);
         if (confirmRedeem) {
@@ -776,3 +808,84 @@ function saveProfile() {
         saveBtn.innerText = originalText;
     });
 }
+
+// Cookie Consent Banner Initialization
+function initCookieConsent() {
+    if (localStorage.getItem('masisso_cookie_consent')) {
+        return; // Already consented or declined
+    }
+
+    const bannerHtml = `
+        <div class="cookie-header">
+            <svg class="cookie-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Z"/>
+                <path d="M12 12h.01"/>
+                <path d="M15 16h.01"/>
+                <path d="M8 14h.01"/>
+                <path d="M9.5 9.5h.01"/>
+            </svg>
+            <span class="cookie-title">Cookies Consent</span>
+        </div>
+        <p class="cookie-text">
+            This website uses cookies to help you have a superior and more personalized browsing experience. <a href="#" id="cookie-read-more">Read more</a>
+        </p>
+        <div id="cookie-details" class="cookie-details-box" style="display: none;">
+            <strong>Why we need cookies:</strong>
+            <ul>
+                <li><strong>Shopping Cart:</strong> To save your selected food items and custom preferences as you browse.</li>
+                <li><strong>Session & Profile:</strong> To keep you securely logged in to your account.</li>
+                <li><strong>Convenience:</strong> To remember your delivery address and voucher codes.</li>
+            </ul>
+        </div>
+        <div class="cookie-buttons">
+            <button id="cookie-accept-btn" class="cookie-btn cookie-btn-accept">Accept</button>
+            <button id="cookie-decline-btn" class="cookie-btn cookie-btn-decline">Decline</button>
+        </div>
+    `;
+
+    const bannerDiv = document.createElement('div');
+    bannerDiv.id = 'cookie-consent-banner';
+    bannerDiv.innerHTML = bannerHtml;
+    document.body.appendChild(bannerDiv);
+
+    // Slide up with animation after a small delay
+    setTimeout(() => {
+        bannerDiv.classList.add('show');
+    }, 800);
+
+    // Event Listeners
+    const readMoreLink = document.getElementById('cookie-read-more');
+    const detailsBox = document.getElementById('cookie-details');
+    const acceptBtn = document.getElementById('cookie-accept-btn');
+    const declineBtn = document.getElementById('cookie-decline-btn');
+
+    readMoreLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (detailsBox.style.display === 'none') {
+            detailsBox.style.display = 'block';
+            readMoreLink.innerText = 'Show less';
+        } else {
+            detailsBox.style.display = 'none';
+            readMoreLink.innerText = 'Read more';
+        }
+    });
+
+    const hideBanner = () => {
+        bannerDiv.classList.remove('show');
+        setTimeout(() => {
+            bannerDiv.remove();
+        }, 500);
+    };
+
+    acceptBtn.addEventListener('click', () => {
+        localStorage.setItem('masisso_cookie_consent', 'accepted');
+        hideBanner();
+    });
+
+    declineBtn.addEventListener('click', () => {
+        localStorage.setItem('masisso_cookie_consent', 'declined');
+        hideBanner();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initCookieConsent);

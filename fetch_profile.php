@@ -4,8 +4,13 @@ header('Content-Type: application/json');
 
 session_start();
 
-// Retrieve user_id from session with fallback
-$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1111;
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Not logged in.']);
+    $conn->close();
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
 
 $sql = "SELECT name, email, phone, address, points FROM Customer WHERE user_id = ?";
 $stmt = $conn->prepare($sql);

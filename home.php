@@ -1,6 +1,8 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'customer') {
+// Redirect staff and admin to login.php so they don't view the customer home page.
+// Guest/anonymous visitors are allowed to browse home.php.
+if (isset($_SESSION['role']) && strtolower($_SESSION['role']) !== 'customer') {
     header("Location: login.php");
     exit();
 }

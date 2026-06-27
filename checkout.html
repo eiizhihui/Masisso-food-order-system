@@ -1,48 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Masisso</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body style="background-color: #f9f9f9; font-family: Arial, sans-serif; margin: 0;">
 
     <header class="app-header" style="background-color: #e65100; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        <div class="top-brand-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+        <div class="top-brand-row"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <button onclick="window.history.back()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: white; padding: 0;">←</button>
-                <div class="logo" style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;" onclick="window.location.href='home.php'">Masisso</div>
+                <button onclick="window.history.back()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: white; padding: 0;">←</button>
+                <div class="logo"
+                    style="color: white; font-weight: bold; font-size: 24px; font-style: italic; margin: 0; cursor: pointer;"
+                    onclick="window.location.href='home.php'">Masisso</div>
             </div>
         </div>
     </header>
 
     <div style="padding: 15px;">
-        <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div
+            style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 10px; font-size: 16px;">Add a Voucher Code</h3>
             <div style="display: flex; gap: 10px;">
-                <input type="text" id="voucher-input" placeholder="Enter Voucher Code" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                <button onclick="applyVoucher()" style="background-color: #0078d7; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply</button>
+                <input type="text" id="voucher-input" placeholder="Enter Voucher Code"
+                    style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <button onclick="applyVoucher()"
+                    style="background-color: #0078d7; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply</button>
             </div>
-            
+
             <div id="voucher-message" style="margin-top: 10px; font-size: 13px; font-weight: bold;"></div>
-            
-            <div id="saved-voucher-box" style="display: none; border: 1px solid #e65100; border-radius: 5px; padding: 10px; margin-top: 10px; background: #fff3e0; justify-content: space-between; align-items: center;">
+
+            <div id="saved-voucher-box"
+                style="display: none; border: 1px solid #e65100; border-radius: 5px; padding: 10px; margin-top: 10px; background: #fff3e0; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-weight: bold; color: #e65100;">Saved Voucher: <span id="saved-voucher-code"></span></div>
+                    <div style="font-weight: bold; color: #e65100;">Saved Voucher: <span id="saved-voucher-code"></span>
+                    </div>
                     <div style="font-size: 12px; color: #666;">Click apply to use this voucher</div>
                 </div>
-                <button onclick="useSavedVoucher()" style="background: #e65100; color: white; border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply Saved</button>
+                <button onclick="useSavedVoucher()"
+                    style="background: #e65100; color: white; border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">Apply
+                    Saved</button>
             </div>
         </div>
-        <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div
+            style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 10px; font-size: 16px;">Payment Method</h3>
             <div style="display: flex; gap: 10px;">
-                <label style="flex: 1; border: 2px solid var(--primary-orange); padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: #fff3e0;">
-                    <input type="radio" name="payment_method" value="tng" checked style="accent-color: var(--primary-orange);">
+                <label
+                    style="flex: 1; border: 2px solid var(--primary-orange); padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: #fff3e0;">
+                    <input type="radio" name="payment_method" value="tng" checked
+                        style="accent-color: var(--primary-orange);">
                     <span style="font-weight: bold;">TnG e-Wallet</span>
                 </label>
-                <label style="flex: 1; border: 1px solid #ccc; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <label
+                    style="flex: 1; border: 1px solid #ccc; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <input type="radio" name="payment_method" value="bank" style="accent-color: var(--primary-orange);">
                     <span style="font-weight: bold;">Bank</span>
                 </label>
@@ -51,7 +68,7 @@
 
         <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 15px; font-size: 16px;">Order Details</h3>
-            
+
             <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
                 <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px;">
                     <span>Your Selected Items</span>
@@ -65,38 +82,73 @@
                 <span style="font-weight: bold;">Subtotal</span>
                 <span style="font-weight: bold;">RM <span id="chk-subtotal">0.00</span></span>
             </div>
-            
-            <div id="discount-row" style="display: none; justify-content: space-between; color: #e65100; margin-bottom: 8px; font-size: 14px; font-weight: bold;">
+
+            <div id="discount-row"
+                style="display: none; justify-content: space-between; color: #e65100; margin-bottom: 8px; font-size: 14px; font-weight: bold;">
                 <span>Discount (15OFF)</span>
                 <span>- RM <span id="chk-discount">0.00</span></span>
             </div>
 
-            <div style="display: flex; justify-content: space-between; color: #666; margin-bottom: 8px; font-size: 14px;">
+            <div
+                style="display: flex; justify-content: space-between; color: #666; margin-bottom: 8px; font-size: 14px;">
                 <span>6% Tax</span>
                 <span>RM <span id="chk-tax">0.00</span></span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-top: 15px;">
+            <div id="delivery-row"
+                style="display: none; justify-content: space-between; color: #666; margin-bottom: 8px; font-size: 14px;">
+                <span id="delivery-fee-label">Delivery Fee</span>
+                <span>RM <span id="chk-delivery">0.00</span></span>
+            </div>
+            <div
+                style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-top: 15px;">
                 <span>Total</span>
                 <span>RM <span id="chk-total">0.00</span></span>
             </div>
 
-            <button onclick="finishOrder()" style="width: 100%; background-color: #8b0000; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;">
+            <!-- Points Preview Banner -->
+            <div id="chk-points-row" style="display: none; background: #fff3e0; border: 1px dashed #e65100; border-radius: 8px; padding: 12px; margin-top: 15px; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🪙</span>
+                <span style="color: #e65100; font-size: 13px; font-weight: bold; line-height: 1.4; text-align: left;">
+                    You will earn <span id="chk-points-value" style="font-weight: 800; font-size: 15px;">0</span> Masisso Points on this order!
+                </span>
+            </div>
+
+            <button onclick="finishOrder()"
+                style="width: 100%; background-color: #8b0000; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;">
                 <span id="chk-btn-text">0 items | RM 0.00</span> &nbsp;&nbsp; Finish Order
             </button>
         </div>
     </div>
 
     <script>
+        function getDeliveryDistance(address) {
+            if (!address) return 5.0; // default 5 km
+            const addr = address.toLowerCase();
+            if (addr.includes("wong ah fook")) return 2.5;
+            if (addr.includes("skudai")) return 15.0;
+            if (addr.includes("cengal") || addr.includes("melodies")) return 6.8;
+            if (addr.includes("ampang")) return 4.2;
+            return (address.length % 10) + 2.0; 
+        }
+
+        function calculateDeliveryFee(address) {
+            const dist = getDeliveryDistance(address);
+            if (dist <= 2) return 3.00;
+            return 3.00 + (dist - 2) * 1.00;
+        }
+
         async function finishOrder() {
             let cartCount = localStorage.getItem('masisso_cart_count');
             if (!cartCount || parseInt(cartCount) === 0) {
                 alert("Your cart is empty!");
                 return;
             }
-            
+
             let totalVal = document.getElementById('chk-total').innerText;
             let mode = localStorage.getItem('masisso_order_mode') || 'Delivery';
-            
+            let locationName = localStorage.getItem('masisso_location_name') || '';
+            let deliveryFee = (mode === 'Delivery') ? calculateDeliveryFee(locationName) : 0;
+
             try {
                 let response = await fetch('process_order.php', {
                     method: 'POST',
@@ -106,16 +158,38 @@
                     body: new URLSearchParams({
                         'order_total': totalVal,
                         'order_type': mode,
+                        'delivery_fee': deliveryFee,
+                        'items': localStorage.getItem('masisso_cart_items') || '[]',
                         'ajax': 'true'
                     })
                 });
-                
+
                 let data = await response.json();
                 if (data.success) {
+                    // Save last order info for receipt display
+                    localStorage.setItem('masisso_last_order_items', localStorage.getItem('masisso_cart_items') || '[]');
+                    localStorage.setItem('masisso_last_order_subtotal', currentSubtotal.toFixed(2));
+                    localStorage.setItem('masisso_last_order_discount', (parseFloat(document.getElementById('chk-discount')?.innerText) || 0).toFixed(2));
+                    localStorage.setItem('masisso_last_order_tax', (parseFloat(document.getElementById('chk-tax')?.innerText) || 0).toFixed(2));
+                    localStorage.setItem('masisso_last_order_delivery_fee', deliveryFee.toFixed(2));
+                    localStorage.setItem('masisso_last_order_total', (parseFloat(document.getElementById('chk-total')?.innerText) || 0).toFixed(2));
+                    localStorage.setItem('masisso_last_order_count', currentItemCount);
+                    localStorage.setItem('masisso_last_order_voucher', localStorage.getItem('masisso_active_voucher') || '');
+                    localStorage.setItem('masisso_last_order_mode', mode);
+                    localStorage.setItem('masisso_last_order_location', localStorage.getItem('masisso_location_name') || 'Self Pick-up Branch');
+                    
+                    let paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'tng';
+                    localStorage.setItem('masisso_last_order_payment', paymentMethod);
+                    localStorage.setItem('masisso_last_order_id', data.order_id || 'N/A');
+                    localStorage.setItem('masisso_last_order_points', data.earned_points || 0);
+                    localStorage.setItem('masisso_last_order_is_logged_in', data.is_logged_in ? 'true' : 'false');
+
+                    // Clear active cart variables
                     localStorage.removeItem('masisso_cart_items');
                     localStorage.removeItem('masisso_cart_count');
                     localStorage.removeItem('masisso_cart_total');
                     localStorage.removeItem('masisso_active_voucher');
+                    
                     window.location.href = 'order_status.html';
                 } else {
                     alert("Error: " + data.message);
@@ -129,7 +203,21 @@
         let currentItemCount = 0;
         let isVoucherApplied = false;
 
+        let isUserLoggedInCheckout = false;
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Check login status for points preview
+            fetch('fetch_profile.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        isUserLoggedInCheckout = true;
+                        let initialTotal = parseFloat(document.getElementById('chk-total').innerText) || 0;
+                        updateEarnedPointsPreview(initialTotal);
+                    }
+                })
+                .catch(err => console.error("Error checking login status:", err));
+
             let savedTotal = localStorage.getItem('masisso_cart_total');
             let savedCount = localStorage.getItem('masisso_cart_count');
 
@@ -149,7 +237,7 @@
                     let prefText = item.preferences && item.preferences.length > 0 ? `<div style="font-size: 12px; color: #888;">Prefs: ${item.preferences.join(', ')}</div>` : '';
                     let comboText = item.comboPrice > 0 ? `<div style="font-size: 12px; color: #888;">Combo: ${item.comboName}</div>` : '';
                     let imgSource = item.image ? `images/${item.image}` : `images/default.jpg`;
-                    
+
                     itemsContainer.innerHTML += `
                         <div style="display: flex; margin-bottom: 10px; align-items: flex-start;">
                             <img src="${imgSource}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
@@ -171,7 +259,7 @@
             if (activeVoucher) {
                 document.getElementById('voucher-input').value = activeVoucher;
                 applyVoucher(); // Magically do the math on load!
-                
+
                 let savedBox = document.getElementById('saved-voucher-box');
                 if (savedBox) savedBox.style.display = 'none';
             }
@@ -188,9 +276,29 @@
 
         // Function that handles all the math
         function calculateFinalTotal(discountAmount) {
+            let tax = currentSubtotal * 0.06;
             let discountedSubtotal = currentSubtotal - discountAmount;
-            let tax = discountedSubtotal * 0.06; // 6% tax on the new cheaper price
-            let finalTotal = discountedSubtotal + tax;
+            
+            let mode = localStorage.getItem('masisso_order_mode') || 'Delivery';
+            let locationName = localStorage.getItem('masisso_location_name') || '';
+            let deliveryFee = 0;
+            let isDelivery = (mode === 'Delivery');
+
+            const delRow = document.getElementById('delivery-row');
+            const delLabel = document.getElementById('delivery-fee-label');
+            const delValSpan = document.getElementById('chk-delivery');
+
+            if (isDelivery) {
+                const dist = getDeliveryDistance(locationName);
+                deliveryFee = calculateDeliveryFee(locationName);
+                if (delRow) delRow.style.display = 'flex';
+                if (delLabel) delLabel.innerText = `Delivery Fee (${dist.toFixed(1)}km)`;
+                if (delValSpan) delValSpan.innerText = deliveryFee.toFixed(2);
+            } else {
+                if (delRow) delRow.style.display = 'none';
+            }
+
+            let finalTotal = discountedSubtotal + tax + deliveryFee;
 
             document.getElementById('chk-subtotal').innerText = currentSubtotal.toFixed(2);
             document.getElementById('chk-tax').innerText = tax.toFixed(2);
@@ -198,18 +306,27 @@
 
             let itemWord = currentItemCount === 1 ? 'item' : 'items';
             document.getElementById('chk-btn-text').innerText = `${currentItemCount} ${itemWord} | RM ${finalTotal.toFixed(2)}`;
+            
+            updateEarnedPointsPreview(finalTotal);
         }
 
-        // Function that runs when they click the "Apply" button
-        // Function that runs when they click the "Apply" button
+        function updateEarnedPointsPreview(total) {
+            let pointsRow = document.getElementById('chk-points-row');
+            let pointsValue = document.getElementById('chk-points-value');
+            if (isUserLoggedInCheckout && total > 0) {
+                let points = Math.floor(total);
+                if (pointsValue) pointsValue.innerText = points;
+                if (pointsRow) pointsRow.style.display = 'flex';
+            } else {
+                if (pointsRow) pointsRow.style.display = 'none';
+            }
+        }
+
+
+
         async function applyVoucher() {
             let msgBox = document.getElementById('voucher-message');
             msgBox.innerText = "";
-            
-            // We removed the 'isVoucherApplied' block so they can freely swap vouchers!
-            // The math lower down always calculates from 'currentSubtotal', ensuring discounts never stack.
-
-            // Grab whatever they typed
             let typedCode = document.getElementById('voucher-input').value.trim().toUpperCase();
 
             if (typedCode === "") {
@@ -219,14 +336,14 @@
             }
 
             try {
-                // ✨ THE MAGIC: Ask the database if this code is real!
+
                 let response = await fetch(`verify_voucher.php?code=${encodeURIComponent(typedCode)}`);
                 let data = await response.json();
 
                 if (data.success) {
                     let offer = data.offer;
-                    
-                    // ✨ NEW MAGIC: Check if they meet the minimum spend requirement!
+
+                    // Check if they meet the minimum spend requirement!
                     let minSpend = parseFloat(offer.min_spend) || 0;
                     if (currentSubtotal < minSpend) {
                         document.getElementById('voucher-message').innerText = `This voucher requires a minimum spend of RM ${minSpend.toFixed(2)}.`;
@@ -236,7 +353,7 @@
 
                     let discountAmount = 0;
 
-                    // Calculate the discount dynamically based on the database!
+                    // Calculate the discount dynamically based on the database
                     if (offer.discount_type === 'percentage') {
                         // If DB says percentage, calculate it (e.g., 15 / 100 * subtotal)
                         discountAmount = currentSubtotal * (parseFloat(offer.discount_value) / 100);
@@ -262,7 +379,7 @@
 
                     // Run the math again with the new discount!
                     calculateFinalTotal(discountAmount);
-                    
+
                     // Show them the description written in the database!
                     document.getElementById('voucher-message').innerText = "Success! " + offer.description;
                     document.getElementById('voucher-message').style.color = "green";
@@ -291,10 +408,11 @@
                 }
             });
         }
-        
+
         document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
             radio.addEventListener('change', updatePaymentUI);
         });
     </script>
 </body>
+
 </html>
