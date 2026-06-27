@@ -247,12 +247,34 @@ $role = strtolower($_SESSION['role']);
 
             list.innerHTML = '';
 
+            // Calculate daily income totals
+            const dailyIncome = {};
+            orders.forEach(order => {
+                const dObj = new Date(order.order_date);
+                const dKey = dObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                dailyIncome[dKey] = (dailyIncome[dKey] || 0) + (parseFloat(order.total_price) || 0);
+            });
+
+            let lastDate = "";
             orders.forEach(order => {
                 const orderId = order.order_id;
                 const currentStatus = order.order_status || 'Pending';
                 
                 const dateObj = new Date(order.order_date);
                 const formattedDate = dateObj.toLocaleString();
+                const dateKey = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                if (dateKey !== lastDate) {
+                    lastDate = dateKey;
+                    const separator = document.createElement('div');
+                    separator.className = 'order-date-separator';
+                    separator.style.cssText = 'margin: 25px 0 10px 0; padding: 8px 12px; background: #FFF3E0; border-radius: 8px; font-weight: bold; color: #E65100; border-left: 4px solid var(--primary-orange); font-size: 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05);';
+                    separator.innerHTML = `
+                        <span style="display: flex; align-items: center; gap: 8px;"><i class="far fa-calendar-alt"></i> ${dateKey}</span>
+                        <span>Daily Total: RM ${dailyIncome[dateKey].toFixed(2)}</span>
+                    `;
+                    list.appendChild(separator);
+                }
 
                 const card = document.createElement('div');
                 card.className = 'order-card-admin';
