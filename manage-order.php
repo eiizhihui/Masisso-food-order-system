@@ -253,6 +253,32 @@ $role = strtolower($_SESSION['role']);
                     deleteBtnHtml = `<button class="add-btn" style="padding: 8px 15px; margin: 0; background: #f44336;" onclick="deleteOrder(${orderId})"><i class="fas fa-trash"></i> Delete</button>`;
                 }
 
+                let itemsHtml = '';
+                if (order.items) {
+                    try {
+                        const itemsArr = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+                        if (Array.isArray(itemsArr) && itemsArr.length > 0) {
+                            itemsHtml = '<div class="order-items-list" style="margin-top: 10px; border-top: 1px dashed #eee; padding-top: 8px;">';
+                            itemsHtml += '<p style="font-weight: bold; margin-bottom: 5px; color: #333;"><i class="fas fa-utensils"></i> Ordered Items:</p>';
+                            itemsArr.forEach(item => {
+                                const qty = item.quantity || 1;
+                                const comboInfo = item.comboName && item.comboName.indexOf("Just the") === -1 ? `<span style="font-size: 12px; color: #888;"> (${item.comboName})</span>` : '';
+                                
+                                // Format preferences/customizations if any
+                                let prefInfo = '';
+                                if (Array.isArray(item.preferences) && item.preferences.length > 0) {
+                                    prefInfo = `<br><span style="font-size: 11px; color: #a04000; margin-left: 15px;">• ${item.preferences.join(', ')}</span>`;
+                                }
+                                
+                                itemsHtml += `<p style="margin: 3px 0; color: #555; padding-left: 10px;">${qty}x <strong>${item.name}</strong>${comboInfo}${prefInfo}</p>`;
+                            });
+                            itemsHtml += '</div>';
+                        }
+                    } catch (err) {
+                        console.error("Error parsing items for order #" + orderId, err);
+                    }
+                }
+
                 card.innerHTML = `
                     <div class="order-header">
                         <span class="order-id">Order #${orderId}</span>
@@ -262,6 +288,7 @@ $role = strtolower($_SESSION['role']);
                         <p><strong>Customer:</strong> ${order.customer_name || 'Guest'}</p>
                         <p><strong>Type:</strong> ${order.order_type}</p>
                         <p><strong>Total:</strong> RM ${parseFloat(order.total_price).toFixed(2)}</p>
+                        ${itemsHtml}
                     </div>
                     <div class="update-section" style="border-left: 4px solid ${borderColor};">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -297,7 +324,17 @@ $role = strtolower($_SESSION['role']);
                 const dateMatch = (order.order_date || '').toLowerCase().includes(lowerQuery);
                 const totalMatch = String(order.total_price).includes(lowerQuery);
 
-                return orderIdMatch || nameMatch || typeMatch || statusMatch || dateMatch || totalMatch;
+                let itemsMatch = false;
+                if (order.items) {
+                    try {
+                        const itemsArr = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+                        if (Array.isArray(itemsArr)) {
+                            itemsMatch = itemsArr.some(item => (item.name || '').toLowerCase().includes(lowerQuery));
+                        }
+                    } catch (e) {}
+                }
+
+                return orderIdMatch || nameMatch || typeMatch || statusMatch || dateMatch || totalMatch || itemsMatch;
             });
 
             renderOrders(filtered);

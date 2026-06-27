@@ -120,6 +120,7 @@ async function loadStaffProfile() {
             if (el) el.value = val || '';
         };
         setVal('profile-name', staff.name);
+        setVal('profile-username', staff.username);
         setVal('profile-email', staff.email);
         setVal('profile-phone', staff.phone);
         setVal('profile-branch', staff.branch);
