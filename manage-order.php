@@ -228,6 +228,7 @@ $role = strtolower($_SESSION['role']);
             try {
                 const response = await fetch('staff-php/orders_read.php');
                 allOrders = await response.json() || [];
+                allOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
                 filterAndRenderOrders();
             } catch (e) {
                 console.error("Error loading orders:", e);

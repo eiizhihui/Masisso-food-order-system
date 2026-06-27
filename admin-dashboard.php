@@ -152,6 +152,9 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
     </div>
 
     <div class="main-content">
+        <h2 class="slide-in-text" style="color: #333;">Welcome, <?php echo htmlspecialchars($_SESSION['name'] ?? 'Admin'); ?> 👋</h2>
+        <p style="color: #666; margin-bottom: 20px;">Manage users, orders, events, menu items, and rewards.</p>
+
         <div class="nav-search" style="margin-bottom: 20px;">
             <input type="text" id="search-input" placeholder="Global search across all databases..."
                 oninput="globalSearch(this.value)" style="width:100%; padding: 10px;">

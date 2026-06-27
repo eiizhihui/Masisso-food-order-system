@@ -74,7 +74,9 @@ async function loadDashboard() {
     }
 
     // Render Recent Orders (newest 3)
-    const recentOrders = [...orders].slice(0, 3);
+    const recentOrders = [...orders]
+        .sort((a, b) => new Date(b.order_date) - new Date(a.order_date))
+        .slice(0, 3);
     const ordersList = document.getElementById('recent-orders');
     if (ordersList) {
         ordersList.innerHTML = '';
