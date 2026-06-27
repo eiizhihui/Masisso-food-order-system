@@ -122,8 +122,9 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `user_id`, `order_type`, `total_price`, `delivery_fee`, `items`, `order_status`, `order_date`) VALUES
-(1, 1111, 'Delivery', 20.99, 5.20, '[{\"name\":\"Masisso Signature Laksa\",\"image\":\"laksa.jpg\",\"basePrice\":14.9,\"comboName\":\"A La Carte (Just the Masisso Signature Laksa)\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":14.9}]', 'Pending', '2026-06-25 14:32:47');
-
+(1, 1111, 'Delivery', 20.99, 5.20, '[{\"name\":\"Masisso Signature Laksa\",\"image\":\"laksa.jpg\",\"basePrice\":14.9,\"comboName\":\"A La Carte (Just the Masisso Signature Laksa)\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":14.9}]', 'Pending', '2026-06-25 14:32:47'),
+(2, 1111, 'Dine-In', 19.40, 0.00, '[{"name":"Laksa + Teh C Beng Special","image":"combo_A.jpg","basePrice":19.4,"comboName":"Combo","comboPrice":0,"preferences":[],"quantity":1,"totalPrice":19.4}]', 'Completed', '2026-06-24 12:30:00'),
+(3, 1111, 'Takeaway', 17.90, 0.00, '[{"name":"Laksa + Fruit Rojak","image":"combo_B.jpg","basePrice":17.9,"comboName":"Combo","comboPrice":0,"preferences":[],"quantity":1,"totalPrice":17.9}]', 'Completed', '2026-06-26 18:45:00');
 -- --------------------------------------------------------
 
 --
@@ -219,7 +220,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `staff`

@@ -166,7 +166,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array(strto
             <div class="stats-container">
                 <div class="stat-box">
                     <h2 id="total-orders">0</h2>
-                    <p>Pending Orders</p>
+                    <p>Total Orders</p>
                 </div>
                 <div class="stat-box">
                     <h2 id="total-users">0</h2>
