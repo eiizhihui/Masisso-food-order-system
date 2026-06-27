@@ -74,7 +74,7 @@ async function loadDashboard() {
     }
 
     // Render Recent Orders (newest 3)
-    const recentOrders = [...orders].reverse().slice(0, 3);
+    const recentOrders = [...orders].slice(0, 3);
     const ordersList = document.getElementById('recent-orders');
     if (ordersList) {
         ordersList.innerHTML = '';

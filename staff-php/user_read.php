@@ -15,9 +15,10 @@ if ($role === 'admin' || $role === 'super admin') {
         SELECT user_id, name, username, email, phone, address, points as bowls, 'Customer' as role, NULL as gender, NULL as branch FROM customer
         UNION ALL
         SELECT staff_id as user_id, name, username, email, phone, NULL as address, 0 as bowls, position as role, gender, branch FROM staff
+        ORDER BY user_id DESC
     ";
 } else if ($role === 'staff') {
-    $query = "SELECT staff_id as user_id, name, username, email, phone, gender, branch, position as role FROM staff";
+    $query = "SELECT staff_id as user_id, name, username, email, phone, gender, branch, position as role FROM staff ORDER BY staff_id DESC";
 } else {
     echo json_encode(["success" => false, "error" => "Access denied."]);
     exit;
