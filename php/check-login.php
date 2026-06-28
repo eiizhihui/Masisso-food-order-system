@@ -36,6 +36,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $result = mysqli_query($conn, $sql);
             if ($result && mysqli_num_rows($result) === 1) {
                 $row = mysqli_fetch_assoc($result);
+                $row['role'] = 'Customer';
                 if ($row['password'] === $plain_password) {
                     $user_found = true;
                 }
@@ -69,6 +70,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
                 $result = mysqli_query($conn, $sql);
                 if ($result && mysqli_num_rows($result) === 1) {
                     $row = mysqli_fetch_assoc($result);
+                    $row['role'] = 'Customer';
                     if ($row['password'] === $plain_password) {
                         $user_found = true;
                     }
