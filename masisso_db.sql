@@ -35,7 +35,6 @@ CREATE TABLE `customer` (
   `address` text DEFAULT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` varchar(20) DEFAULT 'Customer',
   `points` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -43,8 +42,8 @@ CREATE TABLE `customer` (
 -- Dumping data for table `customer`
 --
 
-INSERT INTO `customer` (`user_id`, `name`, `username`, `phone`, `address`, `email`, `password`, `role`, `points`) VALUES
-(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', '1223334444', 'Customer', 1192);
+INSERT INTO `customer` (`user_id`, `name`, `username`, `phone`, `address`, `email`, `password`, `points`) VALUES
+(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', '1223334444', 1192);
 
 -- --------------------------------------------------------
 
