@@ -545,8 +545,29 @@ function redeemItem(itemName, pointsCost, itemImage) {
             cartItemsArray.push(cartItem);
             localStorage.setItem('masisso_cart_items', JSON.stringify(cartItemsArray));
             
-            let cartCount = parseInt(localStorage.getItem('masisso_cart_count')) || 0;
-            localStorage.setItem('masisso_cart_count', cartCount + 1);
+            let currentCartCount = parseInt(localStorage.getItem('masisso_cart_count')) || 0;
+            let newCartCount = currentCartCount + 1;
+            localStorage.setItem('masisso_cart_count', newCartCount);
+            
+            // Sync global variable in script.js
+            cartCount = newCartCount;
+            let currentCartTotal = parseFloat(localStorage.getItem('masisso_cart_total')) || 0;
+            cartTotal = currentCartTotal;
+
+            // Dynamically update the floating checkout button on the page
+            let floatingCart = document.getElementById('floating-cart');
+            if (floatingCart) {
+                floatingCart.classList.remove('hidden');
+                let cartTextDiv = document.querySelector('.cart-text div:nth-child(2)');
+                if (cartTextDiv) {
+                    cartTextDiv.innerText = newCartCount + (newCartCount === 1 ? ' item' : ' items') + ' • RM ' + currentCartTotal.toFixed(2);
+                }
+                let cartImg = document.getElementById('floating-cart-img');
+                let imgFile = itemImage || "default.jpg";
+                if (cartImg) {
+                    cartImg.src = 'images/' + imgFile;
+                }
+            }
 
             alert(`Success! Your free ${itemName} has been added to your cart. You have ${currentUserPoints} points remaining.`);
         }

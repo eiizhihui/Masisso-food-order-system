@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Masisso</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body style="background-color: #f9f9f9; font-family: Arial, sans-serif; margin: 0;">
@@ -204,8 +205,17 @@
         let isVoucherApplied = false;
 
         let isUserLoggedInCheckout = false;
+        window.masissoMenu = [];
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Fetch menu database for customization details
+            fetch('fetch_menu.php')
+                .then(res => res.json())
+                .then(data => {
+                    window.masissoMenu = data;
+                })
+                .catch(err => console.error("Error loading menu:", err));
+
             // Check login status for points preview
             fetch('fetch_profile.php')
                 .then(res => res.json())
@@ -228,31 +238,7 @@
             }
 
             // Load and display individual items
-            let itemsContainer = document.getElementById('checkout-items-container');
-            let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
-
-            if (cartItems.length > 0) {
-                itemsContainer.innerHTML = ''; // Clear loading text
-                cartItems.forEach(item => {
-                    let prefText = item.preferences && item.preferences.length > 0 ? `<div style="font-size: 12px; color: #888;">Prefs: ${item.preferences.join(', ')}</div>` : '';
-                    let comboText = item.comboPrice > 0 ? `<div style="font-size: 12px; color: #888;">Combo: ${item.comboName}</div>` : '';
-                    let imgSource = item.image ? `images/${item.image}` : `images/default.jpg`;
-
-                    itemsContainer.innerHTML += `
-                        <div style="display: flex; margin-bottom: 10px; align-items: flex-start;">
-                            <img src="${imgSource}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
-                            <div style="flex: 1;">
-                                <div style="font-weight: bold; font-size: 14px;">${item.name} <span style="color:#e65100;">x${item.quantity}</span></div>
-                                ${comboText}
-                                ${prefText}
-                            </div>
-                            <div style="font-weight: bold; font-size: 14px;">RM ${item.totalPrice.toFixed(2)}</div>
-                        </div>
-                    `;
-                });
-            } else {
-                itemsContainer.innerHTML = '<div style="color: #666; font-size: 13px; margin-top: 5px;">Your cart is empty.</div>';
-            }
+            renderCartItems();
 
             // Automatically apply any saved voucher
             let activeVoucher = localStorage.getItem('masisso_active_voucher');
@@ -264,6 +250,82 @@
                 if (savedBox) savedBox.style.display = 'none';
             }
         });
+
+        // Dynamic rendering of cart items
+        function renderCartItems() {
+            let itemsContainer = document.getElementById('checkout-items-container');
+            let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+
+            if (cartItems.length > 0) {
+                itemsContainer.innerHTML = ''; // Clear loading text
+                cartItems.forEach((item, index) => {
+                    let prefText = item.preferences && item.preferences.length > 0 ? `<div style="font-size: 12px; color: #888;">Prefs: ${item.preferences.join(', ')}</div>` : '';
+                    let comboText = item.comboPrice > 0 ? `<div style="font-size: 12px; color: #888;">Combo: ${item.comboName}</div>` : '';
+                    let imgSource = item.image ? `images/${item.image}` : `images/default.jpg`;
+
+                    itemsContainer.innerHTML += `
+                        <div style="display: flex; margin-bottom: 12px; align-items: center; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
+                            <img src="${imgSource}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; font-size: 14px;">${item.name} <span style="color:#e65100;">x${item.quantity}</span></div>
+                                ${comboText}
+                                ${prefText}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="font-weight: bold; font-size: 14px; margin-right: 5px;">RM ${item.totalPrice.toFixed(2)}</div>
+                                <button class="edit-btn" onclick="openEditCustomization(${index})" style="background: none; border: none; cursor: pointer; font-size: 18px; color: #2196F3; padding: 5px; display: flex; align-items: center; justify-content: center;" title="Edit item"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="removeItemFromCart(${index})" style="background: none; border: none; cursor: pointer; font-size: 18px; color: #f44336; padding: 5px; display: flex; align-items: center; justify-content: center;" title="Remove item"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                itemsContainer.innerHTML = '<div style="color: #666; font-size: 13px; margin-top: 5px;">Your cart is empty.</div>';
+            }
+        }
+
+        // Remove item from cart
+        function removeItemFromCart(index) {
+            let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+            if (index >= 0 && index < cartItems.length) {
+                cartItems.splice(index, 1);
+                localStorage.setItem('masisso_cart_items', JSON.stringify(cartItems));
+                
+                recalculateCart();
+                renderCartItems();
+            }
+        }
+
+        // Recalculate cart properties and totals
+        function recalculateCart() {
+            let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+            let subtotal = 0;
+            let count = 0;
+            cartItems.forEach(item => {
+                subtotal += item.totalPrice;
+                count += item.quantity;
+            });
+            currentSubtotal = subtotal;
+            currentItemCount = count;
+            
+            localStorage.setItem('masisso_cart_count', count);
+            localStorage.setItem('masisso_cart_total', subtotal.toFixed(2));
+            
+            if (count === 0) {
+                localStorage.removeItem('masisso_active_voucher');
+                isVoucherApplied = false;
+                document.getElementById('discount-row').style.display = 'none';
+                document.getElementById('voucher-message').innerText = '';
+                document.getElementById('voucher-input').value = '';
+            }
+
+            let activeVoucher = localStorage.getItem('masisso_active_voucher');
+            if (activeVoucher) {
+                applyVoucher();
+            } else {
+                calculateFinalTotal(0);
+            }
+        }
 
         function useSavedVoucher() {
             let code = localStorage.getItem('masisso_active_voucher');
@@ -346,8 +408,12 @@
                     // Check if they meet the minimum spend requirement!
                     let minSpend = parseFloat(offer.min_spend) || 0;
                     if (currentSubtotal < minSpend) {
-                        document.getElementById('voucher-message').innerText = `This voucher requires a minimum spend of RM ${minSpend.toFixed(2)}.`;
+                        document.getElementById('voucher-message').innerText = `Voucher removed: requires a minimum spend of RM ${minSpend.toFixed(2)}.`;
                         document.getElementById('voucher-message').style.color = "red";
+                        localStorage.removeItem('masisso_active_voucher');
+                        isVoucherApplied = false;
+                        document.getElementById('discount-row').style.display = 'none';
+                        calculateFinalTotal(0);
                         return;
                     }
 
@@ -412,7 +478,275 @@
         document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
             radio.addEventListener('change', updatePaymentUI);
         });
+
+        // --- EDITING AND MODAL POPULATION FUNCTIONS ---
+        let currentItem = "";
+        let currentPrice = 0.00;
+        let currentQuantity = 1;
+        let currentItemImage = "";
+        let editingCartIndex = -1;
+
+        function openEditCustomization(cartIndex) {
+            let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+            let item = cartItems[cartIndex];
+            if (!item) return;
+
+            let menuItem = window.masissoMenu.find(m => m.name === item.name);
+            if (!menuItem) {
+                if (item.name.startsWith("Free ")) {
+                    alert("Reward items cannot be customized.");
+                    return;
+                }
+                return;
+            }
+
+            editingCartIndex = cartIndex;
+            currentItem = menuItem.name;
+            currentPrice = parseFloat(menuItem.price);
+            currentItemImage = menuItem.image_url || 'default.jpg';
+            currentQuantity = item.quantity;
+
+            let comboSection = document.getElementById('combo-section');
+            let comboDivider = document.getElementById('combo-divider');
+            let preferencesSection = document.getElementById('preferences-section');
+            let dynamicPreferencesList = document.getElementById('dynamic-preferences-list');
+            let itemName = menuItem.name;
+            let itemCategory = menuItem.category ? menuItem.category : 'Other';
+
+            if (comboSection && comboDivider) {
+                if (itemCategory === 'Combo' || itemName.toLowerCase().includes('combo') || itemName.includes('+')) {
+                    comboSection.style.display = 'none';
+                    comboDivider.style.display = 'none';
+                    let aLaCarteRadio = document.querySelector('input[name="combo"][value="0"]');
+                    if(aLaCarteRadio) aLaCarteRadio.checked = true;
+                } else {
+                    comboSection.style.display = 'block';
+                    comboDivider.style.display = 'block';
+                    document.getElementById('combo-name-1').innerText = `A La Carte (Just the ${itemName})`;
+                    document.getElementById('combo-price-1').innerText = `+ RM 0.00`;
+                    document.getElementById('combo-radio-1').value = 0;
+
+                    if (itemName.toLowerCase().includes('laksa')) {
+                        document.getElementById('combo-name-2').innerText = `Add Teh C Beng Special (三色奶茶)`;
+                        document.getElementById('combo-price-2').innerText = `+ RM 4.50`;
+                        document.getElementById('combo-radio-2').value = 4.50;
+                        document.getElementById('combo-name-3').innerText = `Add Fruit Rojak`;
+                        document.getElementById('combo-price-3').innerText = `+ RM 3.00`;
+                        document.getElementById('combo-radio-3').value = 3.00;
+                    } else if (itemName.toLowerCase().includes('rojak')) {
+                        document.getElementById('combo-name-2').innerText = `Add Laksa`;
+                        document.getElementById('combo-price-2').innerText = `+ RM 14.90`;
+                        document.getElementById('combo-radio-2').value = 14.90;
+                        document.getElementById('combo-name-3').innerText = `Add Teh C Beng Special`;
+                        document.getElementById('combo-price-3').innerText = `+ RM 4.50`;
+                        document.getElementById('combo-radio-3').value = 4.50;
+                    } else if (itemCategory.toLowerCase().includes('drink') || itemName.toLowerCase().includes('teh') || itemName.toLowerCase().includes('kopi')) {
+                        document.getElementById('combo-name-2').innerText = `Add Laksa`;
+                        document.getElementById('combo-price-2').innerText = `+ RM 14.90`;
+                        document.getElementById('combo-radio-2').value = 14.90;
+                        document.getElementById('combo-name-3').innerText = `Add Fruit Rojak`;
+                        document.getElementById('combo-price-3').innerText = `+ RM 6.90`;
+                        document.getElementById('combo-radio-3').value = 6.90;
+                    } else {
+                        document.getElementById('combo-name-2').innerText = `Add Teh C Beng Special`;
+                        document.getElementById('combo-price-2').innerText = `+ RM 4.50`;
+                        document.getElementById('combo-radio-2').value = 4.50;
+                        document.getElementById('combo-name-3').innerText = `Add Fruit Rojak`;
+                        document.getElementById('combo-price-3').innerText = `+ RM 6.90`;
+                        document.getElementById('combo-radio-3').value = 6.90;
+                    }
+                }
+            }
+
+            if (preferencesSection && dynamicPreferencesList) {
+                dynamicPreferencesList.innerHTML = '';
+                let prefObj = null;
+                try {
+                    if (menuItem.preferences) {
+                        prefObj = JSON.parse(menuItem.preferences);
+                    }
+                } catch(e) {
+                    console.error("Error parsing preferences", e);
+                }
+
+                if (prefObj && Object.keys(prefObj).length > 0) {
+                    preferencesSection.style.display = 'block';
+                    for (const category in prefObj) {
+                        dynamicPreferencesList.innerHTML += `<h4 style="margin: 15px 0 5px; color: #e65100; font-size: 14px; border-bottom: 1px solid #ffe0b2; padding-bottom: 3px;">${category}</h4>`;
+                        prefObj[category].forEach(pref => {
+                            let checkedAttr = item.preferences.includes(pref) ? "checked" : "";
+                            dynamicPreferencesList.innerHTML += `
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" value="${pref}" ${checkedAttr}> ${pref}
+                                </label>
+                            `;
+                        });
+                    }
+                } else {
+                    preferencesSection.style.display = 'none';
+                }
+            }
+
+            let foundCombo = false;
+            let radios = document.querySelectorAll('input[name="combo"]');
+            radios.forEach(radio => {
+                if (parseFloat(radio.value) === item.comboPrice) {
+                    radio.checked = true;
+                    foundCombo = true;
+                }
+            });
+            if (!foundCombo && radios.length > 0) {
+                radios[0].checked = true;
+            }
+
+            document.getElementById("modal-item-name").innerText = itemName;
+            document.getElementById("modal-base-price").innerText = currentPrice.toFixed(2);
+            let modalImage = document.querySelector('.product-hero img');
+            if (modalImage) {
+                modalImage.src = 'images/' + currentItemImage;
+            }
+            document.getElementById("display-quantity").innerText = currentQuantity;
+            
+            document.getElementById("modal-action-btn").innerHTML = `Update Order • RM <span id="display-total">${item.totalPrice.toFixed(2)}</span>`;
+            document.getElementById("customize-modal").style.display = "block";
+            calculateModalPrice();
+        }
+
+        function closeModal() {
+            document.getElementById("customize-modal").style.display = "none";
+        }
+
+        function updateQuantity(change) {
+            currentQuantity += change;
+            if (currentQuantity < 1) {
+                currentQuantity = 1;
+            }
+            document.getElementById('display-quantity').innerText = currentQuantity;
+            let checkedRadio = document.querySelector('input[name="combo"]:checked');
+            let comboPrice = checkedRadio ? parseFloat(checkedRadio.value) : 0;
+            let finalTotal = (currentPrice + comboPrice) * currentQuantity;
+            document.getElementById('display-total').innerText = finalTotal.toFixed(2);
+        }
+
+        function calculateModalPrice() {
+            updateQuantity(0);
+        }
+
+        function saveEditedItem() {
+            if (editingCartIndex === -1) return;
+
+            let comboElement = document.querySelector('input[name="combo"]:checked');
+            let comboPrice = comboElement ? parseFloat(comboElement.value) : 0;
+            
+            let comboName = "";
+            if (comboElement && comboElement.nextElementSibling) {
+                let nameSpan = comboElement.nextElementSibling.querySelector('.option-name');
+                if (nameSpan) comboName = nameSpan.innerText;
+            }
+            
+            let finalPrice = (currentPrice + comboPrice) * currentQuantity;
+            
+            let preferences = [];
+            let checkedBoxes = document.querySelectorAll('#dynamic-preferences-list input[type="checkbox"]:checked');
+            checkedBoxes.forEach(box => {
+                preferences.push(box.value);
+            });
+
+            let cartItemsArray = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+            if (editingCartIndex >= 0 && editingCartIndex < cartItemsArray.length) {
+                cartItemsArray[editingCartIndex] = {
+                    name: currentItem,
+                    image: currentItemImage,
+                    basePrice: currentPrice,
+                    comboName: comboName,
+                    comboPrice: comboPrice,
+                    preferences: preferences,
+                    quantity: currentQuantity,
+                    totalPrice: finalPrice
+                };
+                localStorage.setItem('masisso_cart_items', JSON.stringify(cartItemsArray));
+                
+                recalculateCart();
+                renderCartItems();
+            }
+            closeModal();
+        }
     </script>
+
+    <!-- ===== CUSTOMIZATION MODAL ===== -->
+    <div id="customize-modal" class="modal" style="z-index: 9999;">
+        <span class="close-btn" onclick="closeModal()" style="position: absolute; top: 15px; right: 20px; font-size: 35px; color: white; z-index: 1002; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">&times;</span>
+
+        <div class="product-page-container" style="display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; background: white; position: relative; width: 90%; max-width: 500px; margin: 5vh auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            
+            <div style="overflow-y: auto; flex-grow: 1; padding-bottom: 10px;">
+                <div class="product-hero">
+                    <img src="images/laksa.jpg" alt="Masisso Signature Laksa" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <div class="product-details">
+                    <div class="badge-row">
+                        <span class="badge-promo">Limited Time Offer</span>
+                        <span class="badge-popular">⭐ Best Seller</span>
+                    </div>
+                    
+                    <h1 class="product-title" id="modal-item-name">Massiso Signature Laksa</h1>
+                    <p class="product-desc">Authentic thin rice vermicelli topped with shredded chicken breast, fresh shrimp, and golden omelette strips in our rich, spicy broth.</p>
+                    <div class="product-price">Base Price: RM <span id="modal-base-price">14.90</span></div>
+
+                    <hr class="divider" id="combo-divider">
+
+                    <div class="custom-options customization-section" id="combo-section">
+                        <h3>Choose Your Combo</h3>
+                        <p class="section-subtitle">Select one option</p>
+                        
+                        <label class="custom-radio-card">
+                            <input type="radio" name="combo" id="combo-radio-1" value="0" checked onchange="calculateModalPrice()">
+                            <div class="card-content">
+                                <span class="option-name" id="combo-name-1">A La Carte (Just the Laksa)</span>
+                                <span class="option-price" id="combo-price-1">+ RM 0.00</span>
+                            </div>
+                        </label>
+
+                        <label class="custom-radio-card">
+                            <input type="radio" name="combo" id="combo-radio-2" value="4.50" onchange="calculateModalPrice()">
+                            <div class="card-content">
+                                <span class="option-name" id="combo-name-2">Laksa + Teh C Beng Special (三色奶茶)</span>
+                                <span class="option-price" id="combo-price-2">+ RM 4.50</span>
+                            </div>
+                        </label>
+
+                        <label class="custom-radio-card">
+                            <input type="radio" name="combo" id="combo-radio-3" value="3.00" onchange="calculateModalPrice()">
+                            <div class="card-content">
+                                <span class="option-name" id="combo-name-3">Laksa + Fruit Rojak</span>
+                                <span class="option-price" id="combo-price-3">+ RM 3.00</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="custom-options customization-section" id="preferences-section">
+                        <h3 class="margin-top">Preferences</h3>
+                        <div id="dynamic-preferences-list">
+                            <!-- Checkboxes will be automatically generated here! -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sticky-action-bar" style="background: white; padding: 15px 15px 30px 15px; display: flex; gap: 15px; border-top: 1px solid #eee; align-items: center; flex-shrink: 0;">
+                <div class="quantity-pill" style="display: flex; align-items: center; justify-content: space-between; background-color: #f4f4f4; border-radius: 25px; padding: 0 10px; width: 110px; height: 50px;">
+                    <button class="qty-control-btn" onclick="updateQuantity(-1)" style="background: none; border: none; font-size: 24px; color: #777; cursor: pointer; padding: 0 10px;">−</button>
+                    <span id="display-quantity" class="qty-number" style="font-weight: bold; font-size: 18px; color: #000;">1</span>
+                    <button class="qty-control-btn" onclick="updateQuantity(1)" style="background: none; border: none; font-size: 24px; color: #000; cursor: pointer; padding: 0 10px;">+</button>
+                </div>
+                
+                <button class="add-order-btn" id="modal-action-btn" onclick="saveEditedItem()" style="flex: 1; background-color: #e65100; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; height: 50px; transition: opacity 0.2s;">
+                    Update Order • RM <span id="display-total">0.00</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
