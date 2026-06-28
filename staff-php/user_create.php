@@ -19,7 +19,8 @@ $role = mysqli_real_escape_string($conn, $data['role']);
 $name = mysqli_real_escape_string($conn, $data['name']);
 $email = mysqli_real_escape_string($conn, $data['email']);
 $phone = isset($data['phone']) ? mysqli_real_escape_string($conn, $data['phone']) : '';
-$password = isset($data['password']) ? mysqli_real_escape_string($conn, $data['password']) : '123456';
+$plain_password = isset($data['password']) ? $data['password'] : '123456';
+$password = md5($plain_password);
 
 if ($role === 'Customer') {
     $bowls = isset($data['bowls']) ? (int) $data['bowls'] : 0;

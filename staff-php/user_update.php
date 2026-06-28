@@ -37,7 +37,7 @@ if ($role === 'Customer') {
         $sql .= "points='" . (int)$data['bowls'] . "', ";
     }
     if (isset($data['password']) && !empty($data['password'])) {
-        $sql .= "password='" . mysqli_real_escape_string($conn, $data['password']) . "', ";
+        $sql .= "password='" . md5($data['password']) . "', ";
     }
     
     $sql = rtrim($sql, ", ") . " WHERE user_id='$id'";
@@ -63,7 +63,7 @@ if ($role === 'Customer') {
         $sql .= "position='" . mysqli_real_escape_string($conn, $data['role']) . "', ";
     }
     if (isset($data['password']) && !empty($data['password'])) {
-        $sql .= "password='" . mysqli_real_escape_string($conn, $data['password']) . "', ";
+        $sql .= "password='" . md5($data['password']) . "', ";
     }
     
     $sql = rtrim($sql, ", ") . " WHERE staff_id='$id'";

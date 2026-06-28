@@ -43,7 +43,7 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`user_id`, `name`, `username`, `phone`, `address`, `email`, `password`, `points`) VALUES
-(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', '1223334444', 1192);
+(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', MD5('1223334444'), 1192);
 
 -- --------------------------------------------------------
 
@@ -169,15 +169,15 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`staff_id`, `name`, `username`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
-(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', '1234567890', 'Masisso JB City Square', 'super admin'),
-(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'adminPass123', 'Masisso Mount Austin', 'admin'),
-(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', 'adminPass456', 'Masisso Paradigm Mall', 'admin'),
-(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', 'staffPass1', 'Masisso JB City Square', 'staff'),
-(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', 'staffPass2', 'Masisso JB City Square', 'staff'),
-(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', 'staffPass3', 'Masisso Mount Austin', 'staff'),
-(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', 'staffPass4', 'Masisso Mount Austin', 'staff'),
-(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', 'staffPass5', 'Masisso Paradigm Mall', 'staff'),
-(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', 'staffPass6', 'Masisso Paradigm Mall', 'staff');
+(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', MD5('1234567890'), 'Masisso JB City Square', 'super admin'),
+(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', MD5('adminPass123'), 'Masisso Mount Austin', 'admin'),
+(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', MD5('adminPass456'), 'Masisso Paradigm Mall', 'admin'),
+(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', MD5('staffPass1'), 'Masisso JB City Square', 'staff'),
+(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', MD5('staffPass2'), 'Masisso JB City Square', 'staff'),
+(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', MD5('staffPass3'), 'Masisso Mount Austin', 'staff'),
+(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', MD5('staffPass4'), 'Masisso Mount Austin', 'staff'),
+(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', MD5('staffPass5'), 'Masisso Paradigm Mall', 'staff'),
+(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', MD5('staffPass6'), 'Masisso Paradigm Mall', 'staff');
 
 --
 -- Indexes for dumped tables
