@@ -35,9 +35,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($conn->query($sql) === TRUE) {
         $order_id = $conn->insert_id;
         
-        // Add points if logged in
-        if ($is_logged_in && $earned_points > 0) {
-            $update_sql = "UPDATE customer SET points = points + $earned_points WHERE user_id = $customer_id";
+        // Deduct points for redeemed rewards
+        $points_spent = 0;
+        $items_arr = json_decode($items, true);
+        if (is_array($items_arr)) {
+            foreach ($items_arr as $item) {
+                if (isset($item['pointsCost'])) {
+                    $points_spent += intval($item['pointsCost']) * intval($item['quantity']);
+                }
+            }
+        }
+
+        // Add earned points and deduct spent points if logged in
+        if ($is_logged_in) {
+            $net_points_change = $earned_points - $points_spent;
+            $update_sql = "UPDATE customer SET points = points + ($net_points_change) WHERE user_id = $customer_id";
             $conn->query($update_sql);
         }
 

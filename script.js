@@ -469,7 +469,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(profileData => {
                 if (profileData.success) {
                     isUserLoggedIn = true;
-                    currentUserPoints = parseInt(profileData.profile.points) || 0;
+                    let basePoints = parseInt(profileData.profile.points) || 0;
+                    
+                    // Deduct points for rewards currently in the cart
+                    let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+                    let pointsSpentInCart = 0;
+                    cartItems.forEach(item => {
+                        if (item.pointsCost) {
+                            pointsSpentInCart += item.pointsCost * item.quantity;
+                        }
+                    });
+                    
+                    currentUserPoints = basePoints - pointsSpentInCart;
                     let pointsDisplay = document.getElementById('user-points-display');
                     if (pointsDisplay) {
                         pointsDisplay.innerText = currentUserPoints;
@@ -538,7 +549,8 @@ function redeemItem(itemName, pointsCost, itemImage) {
                 comboPrice: 0.00,
                 preferences: [],
                 quantity: 1,
-                totalPrice: 0.00
+                totalPrice: 0.00,
+                pointsCost: pointsCost
             };
 
             let cartItemsArray = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];

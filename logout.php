@@ -9,6 +9,7 @@ session_destroy();
     <title>Logging out...</title>
     <script>
         localStorage.clear();
+        alert("You have successfully logged out.");
         window.location.href = "login.php";
     </script>
 </head>
