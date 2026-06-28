@@ -86,8 +86,8 @@ if (isset($_POST['name']) && isset($_POST['username']) && isset($_POST['email'])
             exit();
         } else {
             // 5. Insert all fields into the database including the username, phone, address and starting points (0)
-            $stmt_insert = $conn->prepare("INSERT INTO customer (name, username, email, password, role, phone, address, points) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-            $stmt_insert->bind_param("sssssss", $name, $username, $email, $hashed_password, $role, $phone, $address);
+            $stmt_insert = $conn->prepare("INSERT INTO customer (name, username, email, password, phone, address, points) VALUES (?, ?, ?, ?, ?, ?, 0)");
+            $stmt_insert->bind_param("ssssss", $name, $username, $email, $hashed_password, $phone, $address);
             
             if ($stmt_insert->execute()) {
                 header("Location: ../login.php?success=Account created successfully! Please log in.");
