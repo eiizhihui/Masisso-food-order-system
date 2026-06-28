@@ -910,3 +910,39 @@ function initCookieConsent() {
 }
 
 document.addEventListener('DOMContentLoaded', initCookieConsent);
+
+// Reorder functionality
+function reorderSameItems(items) {
+    if (!items || !Array.isArray(items) || items.length === 0) return;
+
+    let cartItems = JSON.parse(localStorage.getItem('masisso_cart_items')) || [];
+    let countToAdd = 0;
+    let priceToAdd = 0;
+
+    items.forEach(item => {
+        let cartItem = {
+            name: item.name,
+            image: item.image || "default.jpg",
+            basePrice: parseFloat(item.basePrice) || 0,
+            comboName: item.comboName || "",
+            comboPrice: parseFloat(item.comboPrice) || 0,
+            preferences: item.preferences || [],
+            quantity: parseInt(item.quantity) || 1,
+            totalPrice: parseFloat(item.totalPrice) || 0
+        };
+        cartItems.push(cartItem);
+        countToAdd += cartItem.quantity;
+        priceToAdd += cartItem.totalPrice;
+    });
+
+    localStorage.setItem('masisso_cart_items', JSON.stringify(cartItems));
+
+    let currentCount = parseInt(localStorage.getItem('masisso_cart_count')) || 0;
+    let currentTotal = parseFloat(localStorage.getItem('masisso_cart_total')) || 0;
+
+    localStorage.setItem('masisso_cart_count', currentCount + countToAdd);
+    localStorage.setItem('masisso_cart_total', (currentTotal + priceToAdd).toFixed(2));
+
+    alert("Items from this order have been added to your cart!");
+    window.location.href = 'checkout.html';
+}

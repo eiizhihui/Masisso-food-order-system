@@ -175,6 +175,9 @@ if ($is_logged_in) {
                                 <?php if (!empty($order['items_summary'])): ?>
                                     <span class="order-items-tooltip"><?php echo htmlspecialchars($order['items_summary']); ?></span>
                                 <?php endif; ?>
+                                <button onclick="reorderSameItems(<?php echo htmlspecialchars(json_encode($items_arr), ENT_QUOTES, 'UTF-8'); ?>)" class="reorder-btn" style="margin-top: 10px; background: transparent; border: 1.5px solid var(--primary-orange); color: var(--primary-orange); padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-orange)'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='var(--primary-orange)';">
+                                    <i class="fas fa-redo"></i> Reorder
+                                </button>
                             </div>
                             <div class="order-price">
                                 RM <?php echo number_format($order['total_price'], 2); ?>
@@ -221,6 +224,6 @@ if ($is_logged_in) {
             <span>Profile</span>
         </a>
     </nav>
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=13"></script>
 </body>
 </html>
