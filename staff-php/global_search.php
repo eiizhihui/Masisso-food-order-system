@@ -58,5 +58,15 @@ if ($res) {
     }
 }
 
+// Search orders
+$order_query = "SELECT *, 'order' as type FROM orders WHERE order_id LIKE '%$q%' OR order_type LIKE '%$q%' OR order_status LIKE '%$q%' OR items LIKE '%$q%' LIMIT 5";
+$res = mysqli_query($conn, $order_query);
+if ($res) {
+    while ($row = mysqli_fetch_assoc($res)) {
+        $row['type'] = 'order';
+        $results[] = $row;
+    }
+}
+
 echo json_encode($results);
 ?>
