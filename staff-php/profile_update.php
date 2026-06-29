@@ -1,6 +1,13 @@
 <?php
 require_once("../config.php");
 
+session_start();
+if (!isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['staff', 'admin', 'super admin'])) {
+    echo json_encode(["success" => false, "error" => "Access denied."]);
+    exit;
+}
+$session_role = strtolower($_SESSION['role']);
+
 $data = getPostData();
 
 if (!$data || !isset($data['user_id'])) {
@@ -9,6 +16,11 @@ if (!$data || !isset($data['user_id'])) {
 }
 
 $id = mysqli_real_escape_string($conn, $data['user_id']);
+
+if ($session_role === 'staff' && (int)$id !== (int)$_SESSION['user_id']) {
+    echo json_encode(["success" => false, "error" => "Access denied. Cannot update another user's profile."]);
+    exit;
+}
 
 if ((int)$id >= 2000) {
     // Staff/Admin table

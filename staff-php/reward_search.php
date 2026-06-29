@@ -1,6 +1,12 @@
 <?php
 require_once("../config.php");
 
+session_start();
+if (!isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ['staff', 'admin', 'super admin'])) {
+    echo json_encode(["success" => false, "error" => "Access denied."]);
+    exit;
+}
+
 $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 
 $sql = "SELECT id as reward_id, reward_name as title, points_required as bowls_required, image_url FROM rewards WHERE reward_name LIKE '%$q%'";

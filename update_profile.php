@@ -4,12 +4,17 @@ header('Content-Type: application/json');
 
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Access denied.']);
+    exit();
+}
+
 // Get JSON POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
 if ($data) {
-    // Read user_id from session with fallback
-    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1111;
+    // Read user_id from session
+    $user_id = $_SESSION['user_id'];
     
     // Protect against SQL injection
     $name = $conn->real_escape_string($data['name']);

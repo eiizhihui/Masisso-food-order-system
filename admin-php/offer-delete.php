@@ -1,5 +1,11 @@
 <?php
 require_once("../config.php");
+
+session_start();
+if (!isset($_SESSION['role']) || !in_array(strtolower($_SESSION['role']), ["admin", "super admin"])) {
+    echo json_encode(["success" => false, "error" => "Access denied."]);
+    exit;
+}
 $data = getPostData();
 if(!$data || !isset($data['offer_id'])) { echo json_encode(["success"=>false]); exit; }
 $id = mysqli_real_escape_string($conn, $data['offer_id']);
