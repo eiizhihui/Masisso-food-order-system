@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 25, 2026 at 05:58 PM
+-- Generation Time: Jun 29, 2026 at 06:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,8 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`user_id`, `name`, `username`, `phone`, `address`, `email`, `password`, `points`) VALUES
-(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', MD5('1223334444'), 1192);
+(1111, 'Joey', 'joeyzihui', '+60 12-345 6789', '123 Jalan Ampang, Kuala Lumpur', 'joeybaobei@gmail.com', 'Masiss@1234', 1192),
+(1112, 'SheLingBB', 'SLBaobei', '+60 1145678910', '17 Jalan Kulai', 'lingling@hotmail.com', 'Masisso@88', 0);
 
 -- --------------------------------------------------------
 
@@ -121,10 +122,11 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `user_id`, `order_type`, `total_price`, `delivery_fee`, `items`, `order_status`, `order_date`) VALUES
-(1, 1111, 'Dine-In', 19.40, 0.00, '[{"name":"Laksa + Teh C Beng Special","image":"combo_A.jpg","basePrice":19.4,"comboName":"Combo","comboPrice":0,"preferences":[],"quantity":1,"totalPrice":19.4}]', 'Completed', '2026-06-19 04:30:00'),
-(2, 1111, 'Takeaway', 17.90, 0.00, '[{"name":"Laksa + Fruit Rojak","image":"combo_B.jpg","basePrice":17.9,"comboName":"Combo","comboPrice":0,"preferences":[],"quantity":1,"totalPrice":17.9}]', 'Completed', '2026-06-19 12:45:00'),
-(3, 1111, 'Dine-In', 19.40, 0.00, '[{"name":"Laksa + Teh C Beng Special","image":"combo_A.jpg","basePrice":19.4,"comboName":"Combo","comboPrice":0,"preferences":[],"quantity":1,"totalPrice":19.4}]', 'Completed', '2026-06-23 12:30:00'),
+(1, 1111, 'Dine-In', 19.40, 0.00, '[{\"name\":\"Laksa + Teh C Beng Special\",\"image\":\"combo_A.jpg\",\"basePrice\":19.4,\"comboName\":\"Combo\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":19.4}]', 'Completed', '2026-06-19 04:30:00'),
+(2, 1111, 'Takeaway', 17.90, 0.00, '[{\"name\":\"Laksa + Fruit Rojak\",\"image\":\"combo_B.jpg\",\"basePrice\":17.9,\"comboName\":\"Combo\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":17.9}]', 'Completed', '2026-06-19 12:45:00'),
+(3, 1111, 'Dine-In', 19.40, 0.00, '[{\"name\":\"Laksa + Teh C Beng Special\",\"image\":\"combo_A.jpg\",\"basePrice\":19.4,\"comboName\":\"Combo\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":19.4}]', 'Completed', '2026-06-23 12:30:00'),
 (4, 1111, 'Delivery', 20.99, 5.20, '[{\"name\":\"Masisso Signature Laksa\",\"image\":\"laksa.jpg\",\"basePrice\":14.9,\"comboName\":\"A La Carte (Just the Masisso Signature Laksa)\",\"comboPrice\":0,\"preferences\":[],\"quantity\":1,\"totalPrice\":14.9}]', 'Pending', '2026-06-25 14:32:47');
+
 -- --------------------------------------------------------
 
 --
@@ -169,15 +171,15 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`staff_id`, `name`, `username`, `gender`, `phone`, `email`, `password`, `branch`, `position`) VALUES
-(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', MD5('1234567890'), 'Masisso JB City Square', 'super admin'),
-(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', MD5('adminPass123'), 'Masisso Mount Austin', 'admin'),
-(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', MD5('adminPass456'), 'Masisso Paradigm Mall', 'admin'),
-(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', MD5('staffPass1'), 'Masisso JB City Square', 'staff'),
-(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', MD5('staffPass2'), 'Masisso JB City Square', 'staff'),
-(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', MD5('staffPass3'), 'Masisso Mount Austin', 'staff'),
-(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', MD5('staffPass4'), 'Masisso Mount Austin', 'staff'),
-(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', MD5('staffPass5'), 'Masisso Paradigm Mall', 'staff'),
-(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', MD5('staffPass6'), 'Masisso Paradigm Mall', 'staff');
+(2000, 'Shan', 'shan', 'Female', '+60 12-345 6789', 'shanliang@gmail.com', 'e807f1fcf82d132f9bb018ca6738a19f', 'Masisso JB City Square', 'super admin'),
+(2001, 'Choong', 'choong', 'Female', '+60 11-222 3333', 'zhi_hui@masisso.com', 'f8a0ed0f7b37847ebb300f69e99814a6', 'Masisso Mount Austin', 'admin'),
+(2002, 'Ling', 'ling', 'Female', '+60 11-444 5555', 'yeo_ling@masisso.com', '9a2fc51b9e8a603dcac8e5c7c9ce3973', 'Masisso Paradigm Mall', 'admin'),
+(2003, 'Jin Xuan', 'jinxuan', 'Female', '+60 16-777 8888', 'jinxuan@masisso.com', '7a0f0f9348ddc6179af30b0e9e71e52a', 'Masisso JB City Square', 'staff'),
+(2004, 'Alvin Tan', 'alvintan', 'Male', '+60 17-123 4567', 'alvin@masisso.com', '8e500ec73431ab8b2cfa87519874aca0', 'Masisso JB City Square', 'staff'),
+(2005, 'Siti Aminah', 'sitiaminah', 'Female', '+60 19-876 5432', 'siti@masisso.com', '7321d8272e7d81c7d43e2f37db11d674', 'Masisso Mount Austin', 'staff'),
+(2006, 'Kumar Rao', 'kumarrao', 'Male', '+60 13-987 6543', 'kumar@masisso.com', '07ac7a970f8ef85a6f9f1bb4b553bd92', 'Masisso Mount Austin', 'staff'),
+(2007, 'Chloe Wong', 'chloewong', 'Female', '+60 18-345 6789', 'chloe@masisso.com', '04ca45250d69f626fd9877815ab9da59', 'Masisso Paradigm Mall', 'staff'),
+(2008, 'Muhammad Faiz', 'muhammadfaiz', 'Male', '+60 14-567 8901', 'faiz@masisso.com', '361a342cc8cdb6edf01183f2ae68f016', 'Masisso Paradigm Mall', 'staff');
 
 --
 -- Indexes for dumped tables
@@ -214,13 +216,13 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1112;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1113;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `staff`
